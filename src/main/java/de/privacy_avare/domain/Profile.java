@@ -15,7 +15,7 @@ public class Profile {
 	private String id;
 	private Calendar lastProfileChange;
 	private Calendar lastProfileContact;
-	private Object profileData; // Platzhalter für tatsächliche Datenrepresentation
+	private ProfilePreferences profilePreferences; // Platzhalter für tatsächliche Datenrepresentation
 
 	/**
 	 * Erzeugt ein neues Profile-Objekt, in welchem die Instanzvariablen mit default-Werten besetzt.
@@ -24,7 +24,7 @@ public class Profile {
 		id = null;
 		lastProfileChange = null;
 		lastProfileContact = null;
-		profileData = null;
+		profilePreferences = null;
 	}
 	
 	/**
@@ -34,11 +34,11 @@ public class Profile {
 	 * @param lastProfileContact Der zu setzende Kontaktzeitpunkt.
 	 * @param profileData Die zu setzenden Profileinstellungen.
 	 */
-	@public Profile(String id, Calendar lastProfileChange, Calendar lastProfileContact, Object profileData){
+	public Profile(String id, Calendar lastProfileChange, Calendar lastProfileContact, ProfilePreferences profileData){
 		this.id = id;
 		this.lastProfileChange = lastProfileChange;
 		this.lastProfileContact = lastProfileContact;
-		this.profileData = profileData;
+		this.profilePreferences = profileData;
 	}
 	
 	/**
@@ -105,8 +105,8 @@ public class Profile {
 	 * 
 	 * @return Die Profileinstellungen
 	 */
-	public Object getProfileData() {
-		return profileData;
+	public ProfilePreferences getProfileData() {
+		return profilePreferences;
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class Profile {
 	 * @param profileData
 	 *            Die zu setzenden Profileinstellungen.
 	 */
-	public void setProfileData(Object profileData) {
-		this.profileData = profileData;
+	public void setProfileData(ProfilePreferences profileData) {
+		this.profilePreferences = profileData;
 	}
 }

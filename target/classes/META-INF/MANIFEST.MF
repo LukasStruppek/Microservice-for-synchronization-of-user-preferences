@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
-Implementation-Title: Spring Boot Blank Project (from https://github.c
- om/making/spring-boot-blank)
+Implementation-Title: syncServer
 Implementation-Version: 0.0.1-SNAPSHOT
 Built-By: Admin
 Implementation-Vendor-Id: de.privacy-avare.synchServer
 Build-Jdk: 1.8.0_144
+Implementation-URL: http://projects.spring.io/spring-boot/syncServer/
 Created-By: Maven Integration for Eclipse
 Implementation-Vendor: Pivotal Software, Inc.
 Main-Class: de.privacy_avare.SyncServer.SyncServer.App

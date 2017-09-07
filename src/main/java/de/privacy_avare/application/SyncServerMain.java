@@ -1,3 +1,10 @@
+/**
+ * Singleton, welches die Spring Boot Application startet.
+ * 
+ * @author Lukas Struppek
+ * @version 1.0
+ */
+
 package de.privacy_avare.application;
 
 import org.springframework.boot.SpringApplication;
