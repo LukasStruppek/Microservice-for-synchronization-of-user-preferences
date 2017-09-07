@@ -19,6 +19,12 @@ import de.privacy_avare.domain.ProfilePreferences;
 @RequestMapping("/v1/")
 public class ProfileController {
 
+	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.POST)
+	public ResponseEntity<?> createProfile(String profileId, Profile profil){
+		
+		return null;
+	}
+
 	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteProfile(String ProfileId, ProfilePreferences profilePreferences) {
 		// Prüfen, ob ID vorhanden ist
@@ -29,12 +35,6 @@ public class ProfileController {
 		return null;
 	}
 	
-	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.POST)
-	public ResponseEntity<?> createProfile(String profileId, Profile profil){
-		
-		return null;
-	}
-
 	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateProfile(String profileId, ProfilePreferences profilePreferences) {
 		return null;
