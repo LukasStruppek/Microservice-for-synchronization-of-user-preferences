@@ -8,9 +8,11 @@
 package de.privacy_avare;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
+@EnableAutoConfiguration
 public class SyncServerMain {
     public static void main(String[] args) {
         SpringApplication.run(SyncServerMain.class, args);

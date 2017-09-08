@@ -19,13 +19,13 @@ import de.privacy_avare.id.IdGenerator;
 public class ProfileController {
 
 	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.POST)
-	public ResponseEntity<?> createProfile(String profileId, Profile profil){
-		
+	public ResponseEntity<?> createProfile(String profileId, Profile profil) {
+
 		return null;
 	}
-	
+
 	@RequestMapping(value = "/profiles/newProfile", method = RequestMethod.GET)
-	public ResponseEntity<?> createProfile(){
+	public ResponseEntity<?> createProfile() {
 		return null;
 	}
 
@@ -38,27 +38,26 @@ public class ProfileController {
 
 		return null;
 	}
-	
+
 	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateProfile(String profileId, Preferences preferences) {
 		return null;
 	}
-	
+
 	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.GET)
-	public ResponseEntity<?> getProfile(String profileId){
+	public ResponseEntity<?> getProfile(String profileId) {
 		return null;
 	}
-	
+
 	@RequestMapping(value = "/newProfile", method = RequestMethod.GET)
-	public ResponseEntity<?> getNewProfileId(){
+	public ResponseEntity<?> getNewProfileId() {
 		return null;
 	}
-	
+
 	@RequestMapping(value = "/createId", method = RequestMethod.GET)
 	public String generateId() {
-		for(int i = 0; i < 200; ++i)
-			IdGenerator.generateID();
-		return "Hallo";
+		String userId = IdGenerator.generateID();
+		return userId;
 	}
 
 }
