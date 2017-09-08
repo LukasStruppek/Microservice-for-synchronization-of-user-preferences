@@ -15,6 +15,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableAutoConfiguration
 public class SyncServerMain {
     public static void main(String[] args) {
-        SpringApplication.run(SyncServerMain.class, args);
+        SpringApplication app = new SpringApplication(SyncServerMain.class);
+        //Platzhalter für zusätzliche Konfigurationen
+        app.run(args);
     }
 }
