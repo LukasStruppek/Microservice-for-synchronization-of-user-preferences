@@ -9,6 +9,6 @@
 
 package de.privacy_avare.domain;
 
-public class ProfilePreferences {
-
+public class Preferences {
+	//Platzhalter
 }

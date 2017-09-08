@@ -15,32 +15,39 @@ public class Profile {
 	private String id;
 	private Calendar lastProfileChange;
 	private Calendar lastProfileContact;
-	private ProfilePreferences profilePreferences; // Platzhalter für tatsächliche Datenrepresentation
+	private Preferences preferences; // Platzhalter für tatsächliche Datenrepresentation
 
 	/**
-	 * Erzeugt ein neues Profile-Objekt, in welchem die Instanzvariablen mit default-Werten besetzt.
+	 * Erzeugt ein neues Profile-Objekt, in welchem die Instanzvariablen mit
+	 * default-Werten besetzt.
 	 */
 	public Profile() {
 		id = null;
 		lastProfileChange = null;
 		lastProfileContact = null;
-		profilePreferences = null;
+		preferences = null;
 	}
-	
+
 	/**
-	 * Erzeugt ein neues Profile-Objekt und setzt die Instanzvariablen entsprechend den übergebenen Parametern.
-	 * @param id Die zu setzende ProfileId
-	 * @param lastProfileChange Der zu setzende Änderungszeitpunkt.
-	 * @param lastProfileContact Der zu setzende Kontaktzeitpunkt.
-	 * @param profileData Die zu setzenden Profileinstellungen.
+	 * Erzeugt ein neues Profile-Objekt und setzt die Instanzvariablen entsprechend
+	 * den übergebenen Parametern.
+	 * 
+	 * @param id
+	 *            Die zu setzende ProfileId
+	 * @param lastProfileChange
+	 *            Der zu setzende Änderungszeitpunkt.
+	 * @param lastProfileContact
+	 *            Der zu setzende Kontaktzeitpunkt.
+	 * @param profileData
+	 *            Die zu setzenden Profileinstellungen.
 	 */
-	public Profile(String id, Calendar lastProfileChange, Calendar lastProfileContact, ProfilePreferences profileData){
+	public Profile(String id, Calendar lastProfileChange, Calendar lastProfileContact, Preferences profileData) {
 		this.id = id;
 		this.lastProfileChange = lastProfileChange;
 		this.lastProfileContact = lastProfileContact;
-		this.profilePreferences = profileData;
+		this.preferences = profileData;
 	}
-	
+
 	/**
 	 * Ruft die ProfileID, die im Data Transfer Object gespeichert ist, ab. @ return
 	 * Die ProfileID.
@@ -105,8 +112,8 @@ public class Profile {
 	 * 
 	 * @return Die Profileinstellungen
 	 */
-	public ProfilePreferences getProfileData() {
-		return profilePreferences;
+	public Preferences getProfileData() {
+		return preferences;
 	}
 
 	/**
@@ -115,7 +122,7 @@ public class Profile {
 	 * @param profileData
 	 *            Die zu setzenden Profileinstellungen.
 	 */
-	public void setProfileData(ProfilePreferences profileData) {
-		this.profilePreferences = profileData;
+	public void setProfileData(Preferences profileData) {
+		this.preferences = profileData;
 	}
 }

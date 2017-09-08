@@ -5,7 +5,7 @@
  * @version 1.0
  */
 
-package de.privacy_avare.application;
+package de.privacy_avare;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
