@@ -18,6 +18,7 @@ import de.privacy_avare.domain.Profile;
 import de.privacy_avare.id.IdGenerator;
 
 @RestController("profileControllerV1")
+@RequestMapping(value = "/profiles")
 public class ProfileController {
 
 	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.POST)
@@ -41,12 +42,12 @@ public class ProfileController {
 		return null;
 	}
 
-	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/{profileId}", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateProfile(String profileId, Preferences preferences) {
 		return null;
 	}
 
-	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{profileId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getProfile(String profileId) {
 		return null;
 	}

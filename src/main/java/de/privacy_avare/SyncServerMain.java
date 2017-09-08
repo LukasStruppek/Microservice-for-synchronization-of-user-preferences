@@ -8,15 +8,17 @@
 package de.privacy_avare;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableAutoConfiguration
+@EnableScheduling
 public class SyncServerMain {
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(SyncServerMain.class);
-        //Platzhalter für zusätzliche Konfigurationen
+        /*
+         * Platzhalter für zusätzliche Konfigurationen
+         */
         app.run(args);
     }
 }
