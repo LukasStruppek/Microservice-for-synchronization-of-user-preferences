@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.privacy_avare.dao.ProfileDao;
 import de.privacy_avare.service.IdGeneratorService;
 
 /**
@@ -20,6 +21,9 @@ import de.privacy_avare.service.IdGeneratorService;
 public class NewProfileController {
 	@Autowired
 	private IdGeneratorService idGeneratorService;
+	
+	@Autowired
+	private ProfileDao profileDao;
 
 	/**
 	 * Erzeugung eines neuen Profils inkl. Generierung einer neuen UserID.

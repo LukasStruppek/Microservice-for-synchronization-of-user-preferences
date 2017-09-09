@@ -1,6 +1,5 @@
 package de.privacy_avare.config;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
