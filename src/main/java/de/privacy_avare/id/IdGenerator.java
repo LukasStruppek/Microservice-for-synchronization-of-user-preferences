@@ -1,16 +1,16 @@
 package de.privacy_avare.id;
 
-/**
- * @author Lukas Struppek
- * @version 1.0
- * 
- * Klasse stellt statische Methode zur Generierung einer 14-stelligen, eindeutigen UserID bereit.
- * Erzeugung von Instanzen der Klasse ist nicht möglich.
- */
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
+
+/** 
+ * Klasse stellt statische Methode zur Generierung einer 14-stelligen, eindeutigen UserID bereit.
+ * Erzeugung von Instanzen der Klasse ist nicht möglich.
+ * 
+ * @author Lukas Struppek
+ * @version 1.0
+ */
 
 public class IdGenerator {
 

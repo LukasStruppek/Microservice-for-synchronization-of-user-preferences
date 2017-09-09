@@ -1,14 +1,14 @@
-/**
- * @author Lukas Struppek
- * @version 1.0
- * 
- * Klasse enthält zeitgesteuerte Aufgaben.
- */
-
 package de.privacy_avare.scheduler;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+/** 
+ * Klasse enthält zeitgesteuerte Aufgaben.
+ * 
+ * @author Lukas Struppek
+ * @version 1.0
+ */
 
 @Component
 public class ScheduledTasks {

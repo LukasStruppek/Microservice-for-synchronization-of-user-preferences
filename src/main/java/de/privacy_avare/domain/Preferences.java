@@ -1,13 +1,12 @@
-/**
- * @author Lukas Struppek
- * @version 1.0
- * 
+package de.privacy_avare.domain;
+
+/** 
  * Representiert die Nutzereinstellungen
  * <<<Struktur TBD>>>
+ * 
+ * @author Lukas Struppek
+ * @version 1.0
  */
-
-
-package de.privacy_avare.domain;
 
 public class Preferences {
 	//Platzhalter

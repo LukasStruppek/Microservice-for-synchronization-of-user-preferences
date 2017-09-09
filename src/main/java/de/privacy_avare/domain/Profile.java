@@ -1,15 +1,15 @@
-/**
- * @author Lukas Struppek
- * @version 1.0
- * 
- * Die Klasse representiert die Userdaten.
- * Diese beinhalten die Eigenschaften ProfileId, lastProfileChange,
- * lastProfileContact und profileData.
- */
-
 package de.privacy_avare.domain;
 
 import java.util.Calendar;
+
+/**
+ * Die Klasse representiert die Userdaten.
+ * Diese beinhalten die Eigenschaften ProfileId, lastProfileChange,
+ * lastProfileContact und profileData.
+ * 
+ * @author Lukas Struppek
+ * @version 1.0
+ */
 
 public class Profile {
 	private String id;
@@ -19,7 +19,7 @@ public class Profile {
 
 	/**
 	 * Erzeugt ein neues Profile-Objekt, in welchem die Instanzvariablen mit
-	 * default-Werten besetzt.
+	 * default-Werten besetzt sind.
 	 */
 	public Profile() {
 		id = null;

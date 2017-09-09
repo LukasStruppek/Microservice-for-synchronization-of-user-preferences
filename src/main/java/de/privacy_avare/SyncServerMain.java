@@ -1,15 +1,15 @@
-/**
- * Singleton, welches die Spring Boot Application startet.
- * 
- * @author Lukas Struppek
- * @version 1.0
- */
-
 package de.privacy_avare;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+/**
+ * Einstiegspunkt für das Programm.
+ * 
+ * @author Lukas Struppek
+ * @version 1.0
+ */
 
 @SpringBootApplication
 @EnableScheduling

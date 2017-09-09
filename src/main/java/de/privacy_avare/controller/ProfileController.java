@@ -1,9 +1,3 @@
-/**
- * @author Lukas Struppek
- * @version 1.0
- * 
- */
-
 package de.privacy_avare.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 import de.privacy_avare.domain.Preferences;
 import de.privacy_avare.domain.Profile;
 import de.privacy_avare.id.IdGenerator;
+
+/**
+ * @author Lukas Struppek
+ * @version 1.0
+ */
 
 @RestController("profileControllerV1")
 @RequestMapping(value = "/profiles")
@@ -65,7 +64,7 @@ public class ProfileController {
 	
 	@RequestMapping(value = "/test", method = RequestMethod.GET)
 	public String test()
-	{
+	{ 
 		return null;
 	}
 	
