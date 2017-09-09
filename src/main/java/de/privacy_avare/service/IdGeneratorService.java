@@ -1,8 +1,10 @@
-package de.privacy_avare.id;
+package de.privacy_avare.service;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
+
+import org.springframework.stereotype.Service;
 
 /** 
  * Klasse stellt statische Methode zur Generierung einer 14-stelligen, eindeutigen UserID bereit.
@@ -12,13 +14,8 @@ import java.util.Random;
  * @version 1.0
  */
 
-public class IdGenerator {
-
-	/**
-	 * Privater Konstruktor, verhindert Erzeugung einer Instanz der Klasse
-	 */
-	private IdGenerator() {
-	};
+@Service
+public class IdGeneratorService {
 
 	/**
 	 * Erzeugt unter Verwendung des aktuellen Datum, der aktuellen Uhrzeit und
@@ -26,7 +23,7 @@ public class IdGenerator {
 	 * 
 	 * @return generierte UserID
 	 */
-	public static String generateID() {
+	public String generateID() {
 		Random random = new Random();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());

@@ -1,35 +1,20 @@
 package de.privacy_avare.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.privacy_avare.domain.Preferences;
-import de.privacy_avare.domain.Profile;
-import de.privacy_avare.id.IdGenerator;
 
 /**
  * @author Lukas Struppek
  * @version 1.0
  */
 
-@RestController("profileControllerV1")
-@RequestMapping(value = "/profiles")
-public class ProfileController {
-
-	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.POST)
-	public ResponseEntity<?> createProfile(String profileId, Profile profil) {
-
-		return null;
-	}
-
-	@RequestMapping(value = "/profiles/newProfile", method = RequestMethod.GET)
-	public ResponseEntity<?> createProfile() {
-		return null;
-	}
+@RestController("existingProfileControllerV1")
+@RequestMapping(value = "/v1/profiles")
+public class ExistingProfileController {
 
 	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteProfile(String ProfileId, Preferences preferences) {
@@ -56,18 +41,9 @@ public class ProfileController {
 		return null;
 	}
 
-	@RequestMapping(value = "/createId", method = RequestMethod.GET)
-	public String generateId() {
-		String userId = IdGenerator.generateID();
-		return userId;
-	}
-	
 	@RequestMapping(value = "/test", method = RequestMethod.GET)
-	public String test()
-	{ 
+	public String test() {
 		return null;
 	}
-	
-
 
 }

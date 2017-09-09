@@ -12,7 +12,7 @@ import java.util.Calendar;
  */
 
 public class Profile {
-	private String id;
+	private String profileId;
 	private Calendar lastProfileChange;
 	private Calendar lastProfileContact;
 	private Preferences preferences; // Platzhalter für tatsächliche Datenrepresentation
@@ -22,7 +22,7 @@ public class Profile {
 	 * default-Werten besetzt sind.
 	 */
 	public Profile() {
-		id = null;
+		profileId = null;
 		lastProfileChange = null;
 		lastProfileContact = null;
 		preferences = null;
@@ -42,7 +42,7 @@ public class Profile {
 	 *            Die zu setzenden Profileinstellungen.
 	 */
 	public Profile(String id, Calendar lastProfileChange, Calendar lastProfileContact, Preferences profileData) {
-		this.id = id;
+		this.profileId = id;
 		this.lastProfileChange = lastProfileChange;
 		this.lastProfileContact = lastProfileContact;
 		this.preferences = profileData;
@@ -52,8 +52,8 @@ public class Profile {
 	 * Ruft die ProfileID, die im Data Transfer Object gespeichert ist, ab. @ return
 	 * Die ProfileID.
 	 */
-	public String getId() {
-		return id;
+	public String getProfileId() {
+		return profileId;
 	}
 
 	/**
@@ -62,8 +62,8 @@ public class Profile {
 	 * @param id
 	 *            Die zu setzende ProfileID.
 	 */
-	public void setId(String id) {
-		this.id = id;
+	public void setProfileId(String profileId) {
+		this.profileId = profileId;
 	}
 
 	/**
