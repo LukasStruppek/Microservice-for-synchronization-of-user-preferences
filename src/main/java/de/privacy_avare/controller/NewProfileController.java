@@ -34,6 +34,8 @@ public class NewProfileController {
 
 	@RequestMapping(value = "/{profileId}", method = RequestMethod.GET)
 	public String createProfile(@PathVariable("profileId") String profileId) {
+		//vorhandene ID auf Vorhandensein prüfen
+		//falls nicht vorhanden, prüfen auf Gültigkeit
 		
 		return null;
 	}

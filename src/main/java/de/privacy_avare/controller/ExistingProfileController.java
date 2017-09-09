@@ -1,6 +1,7 @@
 package de.privacy_avare.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,13 +17,12 @@ import de.privacy_avare.domain.Preferences;
 @RequestMapping(value = "/v1/profiles")
 public class ExistingProfileController {
 
-	@RequestMapping(value = "/profiles/{profileId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteProfile(String ProfileId, Preferences preferences) {
+	@RequestMapping(value = "/{profileId}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteProfile(@PathVariable("profileId") String profileId, Preferences preferences) {
 		// Prüfen, ob ID vorhanden ist
 		// entsprechend Überschreiben der ProfileData
 		// Anpassen des letzten Änderungszeitpunktes in die Zukunft
 		// Generierung einer Rückmeldung an den Client
-
 		return null;
 	}
 
