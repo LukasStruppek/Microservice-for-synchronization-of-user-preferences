@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.privacy_avare.dao.ProfileDao;
+import de.privacy_avare.domain.Profile;
 import de.privacy_avare.service.IdGeneratorService;
+import de.privacy_avare.service.ProfileService;
 
 /**
  * REST-Controller zur Bearbeitung von Anfragen zur Erzeugung neuer Profile.
@@ -21,26 +22,30 @@ import de.privacy_avare.service.IdGeneratorService;
 public class NewProfileController {
 	@Autowired
 	private IdGeneratorService idGeneratorService;
-	
+
 	@Autowired
-	private ProfileDao profileDao;
+	private ProfileService profileService;
 
 	/**
-	 * Erzeugung eines neuen Profils inkl. Generierung einer neuen UserID.
+	 * Erzeugung eines neuen Profils inkl. Generierung einer neuen UserID. Das
+	 * erzeugte Profil wird automatisch in der Datenbank mit default-Werten
+	 * hinterlegt. Entspricht UC1.
 	 * 
-	 * @return
+	 * @return ProfileId des generierten Zufalls, über welche das Objekt in der
+	 *         Datenbank angesprochen werden kann.
 	 */
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public String createProfile() {
-		String profileId = idGeneratorService.generateID();
-		return profileId;
+	public Profile createProfile() {
+		Profile profile = profileService.createNewProfile();
+		return profile;
 	}
 
 	@RequestMapping(value = "/{profileId}", method = RequestMethod.GET)
 	public String createProfile(@PathVariable("profileId") String profileId) {
-		//vorhandene ID auf Vorhandensein prüfen
-		//falls nicht vorhanden, prüfen auf Gültigkeit
-		
+		// Aufgerufene ID auf Vorhandensein prüfen.
+		// Falls ID nicht vorhanden, auf Gültigkeit prüfen.
+		// Bei Gültigkeit erzeugung eines neuen Profiles auf Basis der ID.
+
 		return null;
 	}
 }

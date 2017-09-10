@@ -2,6 +2,7 @@ package de.privacy_avare.service;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class IdGeneratorService {
 	 */
 	public String generateID() {
 		Random random = new Random();
-		Calendar calendar = Calendar.getInstance();
+		Calendar calendar = Calendar.getInstance(Locale.GERMANY);
 		calendar.setTime(new Date());
 		StringBuffer id = new StringBuffer();
 		final String lowerCase = "abcdefghijklmnopqrstuvwxyz";
@@ -34,7 +35,7 @@ public class IdGeneratorService {
 		int day = calendar.get(Calendar.DATE);
 		int month = calendar.get(Calendar.MONTH);
 		int year = calendar.get(Calendar.YEAR);
-		int hour = calendar.get(Calendar.HOUR);
+		int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
 		// Aufbau der ID aus dem aktuellen Datum und der Uhrzeit
 		id.append(day + 25);

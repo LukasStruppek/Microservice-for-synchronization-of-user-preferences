@@ -1,5 +1,7 @@
 package de.privacy_avare.domain;
 
+import org.springframework.data.couchbase.core.mapping.Document;
+
 /** 
  * Representiert die Nutzereinstellungen
  * <<<Struktur TBD>>>
@@ -8,6 +10,7 @@ package de.privacy_avare.domain;
  * @version 1.0
  */
 
+@Document
 public class Preferences {
-	//Platzhalter
+	//Platzhalter für tatsächliche Representation der Nutzereinstellungen
 }

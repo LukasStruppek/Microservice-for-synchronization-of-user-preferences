@@ -1,6 +1,8 @@
 package de.privacy_avare.domain;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import org.springframework.data.couchbase.core.mapping.Document;
 
@@ -9,7 +11,8 @@ import com.couchbase.client.java.repository.annotation.Id;
 
 /**
  * Die Klasse representiert die Userdaten. Diese beinhalten die Eigenschaften
- * ProfileId, lastProfileChange, lastProfileContact und profileData.
+ * ProfileId, lastProfileChange, lastProfileContact, preferences und ein
+ * unSync-Flag.
  * 
  * @author Lukas Struppek
  * @version 1.0
@@ -18,7 +21,8 @@ import com.couchbase.client.java.repository.annotation.Id;
 @Document
 public class Profile {
 	@Id
-	private String profileId;
+	@Field
+	private String id;
 
 	@Field
 	private Calendar lastProfileChange;
@@ -29,15 +33,26 @@ public class Profile {
 	@Field
 	private Preferences preferences; // Platzhalter für tatsächliche Datenrepresentation
 
+	@Field
+	private boolean unSync;
+
 	/**
-	 * Erzeugt ein neues Profile-Objekt, in welchem die Instanzvariablen mit
-	 * default-Werten besetzt sind und durch eine ProfileId gekennzeichnet sind.
+	 * Default-Konstruktor für die automatische Konvertierung von JSON in eine
+	 * Instanz dieser Klasse.
 	 */
-	public Profile(String profileId) {
-		this.profileId = profileId;
-		lastProfileChange = null;
-		lastProfileContact = null;
-		preferences = null;
+	public Profile() {
+	}
+
+	/**
+	 * Erzeugt ein neues Profile-Objekt, in welchem die Zeitpunkte lastProfileChange
+	 * und lastProfileContact auf den Zeitpunkt der Erzeugung gesetzt werden.
+	 */
+	public Profile(String id) {
+		this.id = id;
+		this.lastProfileChange = GregorianCalendar.getInstance(Locale.GERMANY);
+		this.lastProfileContact = GregorianCalendar.getInstance(Locale.GERMANY);
+		this.preferences = new Preferences();
+		this.unSync = false;
 	}
 
 	/**
@@ -50,37 +65,38 @@ public class Profile {
 	 *            Der zu setzende Änderungszeitpunkt.
 	 * @param lastProfileContact
 	 *            Der zu setzende Kontaktzeitpunkt.
-	 * @param profileData
-	 *            Die zu setzenden Profileinstellungen.
+	 * @param preferences
+	 *            Die zu setzenden Preferences.
 	 */
-	public Profile(String id, Calendar lastProfileChange, Calendar lastProfileContact, Preferences profileData) {
-		this.profileId = id;
+	public Profile(String id, Calendar lastProfileChange, Calendar lastProfileContact, Preferences preferences) {
+		this.id = id;
 		this.lastProfileChange = lastProfileChange;
 		this.lastProfileContact = lastProfileContact;
-		this.preferences = profileData;
+		this.preferences = preferences;
+		this.unSync = false;
 	}
 
 	/**
-	 * Ruft die ProfileID, die im Data Transfer Object gespeichert ist, ab. @ return
-	 * Die ProfileID.
+	 * Ruft die ProfileID des Profils ab.
+	 * 
+	 * @ return Die ProfileID.
 	 */
-	public String getProfileId() {
-		return profileId;
+	public String getId() {
+		return id;
 	}
 
 	/**
-	 * Setzt die ProfileID im Data Transfer Object.
+	 * Setzt die ProfileID im Profil.
 	 * 
 	 * @param id
 	 *            Die zu setzende ProfileID.
 	 */
-	public void setProfileId(String profileId) {
-		this.profileId = profileId;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	/**
-	 * Ruft den letzten Änderungszeitpunkt, der im Data Transfer Object gespeichert
-	 * ist, ab.
+	 * Ruft den letzten Änderungszeitpunkt des Profils ab.
 	 * 
 	 * @return Der letzte Änderungszeitpunkt.
 	 */
@@ -89,7 +105,7 @@ public class Profile {
 	}
 
 	/**
-	 * Setzt den letzten Änderungszeitpunkt im Data Transfer Object.
+	 * Setzt den letzten Änderungszeitpunkt im Profil.
 	 * 
 	 * @param lastProfileChange
 	 *            Der zu setzende Änderungszeitpunkt.
@@ -99,8 +115,7 @@ public class Profile {
 	}
 
 	/**
-	 * Ruft den letzten Kontaktzeitpunkt, der im Data Transfer Object gespeichert
-	 * ist, ab.
+	 * Ruft den letzten Kontaktzeitpunkt des Profils ab.
 	 * 
 	 * @return Der letzte Kontaktzeitpunkt.
 	 */
@@ -109,7 +124,7 @@ public class Profile {
 	}
 
 	/**
-	 * Setzt den letzten Kontaktzeitpunkt im Data Transfer Object.
+	 * Setzt den letzten Kontaktzeitpunkt im Profil.
 	 * 
 	 * @param lastProfileContact
 	 *            Der zu setzende Kontaktzeitpunkt.
@@ -119,22 +134,41 @@ public class Profile {
 	}
 
 	/**
-	 * Ruft die Profileinstellungen, die im Data Transfer Object gespeichert sind,
-	 * ab.
+	 * Ruft die Preferences des Profils ab.
 	 * 
 	 * @return Die Profileinstellungen
 	 */
-	public Preferences getProfileData() {
+	public Preferences getPreferences() {
 		return preferences;
 	}
 
 	/**
-	 * Setzt die Profileinstellungen im Data Transfer Object.
+	 * Setzt die Preferences im Profil.
 	 * 
 	 * @param profileData
-	 *            Die zu setzenden Profileinstellungen.
+	 *            Die zu setzenden Preferences.
 	 */
-	public void setProfileData(Preferences profileData) {
-		this.preferences = profileData;
+	public void setpreferences(Preferences preferences) {
+		this.preferences = preferences;
 	}
+
+	/**
+	 * Ruft den Zustand des unSync-Flags im Profil ab.
+	 * 
+	 * @return Zustand des unSync-Flags.
+	 */
+	public boolean isUnSync() {
+		return unSync;
+	}
+
+	/**
+	 * Setzt das unSync-Flag im Profil.
+	 * 
+	 * @param unSync
+	 *            Zustand des unSync-Flags.
+	 */
+	public void setUnSync(boolean unSync) {
+		this.unSync = unSync;
+	}
+
 }
