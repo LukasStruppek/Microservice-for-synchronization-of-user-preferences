@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * Einstiegspunkt für das Programm.
+ * Einstiegspunkt für das Server-Programm. Startet automatisch einen
+ * Apache-Server zur Ausführung.
  * 
  * @author Lukas Struppek
  * @version 1.0

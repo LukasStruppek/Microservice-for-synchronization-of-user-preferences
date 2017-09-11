@@ -1,5 +1,3 @@
-package de.privacy_avare.domain;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -11,7 +9,7 @@ import com.couchbase.client.java.repository.annotation.Field;
 import com.couchbase.client.java.repository.annotation.Id;
 
 /**
- * Die Klasse repräsentiert die Userdaten. Diese beinhalten die Eigenschaften
+ * Die Klasse representiert die Userdaten. Diese beinhalten die Eigenschaften
  * ProfileId, lastProfileChange, lastProfileContact, preferences und ein
  * unSync-Flag.
  * 
@@ -21,41 +19,19 @@ import com.couchbase.client.java.repository.annotation.Id;
 
 @Document
 public class Profile {
-	/**
-	 * Entspricht der ProfileID, mit welcher ein Profil eindeutig identifiziert
-	 * werden kann. Wird auch zur Identifikation innerhalb der Datenbank verwendet.
-	 */
 	@Id
 	@Field
 	private String id;
 
-	/**
-	 * Beinhaltet den Zeitpunkt, zu welchem das Profil zuletzt geändert wurde. Eine
-	 * Änderung besteht bei Erzeugung des Profils bzw. der Anpassung der
-	 * Nutzerpräferenzen.
-	 */
 	@Field
 	private Date lastProfileChange;
 
-	/**
-	 * Beinhaltet den Zeitpunkt, zu welchem das Profil zuletzt in der Datenbank
-	 * abgerufen bzw. bearbeitet wurde. Hierzu zählen u.a. die Operationen Lesen,
-	 * Schreiben und Erzeugen eines Profils.
-	 */
 	@Field
 	private Date lastProfileContact;
 
-	/**
-	 * Repräsentiert die Nutzerpräferenzen. <<<Zur Zeit noch als Platzhalter.>>>
-	 */
 	@Field
-	private Preferences preferences;
+	private Preferences preferences; // Platzhalter für tatsächliche Datenrepresentation
 
-	/**
-	 * Flag, das zum Löschen eines Profils auf true gesetzt wird. Ist bei Erzeugung
-	 * zunächst auf false gesetzt. Bei Löschanfragen wird das Flag auf true gesetzt
-	 * und führt bei Datenbanksäuberungen zum löschen des Profils.
-	 */
 	@Field
 	private boolean unSync;
 
@@ -209,15 +185,15 @@ public class Profile {
 		localLastProfileChange.setTime(this.lastProfileChange);
 		GregorianCalendar localLastProfileContact = new GregorianCalendar();
 		localLastProfileContact.setTime(this.lastProfileContact);
-
+		
 		String strLastProfileChange = "[" + localLastProfileChange.get(Calendar.DATE) + "."
 				+ localLastProfileChange.get(Calendar.MONTH) + "." + localLastProfileChange.get(Calendar.YEAR) + " "
-				+ localLastProfileChange.get(Calendar.HOUR_OF_DAY) + ":" + localLastProfileChange.get(Calendar.MINUTE)
-				+ ":" + localLastProfileChange.get(Calendar.SECOND) + "]";
+				+ localLastProfileChange.get(Calendar.HOUR_OF_DAY) + ":" + localLastProfileChange.get(Calendar.MINUTE) + ":"
+				+ localLastProfileChange.get(Calendar.SECOND) + "]";
 		String strLastProfileContact = "[" + localLastProfileContact.get(Calendar.DATE) + "."
 				+ localLastProfileContact.get(Calendar.MONTH) + "." + localLastProfileContact.get(Calendar.YEAR) + " "
-				+ localLastProfileContact.get(Calendar.HOUR_OF_DAY) + ":" + localLastProfileContact.get(Calendar.MINUTE)
-				+ ":" + localLastProfileContact.get(Calendar.SECOND) + "]";
+				+ localLastProfileContact.get(Calendar.HOUR_OF_DAY) + ":" + localLastProfileContact.get(Calendar.MINUTE) + ":"
+				+ localLastProfileContact.get(Calendar.SECOND) + "]";
 
 		String result = "{" + "Id: " + this.id + ", lastProfileChange: " + strLastProfileChange
 				+ ", lastProfileContact: " + strLastProfileContact + ", unSync: " + this.unSync + "}";
