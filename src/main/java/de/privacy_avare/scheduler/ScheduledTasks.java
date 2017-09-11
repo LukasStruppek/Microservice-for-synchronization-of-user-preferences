@@ -11,14 +11,13 @@ import de.privacy_avare.service.ClearanceService;
  * Klasse enthält zeitgesteuerte Aufgaben. Zur Aktivierung der Zeitsteuerung ist
  * die Annotation @EnableScheduling in der main-Methode des Programms zu setzen.
  * Detailliertere Informationen zur Festlegung von zeitgesteuerten
- * Methodenaufrufen sind der <a
- * href="https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html>CronSequenceGenerator
- * API</a> zu entnehmen.
+ * Methodenaufrufen sind der CronSequenceGenerator-API zu entnehmen.
  * 
  * 
  * @author Lukas Struppek
  * @version 1.0
  * @see de.privacy_avare.SyncServerMain
+ * @see <a href="https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html">CronSequenceGenerator </a>
  */
 
 @Component

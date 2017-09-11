@@ -49,6 +49,8 @@ public class Profile {
 	/**
 	 * Erzeugt ein neues Profile-Objekt, in welchem die Zeitpunkte lastProfileChange
 	 * und lastProfileContact auf den Zeitpunkt der Erzeugung gesetzt werden.
+	 * 
+	 * @param id ProfileId, mit welcher ein neues Profil erzeugt werden soll.
 	 */
 	public Profile(String id) {
 		this.id = id;
@@ -82,7 +84,7 @@ public class Profile {
 	/**
 	 * Ruft die ProfileID des Profils ab.
 	 * 
-	 * @ return Die ProfileID.
+	 * @return Die ProfileID.
 	 */
 	public String getId() {
 		return id;
@@ -148,7 +150,7 @@ public class Profile {
 	/**
 	 * Setzt die Preferences im Profil.
 	 * 
-	 * @param profileData
+	 * @param preferences
 	 *            Die zu setzenden Preferences.
 	 */
 	public void setpreferences(Preferences preferences) {

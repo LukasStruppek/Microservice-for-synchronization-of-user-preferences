@@ -4,7 +4,7 @@ import org.springframework.data.couchbase.core.mapping.Document;
 
 /** 
  * Representiert die Nutzereinstellungen
- * <<<Struktur TBD>>>
+ * Struktur TBD!
  * 
  * @author Lukas Struppek
  * @version 1.0

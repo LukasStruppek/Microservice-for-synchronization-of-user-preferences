@@ -64,14 +64,15 @@ public class NewProfileController {
 	 * Profil wird automatisch in der Datenbank mit default-Werten hinterlegt.
 	 * Entspricht UC1 mit Parameter.
 	 * 
-	 * @return ProfileId des generierten Zufalls, über welche das Objekt in der
-	 *         Datenbank angesprochen werden kann.
+	 * @param id ProfileId, mit welcher ein neues Profil erzeugt werden soll.
+	 * @return id des generierten Zufalls, über welche das Objekt in der Datenbank
+	 *         angesprochen werden kann.
 	 * @throws Exception
 	 *             Profilerzeugung fehlgeschlagen
 	 */
-	@RequestMapping(value = "/{profileId}", method = RequestMethod.GET)
-	public Profile createProfile(@PathVariable("profileId") String profileId) throws Exception {
-		Profile profile = profileService.createNewProfile(profileId);
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public Profile createProfile(@PathVariable("id") String id) throws Exception {
+		Profile profile = profileService.createNewProfile(id);
 		return profile;
 	}
 }

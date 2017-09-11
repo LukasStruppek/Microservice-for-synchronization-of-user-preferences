@@ -40,7 +40,7 @@ public class ExistingProfileController {
 	 * Sucht in der Datenbank nach der übergebenen ProfileId und liefert ein
 	 * entsprechendes Profile bzw. null zurück.
 	 * 
-	 * @param profileId
+	 * @param id
 	 *            ProfileId des gesuchten Profils.
 	 * @return Gefundenes Profil.
 	 */
@@ -89,7 +89,7 @@ public class ExistingProfileController {
 	 * 
 	 * @param pushProfile
 	 *            Zu pushendes Profil.
-	 * @throws Exception
+	 * @throws Exception Platzhalter
 	 */
 	@RequestMapping(method = RequestMethod.PUT)
 	public void pushProfile(Profile pushProfile) throws Exception {
