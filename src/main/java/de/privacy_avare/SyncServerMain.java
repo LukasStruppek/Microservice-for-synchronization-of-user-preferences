@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Einstiegspunkt für das Server-Programm. Startet automatisch einen
- * Apache-Server zur Ausführung.
+ * Apache-Server.
  * 
  * @author Lukas Struppek
  * @version 1.0

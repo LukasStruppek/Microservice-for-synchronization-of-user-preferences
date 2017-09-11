@@ -1,6 +1,7 @@
 package de.privacy_avare.service;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -8,8 +9,8 @@ import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.privacy_avare.Repository.ProfileRepository;
 import de.privacy_avare.domain.Profile;
+import de.privacy_avare.repository.ProfileRepository;
 
 /**
  * Klasse stellt verschiedene Services zur Interaktion mit Profilen in der
@@ -111,6 +112,18 @@ public class ProfileService {
 		updateProfile(profile);
 		return profile;
 	}
+	
+	public Profile getProfileById(String id, Date clientProfileChangeTimestamp){
+		Profile profile = profileRepository.findOne(id);
+		GregorianCalendar profileLastChangeTimestamp = new GregorianCalendar();
+		profileLastChangeTimestamp.setTime(profile.getLastProfileChange());
+		if(profileLastChangeTimestamp.after(clientProfileChangeTimestamp)) {
+			return profile;
+		}
+		else {
+			throw new RuntimeException("Client-Profile ist aktueller als Profil in Datenbank");
+		}
+	}
 
 	/**
 	 * Sucht ein durch die ProfileId festgelegtes Profile in der Datenbank. Der
@@ -152,27 +165,37 @@ public class ProfileService {
 	/**
 	 * Pushen eines aktualisierten Profils. Ist der Zeitunkt lastProfileChange des
 	 * zu pushenden Profils aktueller als der des in der Datenbank bestehenden
-	 * Profils, so wird dieses Überschrieben. Andernfalls wird das ursprüngliche
-	 * Profil in der Datenbank beibehalten. Der Zeitpunkt lastProfileContact wird in
-	 * beiden Fällen aktualisiert.
+	 * Profils, so wird dieses Überschrieben. Andernfalls wird entsprechend dem
+	 * Parameter overwrite das ursprüngliche Profil in der Datenbank beibehalten
+	 * (overwrite = false) oder überschrieben (overwrite = true). Der Zeitpunkt
+	 * lastProfileContact wird in allen Fällen aktualisiert.
 	 * 
-	 * @param newProfile
+	 * @param profile
 	 *            Das zu pushende Profil.
+	 * @param overwrite
+	 *            Bestehendes, aktuelleres Profil überschreiben?
 	 * @throws Exception
 	 *             Platzhalter
 	 */
-	public void pushProfile(Profile newProfile) throws Exception {
-		Profile oldProfile = getProfileById(newProfile.getId());
-		if (oldProfile == null) {
+	public void pushProfile(Profile profile, boolean overwrite) throws Exception {
+		Profile dBProfile = getProfileById(profile.getId());
+		if (dBProfile == null) {
 			System.out.println("Kein Profil in der DB gefunden");
 			// Neues Profil wird gespeichert.
-			createNewProfile(newProfile.getId());
+			createNewProfile(profile.getId());
+			updateProfile(profile);
 		}
-
-		if (newProfile.getLastProfileChange().after(oldProfile.getLastProfileChange())) {
-			updateProfile(newProfile);
+		GregorianCalendar oldProfileLastProfileChange = new GregorianCalendar();
+		oldProfileLastProfileChange.setTime(dBProfile.getLastProfileChange());
+		oldProfileLastProfileChange.set(Calendar.MINUTE, oldProfileLastProfileChange.get(Calendar.MINUTE) + 5);
+		if (profile.getLastProfileChange().after(dBProfile.getLastProfileChange())) {
+			updateProfile(profile);
 		} else {
-			updateProfile(oldProfile);
+			if (overwrite == true) {
+				updateProfile(profile);
+			} else {
+				updateProfile(dBProfile);
+			}
 		}
 	}
 

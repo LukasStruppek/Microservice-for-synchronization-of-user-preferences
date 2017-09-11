@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.privacy_avare.Repository.ProfileRepository;
 import de.privacy_avare.domain.Profile;
+import de.privacy_avare.repository.ProfileRepository;
 
 /**
  * Der Service dient zum endgültigen Löschen von Profilen aus der Datenbank. Der

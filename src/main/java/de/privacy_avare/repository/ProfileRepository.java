@@ -1,4 +1,4 @@
-package de.privacy_avare.Repository;
+package de.privacy_avare.repository;
 
 import java.util.List;
 

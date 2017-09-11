@@ -1,12 +1,16 @@
 package de.privacy_avare.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.privacy_avare.domain.Profile;
@@ -45,9 +49,11 @@ public class ExistingProfileController {
 	 * @return Gefundenes Profil.
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public Profile pullProfile(@PathVariable("id") String id) {
-		Profile profile = profileService.getProfileById(id);
-		return profile;
+	public Profile pullProfile(@PathVariable("id") String id,
+			@RequestParam("timestamp") @DateTimeFormat(iso = ISO.DATE_TIME) Date clientProfileChangeTimestamp) {
+		// Profile profile = profileService.getProfileById(id);
+		System.out.println(clientProfileChangeTimestamp);
+		return null;
 	}
 
 	/**
@@ -89,11 +95,13 @@ public class ExistingProfileController {
 	 * 
 	 * @param pushProfile
 	 *            Zu pushendes Profil.
-	 * @throws Exception Platzhalter
+	 * @throws Exception
+	 *             Platzhalter
 	 */
-	@RequestMapping(method = RequestMethod.PUT)
-	public void pushProfile(Profile pushProfile) throws Exception {
-		profileService.pushProfile(pushProfile);
+	@RequestMapping(value = "/{overwrite}", method = RequestMethod.PUT)
+	public void pushProfile(@RequestBody Profile pushProfile, @PathVariable("overwrite") boolean overwrite)
+			throws Exception {
+		profileService.pushProfile(pushProfile, overwrite);
 	}
 
 	// Methode für spezielle Testläufe. Wird fortlaufend geändert!
