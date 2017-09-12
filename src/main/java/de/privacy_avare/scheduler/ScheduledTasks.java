@@ -17,7 +17,9 @@ import de.privacy_avare.service.ClearanceService;
  * @author Lukas Struppek
  * @version 1.0
  * @see de.privacy_avare.SyncServerMain
- * @see <a href="https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html">CronSequenceGenerator </a>
+ * @see <a href=
+ *      "https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html">CronSequenceGenerator
+ *      </a>
  */
 
 @Component
@@ -32,7 +34,9 @@ public class ScheduledTasks {
 	 * Trennung der einzelnen Parameter durch Leerzeichen.
 	 * 
 	 * Datenbank wird nach Profilen mit gesetztem unSync-Flag durchsucht, welche
-	 * daraufhin gelöscht werden.
+	 * daraufhin gelöscht werden. Weiterhin werden alle Profile in der Datenbank
+	 * gesucht und gelöscht, deren lastProfileContactTimestamp weiter als 6 Monate
+	 * in der Vergangenheit liegen.
 	 */
 	@Scheduled(cron = "0 0 3 * * MON", zone = "Europe/Berlin")
 	public void cleanDataBase() {

@@ -8,7 +8,7 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 
 /** 
- * Klasse stellt statische Methode zur Generierung einer 14-stelligen, eindeutigen UserID bereit.
+ * Klasse stellt statische Methode zur Generierung einer 16-stelligen, eindeutigen UserID bereit.
  * Erzeugung von Instanzen der Klasse ist nicht möglich.
  * 
  * @author Lukas Struppek
@@ -36,12 +36,14 @@ public class IdGeneratorService {
 		int month = calendar.get(Calendar.MONTH);
 		int year = calendar.get(Calendar.YEAR);
 		int hour = calendar.get(Calendar.HOUR_OF_DAY);
+		int minute = calendar.get(Calendar.MINUTE);
 
 		// Aufbau der ID aus dem aktuellen Datum und der Uhrzeit
 		id.append(day + 25);
 		id.append(month + 56);
 		id.append(year - 2000 + 7);
 		id.append(hour + 71);
+		id.append(minute + 10);
 
 		// Einfügen von sechs zufälligen Kleinbuchstaben an zufälligen Positionen der
 		// UserID

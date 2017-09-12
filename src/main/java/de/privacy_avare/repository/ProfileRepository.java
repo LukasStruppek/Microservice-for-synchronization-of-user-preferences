@@ -1,5 +1,6 @@
 package de.privacy_avare.repository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,5 +56,7 @@ public interface ProfileRepository extends CrudRepository<Profile, String> {
 	 * @return Liste aller Profile mit unSync = 'false'
 	 */
 	List<Profile> findAllByUnSyncFalse();
+	
+	List<Profile> findAllByLastProfileContactBefore(Date date);
 
 }

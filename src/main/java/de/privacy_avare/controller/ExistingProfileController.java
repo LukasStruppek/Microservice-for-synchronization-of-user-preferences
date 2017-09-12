@@ -41,18 +41,29 @@ public class ExistingProfileController {
 	private ProfileService profileService;
 
 	/**
-	 * Sucht in der Datenbank nach der übergebenen ProfileId und liefert ein
-	 * entsprechendes Profile bzw. null zurück.
+	 * Sucht in der Datenbank nach der übergebenen ProfileId. Bei einem entsprechend
+	 * gefundenen Profil wird der lastProfileChangeTimestamp des Profils aus der
+	 * Datenbank mit dem clientLastProfileChangeTimestamp verglichen. Ist das Profil
+	 * aus der Datenbank nicht neuer als 5 Minuten, so wird eine Fehlermeldung
+	 * zurückgeliefert.
+	 * 
+	 * Das Format für die Übertragung des clientLastProfileChangeTimestamp lässt
+	 * sich mithilfe eines SimpleDateFormat-Objekts und der Konfiguration
+	 * "yyyy-MM-dd HH:mm:ss,SSS" erreichen.
+	 * 
+	 * Es empfiehlt sich, für die Clientanfrage auf eine HashMap<String, String>
+	 * zurückzugreifen, um die Parameter zu übertragen.
 	 * 
 	 * @param id
 	 *            ProfileId des gesuchten Profils.
-	 * @return Gefundenes Profil.
+	 * @param lastProfileChangeTimestamp
+	 *            Zeitpunkt der letzten Profilaktualisierung auf Clientseite.
+	 * @return ggfs. gefundenes, aktuelleres Profil.
 	 */
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/{lastProfileChangeTimestamp}", method = RequestMethod.GET)
 	public Profile pullProfile(@PathVariable("id") String id,
-			@RequestParam("timestamp") @DateTimeFormat(iso = ISO.DATE_TIME) Date clientProfileChangeTimestamp) {
-		// Profile profile = profileService.getProfileById(id);
-		System.out.println(clientProfileChangeTimestamp);
+			@PathVariable("lastProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp) {
+		Profile profile = profileService.getProfileByIdComparingLastChange(id, clientLastProfileChangeTimestamp);
 		return null;
 	}
 
@@ -80,17 +91,6 @@ public class ExistingProfileController {
 	}
 
 	/**
-	 * Löscht das gesendete Profil aus der Datenbank.
-	 * 
-	 * @param profile
-	 *            Das zu löschende Profil.
-	 */
-	@RequestMapping(method = RequestMethod.DELETE)
-	public void deleteProfile(@RequestBody Profile profile) {
-		profileService.setProfileOnDeletion(profile);
-	}
-
-	/**
 	 * Speichert eine aktualisierte Version eines Profils in der Datenbank.
 	 * 
 	 * @param pushProfile
@@ -107,6 +107,6 @@ public class ExistingProfileController {
 	// Methode für spezielle Testläufe. Wird fortlaufend geändert!
 	@RequestMapping(value = "/test", method = RequestMethod.PUT)
 	public void test(@RequestBody Profile profile) throws Exception {
-		profileService.createNewProfile(profile.getId());
+		profileService.save(profile);
 	}
 }
