@@ -27,25 +27,17 @@ public class ClearanceService {
 	ProfileRepository profileRepository;
 
 	/**
-	 * Löscht alle Profile in der Datenbank mit unSync-Flag auf true.
+	 * Löscht alle Profile in der Datenbank mit unSync-Flag auf true sowie Profile, auf welche länger als 180 Tage nicht zugegriffen wurde.
 	 */
 	public void cleanDatabase() {
 		List<Profile> delProfiles = profileRepository.findAllByUnSyncTrue();
-		System.out.println("*** Deletion Profiles ***");
-		for (Profile p : delProfiles)
-			System.out.println(p);
 		profileRepository.delete(delProfiles);
+		
 		Calendar cal = GregorianCalendar.getInstance(Locale.GERMANY);
 		cal.set(Calendar.DATE, cal.get(Calendar.DATE) - 180);
-		List<Profile> unusedProfiles = profileRepository.findAllByLastProfileContactBefore(cal.getTime());
-		System.out.println("*** Unused Profiles ***");
-		for (Profile p : unusedProfiles)
-			System.out.println(p);
+		
+		List<Profile> unusedProfiles = profileRepository.findAllByLastProfileContactBefore(cal.getTime());	
 		profileRepository.delete(unusedProfiles);
-		System.out.println("*** Sonstige Profiles ***");
-		List<Profile> sonstige = profileRepository.findAllByOrderByIdAsc();
-		for (Profile p : sonstige)
-			System.out.println(p);
 	}
 
 }

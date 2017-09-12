@@ -78,7 +78,9 @@ public class ProfileService {
 	 */
 	public Profile getProfileById(String id) {
 		Profile profile = profileRepository.findOne(id);
-		updateProfile(profile);
+		if (profile != null) {
+			updateProfile(profile);
+		}
 		return profile;
 	}
 
@@ -118,7 +120,9 @@ public class ProfileService {
 	 */
 	public List<Profile> getAllProfiles() {
 		List<Profile> list = profileRepository.findAllByOrderByIdAsc();
-		updateProfiles(list);
+		if (list != null) {
+			updateProfiles(list);
+		}
 		return list;
 	}
 
@@ -246,13 +250,13 @@ public class ProfileService {
 	public void setProfileOnDeletion(Profile profile) {
 		setProfileOnDeletion(profile.getId());
 	}
-	
+
 	/**
 	 * Speichern von Profilen ohne Anpassen des lastProfileContact Timestamps!
+	 * 
 	 * @param p
 	 */
-	public void save(Profile p)
-	{
+	public void save(Profile p) {
 		profileRepository.save(p);
 	}
 
