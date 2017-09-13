@@ -10,8 +10,10 @@ import de.privacy_avare.service.ClearanceService;
 /**
  * Klasse enthält zeitgesteuerte Aufgaben. Zur Aktivierung der Zeitsteuerung ist
  * die Annotation @EnableScheduling in der main-Methode des Programms zu setzen.
- * Detailliertere Informationen zur Festlegung von zeitgesteuerten
- * Methodenaufrufen sind der CronSequenceGenerator-API zu entnehmen.
+ * Muster für Scheduling: Sekunde, Minute, Stunde, Tag, Monat, Wochentag.
+ * Trennung der einzelnen Parameter durch Leerzeichen. Detailliertere
+ * Informationen zur Festlegung von zeitgesteuerten Methodenaufrufen sind der
+ * CronSequenceGenerator-API zu entnehmen.
  * 
  * 
  * @author Lukas Struppek
@@ -30,12 +32,11 @@ public class ScheduledTasks {
 
 	/**
 	 * Löschen deaktivierte Profile aus der Datenbank. Aufruf jeden Montag, 03:00:00
-	 * Uhr. Muster für Scheduling: Sekunde, Minute, Stunde, Tag, Monat, Wochentag.
-	 * Trennung der einzelnen Parameter durch Leerzeichen.
+	 * Uhr.
 	 * 
 	 * Datenbank wird nach Profilen mit gesetztem unSync-Flag durchsucht, welche
 	 * daraufhin gelöscht werden. Weiterhin werden alle Profile in der Datenbank
-	 * gesucht und gelöscht, deren lastProfileContactTimestamp weiter als 6 Monate
+	 * gesucht und gelöscht, deren lastProfileContactTimestamp weiter als 18 Monate
 	 * in der Vergangenheit liegen.
 	 */
 	@Scheduled(cron = "0 0 3 * * MON", zone = "Europe/Berlin")

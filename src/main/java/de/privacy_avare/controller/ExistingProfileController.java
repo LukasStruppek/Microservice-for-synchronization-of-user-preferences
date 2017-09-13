@@ -64,7 +64,7 @@ public class ExistingProfileController {
 	public Profile pullProfile(@PathVariable("id") String id,
 			@PathVariable("lastProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp) {
 		Profile profile = profileService.getProfileByIdComparingLastChange(id, clientLastProfileChangeTimestamp);
-		return null;
+		return profile;
 	}
 
 	/**
@@ -102,6 +102,11 @@ public class ExistingProfileController {
 	public void pushProfile(@RequestBody Profile pushProfile, @PathVariable("overwrite") boolean overwrite)
 			throws Exception {
 		profileService.pushProfile(pushProfile, overwrite);
+	}
+	
+	@RequestMapping(value = "/{id}", method = RequestMethod.HEAD)
+	public Date getLastProfileChange(@PathVariable("id") String id) {
+		return null;
 	}
 
 	// Methode für spezielle Testläufe. Wird fortlaufend geändert!

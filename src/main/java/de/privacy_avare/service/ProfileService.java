@@ -35,10 +35,10 @@ public class ProfileService {
 	 * ProfileID.
 	 * 
 	 * @return Neu erzeugtes Profil.
-	 * @throws Exception
+	 * @throws RuntimeException
 	 *             UserID bereits vergeben.
 	 */
-	public Profile createNewProfile() throws Exception {
+	public Profile createNewProfile() throws RuntimeException {
 		String id = idGeneratorService.generateID();
 		if (profileRepository.exists(id) == true) {
 			throw new RuntimeException("UserID wird bereits in einem bestehenden Profil verwendet.");
@@ -54,15 +54,15 @@ public class ProfileService {
 	 * @param id
 	 *            Bestehende UserID.
 	 * @return Neu erzeugtes Profil.
-	 * @throws Exception
-	 *             UserID bereits vergeben.
+	 * @throws RuntimeException
+	 *             UserID bereits vergeben oder ungültiges Format.
 	 */
-	public Profile createNewProfile(String id) throws Exception {
+	public Profile createNewProfile(String id) throws RuntimeException {
 		if (id.length() != 16) {
-			throw new Exception("Ungültiges UserID-Format - keine 16-stellige ID.");
+			throw new RuntimeException("Ungültiges UserID-Format - keine 16-stellige ID.");
 		}
 		if (profileRepository.exists(id) == true) {
-			throw new Exception("UserID wird bereits in einem bestehenden Profil verwendet.");
+			throw new RuntimeException("UserID wird bereits in einem bestehenden Profil verwendet.");
 		}
 		Profile profile = new Profile(id);
 		updateProfile(profile);
@@ -71,6 +71,8 @@ public class ProfileService {
 
 	/**
 	 * Sucht in der Datenbank nach einem Profil mit einer bestimmten ProfileId.
+	 * Eigenschaft lastProfileContact wird in der Datenbank aktualisiert, ist im
+	 * zurückgelieferten Profile aber noch vergangene Wert.
 	 * 
 	 * @param id
 	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
@@ -92,6 +94,9 @@ public class ProfileService {
 	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
 	 * Andernfalls wird null zerückgegeben.
 	 * 
+	 * Der Wert lastProfileContactTimestamp wird in der Datenbank in allen Fällen
+	 * angepasst.
+	 * 
 	 * @param id
 	 *            ProfileId des in der Datenbank zu suchenden Profils.
 	 * @param clientLastProfileChangeTimestamp
@@ -101,7 +106,10 @@ public class ProfileService {
 	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChangeTimestamp) {
 		Profile dbProfile = getProfileById(id);
 		if (dbProfile == null) {
-			new RuntimeException("kein Profil mit dieser ID gefunden");
+			new RuntimeException("Kein Profil mit dieser ID gefunden");
+		}
+		if(dbProfile.isUnSync() == true) {
+			new RuntimeException("Profil ist gelöscht!");
 		}
 		GregorianCalendar dbLastProfileChangeTimestamp = new GregorianCalendar();
 		dbLastProfileChangeTimestamp.setTime(dbProfile.getLastProfileChange());
@@ -114,7 +122,11 @@ public class ProfileService {
 	}
 
 	/**
-	 * Liefert eine Liste aller in der Datenbank vorhandenen Profilen zurück.
+	 * Liefert eine Liste aller in der Datenbank vorhandenen Profilen, absteigend
+	 * nach der ProfileId sortiert, zurück.
+	 * 
+	 * Bei allen gefundenen Profilen wird die Eigenschaft
+	 * lastProfileContactTimestamp aktualisiert.
 	 * 
 	 * @return Liste mit allen Profilen.
 	 */
@@ -130,11 +142,33 @@ public class ProfileService {
 	 * Liefert eine Liste aller in der Datenbank vorhandenen Profilen mit auf true
 	 * gesetztem unSync-Flag zurück.
 	 * 
+	 * Bei allen gefundenen Profilen wird die Eigenschaft
+	 * lastProfileContactTimestamp aktualisiert.
+	 * 
 	 * @return Liste mit allen Profilen mit gesetztem unSync-Flag.
 	 */
 	public List<Profile> getAllProfilesWithUnSync() {
 		List<Profile> list = profileRepository.findAllByUnSyncTrue();
-		updateProfiles(list);
+		if (list != null) {
+			updateProfiles(list);
+		}
+		return list;
+	}
+
+	/**
+	 * Liefert eine Liste aller in der Datenbank vorhandenen Profilen mit auf false
+	 * gesetztem unSync-Flag zurück.
+	 * 
+	 * Bei allen gefundenen Profilen wird die Eigenschaft
+	 * lastProfileContactTimestamp aktualisiert.
+	 * 
+	 * @return Liste mit allen Profilen mit ungesetzem unSync-Flag.
+	 */
+	public List<Profile> getAllProfilesWithoutUnSync() {
+		List<Profile> list = profileRepository.findAllByUnSyncFalse();
+		if (list != null) {
+			updateProfiles(list);
+		}
 		return list;
 	}
 
@@ -143,8 +177,9 @@ public class ProfileService {
 	 * zu pushenden Profils aktueller als der des in der Datenbank bestehenden
 	 * Profils, so wird dieses Überschrieben. Andernfalls wird entsprechend dem
 	 * Parameter overwrite das ursprüngliche Profil in der Datenbank beibehalten
-	 * (overwrite = false) oder überschrieben (overwrite = true). Der Zeitpunkt
-	 * lastProfileContact wird in allen Fällen aktualisiert.
+	 * (overwrite = false) oder überschrieben (overwrite = true).
+	 * 
+	 * Der Zeitpunkt lastProfileContact wird in allen Fällen aktualisiert.
 	 * 
 	 * Ist kein Profil mit entsprechender ID in der Datenbank vorhanden, so wird das
 	 * zu pushende Profil in die DB geschrieben.
@@ -166,8 +201,6 @@ public class ProfileService {
 			createNewProfile(clientProfile.getId());
 			updateProfile(clientProfile);
 		} else {
-
-			//
 			GregorianCalendar dbProfileLastProfileChange = new GregorianCalendar();
 			dbProfileLastProfileChange.setTime(dbProfile.getLastProfileChange());
 			dbProfileLastProfileChange.set(Calendar.MINUTE, dbProfileLastProfileChange.get(Calendar.MINUTE) + 5);
@@ -188,6 +221,10 @@ public class ProfileService {
 	 * identischer ProfileId werden überschrieben. Bei jedem Methodenaufruf wird im
 	 * Profil der Zeitpunkt lastProfileContact aktualisiert.
 	 * 
+	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
+	 * um eine Aktualisierung der Eigenschaft lastProfileContactTimestamp
+	 * sicherzustellen.
+	 * 
 	 * @param profile
 	 *            Das in die Datenbank zu schreibende Profil.
 	 */
@@ -201,6 +238,10 @@ public class ProfileService {
 	 * mit identischer ProfileId werden überschrieben. Bei jedem Methodenaufruf wird
 	 * in jedem Profil der Zeitpunkt lastProfileContact aktualisiert.
 	 * 
+	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
+	 * um eine Aktualisierung der Eigenschaft lastProfileContactTimestamp
+	 * sicherzustellen.
+	 * 
 	 * @param profileList
 	 *            Liste der in die Datenbank zu schreibende Profile.
 	 */
@@ -212,9 +253,12 @@ public class ProfileService {
 	}
 
 	/**
-	 * Sucht ein durch die ProfileId festgelegtes Profile in der Datenbank. Der
-	 * Zeitpunkt des lastProfileChange wird auf 100 Jahre in die Zukunft gesetzt.
-	 * Zusätzlich wird das unSync-Flag auf true gesetzt.
+	 * Sucht ein durch die ProfileId eindeutig festgelegtes Profile in der
+	 * Datenbank. Der Zeitpunkt des lastProfileChange wird auf 100 Jahre in die
+	 * Zukunft gesetzt. Zusätzlich wird das unSync-Flag auf true gesetzt.
+	 * 
+	 * Der Wert lastProfileContactTimestamp wird in der Datenbank in allen Fällen
+	 * angepasst.
 	 * 
 	 * @param id
 	 *            ProfileId des zu löschen Profiles.
@@ -231,7 +275,7 @@ public class ProfileService {
 		int yearPlusHundred = lastProfileChange.get(Calendar.YEAR) + 100;
 		lastProfileChange.set(Calendar.YEAR, yearPlusHundred);
 
-		// Setzen der Löschoptionen
+		// Setzen der Eigenschaften lastProfileChange + 100 Jahre und unSync = true;
 		profile.setLastProfileChange(lastProfileChange.getTime());
 		profile.setUnSync(true);
 
@@ -240,9 +284,12 @@ public class ProfileService {
 	}
 
 	/**
-	 * Sucht ein durch die ProfileId festgelegtes Profile in der Datenbank. Der
-	 * Zeitpunkt des lastProfileChange wird auf 100 Jahre in die Zukunft gesetzt.
-	 * Zusätzlich wird das unSync-Flag auf true gesetzt.
+	 * Sucht ein durch die ProfileId eindeutig festgelegtes Profile in der
+	 * Datenbank. Der Zeitpunkt des lastProfileChange wird auf 100 Jahre in die
+	 * Zukunft gesetzt. Zusätzlich wird das unSync-Flag auf true gesetzt.
+	 * 
+	 * Der Wert lastProfileContactTimestamp wird in der Datenbank in allen Fällen
+	 * angepasst.
 	 * 
 	 * @param profile
 	 *            Instanz des zu löschenden Profils.
@@ -252,9 +299,13 @@ public class ProfileService {
 	}
 
 	/**
-	 * Speichern von Profilen ohne Anpassen des lastProfileContact Timestamps!
+	 * Speichern von Profilen ohne Anpassen des lastProfileContact Timestamps. Diese
+	 * Methode ist eher zu Testzwecken gedacht und sollte in der finalen Anwendung
+	 * nicht mehr genutzt werden.
 	 * 
 	 * @param p
+	 * 
+	 * @deprecated Nur für Testzwecke gedacht!
 	 */
 	public void save(Profile p) {
 		profileRepository.save(p);

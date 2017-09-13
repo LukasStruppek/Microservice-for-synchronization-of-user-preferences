@@ -60,25 +60,33 @@ public class Profile {
 	private boolean unSync;
 
 	/**
-	 * Default-Konstruktor für die automatische Konvertierung von JSON in eine
-	 * Instanz dieser Klasse.
+	 * Default-Konstruktor ohne Setzen der ID. Setzt lastProfileChange auf den 1.
+	 * Jan. 1970 und lastProfileContact auf den aktuellen Zeitpunkt. Restliche Werte
+	 * werden mit Default-Werten belegt.
 	 */
 	public Profile() {
-		this.lastProfileChange = GregorianCalendar.getInstance(Locale.GERMANY).getTime();
+		// Setze lastProfileChange auf 1. Jan. 1970
+		this.lastProfileChange = new Date(0L);
+		// Setze lastProfileContact auf aktuellen Zeitpunkt
 		this.lastProfileContact = GregorianCalendar.getInstance(Locale.GERMANY).getTime();
+
 		this.preferences = new Preferences();
 		this.unSync = false;
 	}
 
 	/**
-	 * Erzeugt ein neues Profile-Objekt, in welchem die Zeitpunkte lastProfileChange
-	 * und lastProfileContact auf den Zeitpunkt der Erzeugung gesetzt werden.
+	 * Erzeugt ein neues Profile-Objekt mit Id. Setzt lastProfileChange auf den 1.
+	 * Jan. 1970 und lastProfileContact auf den aktuellen Zeitpunkt. Restliche Werte
+	 * werden mit Default-Werten belegt.
 	 * 
-	 * @param id ProfileID, mit welcher ein neues Profil erzeugt werden soll.
+	 * @param id
+	 *            ProfileID, mit welcher ein neues Profil erzeugt werden soll.
 	 */
 	public Profile(String id) {
 		this.id = id;
-		this.lastProfileChange = GregorianCalendar.getInstance(Locale.GERMANY).getTime();
+		// Setze lastProfileChange auf 1. Jan. 1970
+		this.lastProfileChange = new Date(0L);
+		// Setze lastProfileContact auf aktuellen Zeitpunkt
 		this.lastProfileContact = GregorianCalendar.getInstance(Locale.GERMANY).getTime();
 		this.preferences = new Preferences();
 		this.unSync = false;

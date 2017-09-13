@@ -1,5 +1,11 @@
-C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\id\IdGenerator.java
+C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\repository\ProfileRepository.java
+C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\controller\NewProfileController.java
+C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\service\ProfileService.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\SyncServerMain.java
-C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\controller\ProfileController.java
+C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\service\ClearanceService.java
+C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\service\IdGeneratorService.java
+C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\controller\ExistingProfileController.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\domain\Preferences.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\domain\Profile.java
+C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\scheduler\ScheduledTasks.java
+C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\config\ValidationConfig.java
