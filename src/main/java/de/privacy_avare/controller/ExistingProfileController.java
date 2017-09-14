@@ -57,6 +57,10 @@ public class ExistingProfileController {
 	 * Datenbank bestehenden Profils, so wird dieses Überschrieben. Andernfalls
 	 * findet keine Überschreibung statt.
 	 * 
+	 * * Das Format für die Übertragung des clientLastProfileChangeTimestamp lässt
+	 * sich mithilfe eines SimpleDateFormat-Objekts und der Konfiguration
+	 * "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
+	 * 
 	 * @param id
 	 *            ProfileId
 	 * @param clientLastProfileChangeTimestamp
@@ -67,7 +71,7 @@ public class ExistingProfileController {
 	 */
 	@RequestMapping(value = "/{id}/{clientProfileChangeTimestamp}", method = RequestMethod.PUT)
 	public void pushProfile(@PathVariable("id") String id,
-			@PathVariable("lastProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
+			@PathVariable("clientProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
 			@RequestBody Object preferences) throws RuntimeException {
 		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, false);
 	}
@@ -80,6 +84,10 @@ public class ExistingProfileController {
 	 * Datenbank beibehalten (overwrite = false) oder überschrieben (overwrite =
 	 * true).
 	 * 
+	 * Das Format für die Übertragung des clientLastProfileChangeTimestamp lässt
+	 * sich mithilfe eines SimpleDateFormat-Objekts und der Konfiguration
+	 * "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
+	 * 
 	 * @param id
 	 *            ProfileId
 	 * @param clientLastProfileChangeTimestamp
@@ -90,7 +98,7 @@ public class ExistingProfileController {
 	 */
 	@RequestMapping(value = "/{id}/{clientProfileChangeTimestamp}/{overwrite}", method = RequestMethod.PUT)
 	public void pushProfile(@PathVariable("id") String id,
-			@PathVariable("lastProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
+			@PathVariable("clientProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
 			@RequestBody Object preferences, @PathVariable("overwrite") boolean overwrite) throws RuntimeException {
 		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, overwrite);
 	}
@@ -104,10 +112,8 @@ public class ExistingProfileController {
 	 * 
 	 * Das Format für die Übertragung des clientLastProfileChangeTimestamp lässt
 	 * sich mithilfe eines SimpleDateFormat-Objekts und der Konfiguration
-	 * "yyyy-MM-dd HH:mm:ss,SSS" erreichen.
+	 * "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
 	 * 
-	 * Es empfiehlt sich, für die Clientanfrage auf eine HashMap<String, String>
-	 * zurückzugreifen, um die Parameter zu übertragen.
 	 * 
 	 * @param id
 	 *            ProfileId des gesuchten Profils.
@@ -165,8 +171,9 @@ public class ExistingProfileController {
 	}
 
 	// Methode für spezielle Testläufe. Wird fortlaufend geändert!
-	@RequestMapping(value = "/test", method = RequestMethod.PUT)
-	public void test(@RequestBody Profile profile) throws Exception {
-		profileService.save(profile);
+	@RequestMapping(value = "/test/{date}", method = RequestMethod.PUT)
+	public void test(@PathVariable("date") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date date)
+			throws Exception {
+		System.out.println(date);
 	}
 }
