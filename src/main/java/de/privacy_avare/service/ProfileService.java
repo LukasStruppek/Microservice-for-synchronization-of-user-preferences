@@ -9,7 +9,6 @@ import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.privacy_avare.domain.Preferences;
 import de.privacy_avare.domain.Profile;
 import de.privacy_avare.repository.ProfileRepository;
 
@@ -117,7 +116,7 @@ public class ProfileService {
 		GregorianCalendar dbLastProfileChangeTimestamp = new GregorianCalendar();
 		dbLastProfileChangeTimestamp.setTime(dbProfile.getLastProfileChange());
 		dbLastProfileChangeTimestamp.set(Calendar.MINUTE, dbLastProfileChangeTimestamp.get(Calendar.MINUTE) - 5);
-		if (dbLastProfileChangeTimestamp.after(clientLastProfileChange)) {
+		if (dbLastProfileChangeTimestamp.getTime().after(clientLastProfileChange)) {
 			return dbProfile;
 		} else {
 			return null;
@@ -219,12 +218,12 @@ public class ProfileService {
 	 *            ProfielId des gesuchten Profils.
 	 * @return Preferences des entsprechenden Profils.
 	 */
-	public Preferences getPreferences(String id) {
+	public Object getPreferences(String id) {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
 			throw new RuntimeException("Kein Profil mit dieser ID gefunden");
 		}
-		Preferences dbProfilePreferences = dbProfile.getPreferences();
+		Object dbProfilePreferences = dbProfile.getPreferences();
 		return dbProfilePreferences;
 	}
 
@@ -264,25 +263,32 @@ public class ProfileService {
 	 * @throws Exception
 	 *             Platzhalter
 	 */
-	public void pushProfile(Profile clientProfile, boolean overwrite) throws Exception {
+	public void pushProfile(String id, Date clientLastProfileChange, Object clientPreferences, boolean overwrite)
+			throws RuntimeException {
 		// Abrufen des entsprechenden Profils aus der Datenbank
-		Profile dbProfile = getProfileById(clientProfile.getId());
+		Profile dbProfile = getProfileById(id);
 
 		// Falls kein Profil in der DB ist, wird das neue in die DB geschrieben.
 		if (dbProfile == null) {
-			// Neues Profil wird in der DB erzeugt und anschließend überschrieben
-			createNewProfile(clientProfile.getId());
-			updateProfile(clientProfile);
+			throw new RuntimeException("Kein Profil in der DB vorhanden");
+		} else if (dbProfile.isUnSync() == true) {
+			throw new RuntimeException("Profil zum löschen freigegeben");
 		} else {
-			GregorianCalendar dbProfileLastProfileChange = new GregorianCalendar();
-			dbProfileLastProfileChange.setTime(dbProfile.getLastProfileChange());
-			dbProfileLastProfileChange.set(Calendar.MINUTE, dbProfileLastProfileChange.get(Calendar.MINUTE) + 5);
-			if (dbProfileLastProfileChange.before(clientProfile.getLastProfileChange())) {
-				updateProfile(clientProfile);
+			if (overwrite == true) {
+				dbProfile.setpreferences(clientPreferences);
+				dbProfile.setLastProfileChange(clientLastProfileChange);
+				updateProfile(dbProfile);
 			} else {
-				if (overwrite == true) {
-					updateProfile(clientProfile);
+				GregorianCalendar dbProfileLastProfileChange = new GregorianCalendar();
+				dbProfileLastProfileChange.setTime(dbProfile.getLastProfileChange());
+				dbProfileLastProfileChange.set(Calendar.MINUTE, dbProfileLastProfileChange.get(Calendar.MINUTE) + 5);
+
+				if (dbProfileLastProfileChange.getTime().before(clientLastProfileChange) || overwrite == true) {
+					dbProfile.setpreferences(clientPreferences);
+					dbProfile.setLastProfileChange(clientLastProfileChange);
+					updateProfile(dbProfile);
 				} else {
+
 					updateProfile(dbProfile);
 				}
 			}
@@ -342,19 +348,23 @@ public class ProfileService {
 			throw new RuntimeException("Kein Profil mit dieser ID vorhanden");
 		}
 
-		// Bestimmung des aktuellen Zeitpunktes plus 100 Jahre.
-		Calendar lastProfileChange = GregorianCalendar.getInstance(Locale.GERMANY);
-		lastProfileChange.setTime(dbProfile.getLastProfileChange());
-		lastProfileChange.set(Calendar.YEAR, lastProfileChange.get(Calendar.YEAR) + 100);
+		else if (dbProfile.isUnSync() == true) {
+			throw new RuntimeException("Profile bereits gelöscht");
+		} else {
+			// Bestimmung des aktuellen Zeitpunktes plus 100 Jahre.
+			Calendar lastProfileChange = GregorianCalendar.getInstance(Locale.GERMANY);
+			lastProfileChange.setTime(dbProfile.getLastProfileChange());
+			lastProfileChange.set(Calendar.YEAR, lastProfileChange.get(Calendar.YEAR) + 100);
 
-		// Setzen der Eigenschaften lastProfileChange + 100 Jahre und unSync = true;
-		// Löschen der Nutzerpräferenzen
-		dbProfile.setLastProfileChange(lastProfileChange.getTime());
-		dbProfile.setUnSync(true);
-		dbProfile.setpreferences(null);
+			// Setzen der Eigenschaften lastProfileChange + 100 Jahre und unSync = true;
+			// Löschen der Nutzerpräferenzen
+			dbProfile.setLastProfileChange(lastProfileChange.getTime());
+			dbProfile.setUnSync(true);
+			dbProfile.setpreferences(null);
 
-		// Überschreiben des zu löschenden Profils in der Datenbank
-		updateProfile(dbProfile);
+			// Überschreiben des zu löschenden Profils in der Datenbank
+			updateProfile(dbProfile);
+		}
 	}
 
 	/**

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.privacy_avare.domain.Preferences;
 import de.privacy_avare.domain.Profile;
 import de.privacy_avare.service.ProfileService;
 
@@ -40,6 +39,61 @@ public class ExistingProfileController {
 	 */
 	@Autowired
 	private ProfileService profileService;
+
+	/**
+	 * Löscht ein Profil mit entsprechender ProfileId aus der Datenbank.
+	 * 
+	 * @param id
+	 *            ProfileId des zu löschenden Profils.
+	 */
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+	public void deleteProfile(@PathVariable("id") String id) {
+		profileService.setProfileOnDeletion(id);
+	}
+
+	/**
+	 * Pushen eines aktualisierten Profils. Ist der Zeitunkt lastProfileChange des
+	 * zu pushenden Profils mindestens 5 Minuten aktueller als der des in der
+	 * Datenbank bestehenden Profils, so wird dieses Überschrieben. Andernfalls
+	 * findet keine Überschreibung statt.
+	 * 
+	 * @param id
+	 *            ProfileId
+	 * @param clientLastProfileChangeTimestamp
+	 *            Letzter Änderungszeitpunkt der Nutzerpräferenzen
+	 * @param preferences
+	 *            zu pushende Nutzerpräferenzen
+	 * @throws RuntimeException
+	 */
+	@RequestMapping(value = "/{id}/{clientProfileChangeTimestamp}", method = RequestMethod.PUT)
+	public void pushProfile(@PathVariable("id") String id,
+			@PathVariable("lastProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
+			@RequestBody Object preferences) throws RuntimeException {
+		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, false);
+	}
+
+	/**
+	 * Pushen eines aktualisierten Profils. Ist der Zeitunkt lastProfileChange des
+	 * zu pushenden Profils mindestens 5 Minuten aktueller als der des in der
+	 * Datenbank bestehenden Profils, so wird dieses Überschrieben. Andernfalls wird
+	 * entsprechend dem Parameter overwrite das ursprüngliche Profil in der
+	 * Datenbank beibehalten (overwrite = false) oder überschrieben (overwrite =
+	 * true).
+	 * 
+	 * @param id
+	 *            ProfileId
+	 * @param clientLastProfileChangeTimestamp
+	 *            Letzter Änderungszeitpunkt der Nutzerpräferenzen
+	 * @param preferences
+	 *            zu pushende Nutzerpräferenzen
+	 * @throws RuntimeException
+	 */
+	@RequestMapping(value = "/{id}/{clientProfileChangeTimestamp}/{overwrite}", method = RequestMethod.PUT)
+	public void pushProfile(@PathVariable("id") String id,
+			@PathVariable("lastProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
+			@RequestBody Object preferences, @PathVariable("overwrite") boolean overwrite) throws RuntimeException {
+		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, overwrite);
+	}
 
 	/**
 	 * Sucht in der Datenbank nach der übergebenen ProfileId. Bei einem entsprechend
@@ -93,8 +147,8 @@ public class ExistingProfileController {
 	}
 
 	@RequestMapping(value = "/{id}/preferences")
-	public Preferences getPreferences(@PathVariable("id") String id) {
-		Preferences preferences = profileService.getPreferences(id);
+	public Object getPreferences(@PathVariable("id") String id) {
+		Object preferences = profileService.getPreferences(id);
 		return preferences;
 	}
 
@@ -108,31 +162,6 @@ public class ExistingProfileController {
 	public Iterable<Profile> getAllProfiles() {
 		Iterable<Profile> list = profileService.getAllProfiles();
 		return list;
-	}
-
-	/**
-	 * Löscht ein Profil mit entsprechender ProfileId aus der Datenbank.
-	 * 
-	 * @param id
-	 *            ProfileId des zu löschenden Profils.
-	 */
-	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void deleteProfile(@PathVariable("id") String id) {
-		profileService.setProfileOnDeletion(id);
-	}
-
-	/**
-	 * Speichert eine aktualisierte Version eines Profils in der Datenbank.
-	 * 
-	 * @param pushProfile
-	 *            Zu pushendes Profil.
-	 * @throws Exception
-	 *             Platzhalter
-	 */
-	@RequestMapping(value = "/{overwrite}", method = RequestMethod.PUT)
-	public void pushProfile(@RequestBody Profile pushProfile, @PathVariable("overwrite") boolean overwrite)
-			throws Exception {
-		profileService.pushProfile(pushProfile, overwrite);
 	}
 
 	// Methode für spezielle Testläufe. Wird fortlaufend geändert!

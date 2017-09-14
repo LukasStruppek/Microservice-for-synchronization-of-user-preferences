@@ -49,7 +49,7 @@ public class Profile {
 	 * Repräsentiert die Nutzerpräferenzen. <<<Zur Zeit noch als Platzhalter.>>>
 	 */
 	@Field
-	private Preferences preferences;
+	private Object preferences;
 
 	/**
 	 * Flag, das zum Löschen eines Profils auf true gesetzt wird. Ist bei Erzeugung
@@ -70,7 +70,7 @@ public class Profile {
 		// Setze lastProfileContact auf aktuellen Zeitpunkt
 		this.lastProfileContact = GregorianCalendar.getInstance(Locale.GERMANY).getTime();
 
-		this.preferences = new Preferences();
+		this.preferences = "Keine Präferenzen festgelegt";
 		this.unSync = false;
 	}
 
@@ -88,7 +88,7 @@ public class Profile {
 		this.lastProfileChange = new Date(0L);
 		// Setze lastProfileContact auf aktuellen Zeitpunkt
 		this.lastProfileContact = GregorianCalendar.getInstance(Locale.GERMANY).getTime();
-		this.preferences = new Preferences();
+		this.preferences = "Keine Präferenzen festgelegt";
 		this.unSync = false;
 	}
 
@@ -105,7 +105,7 @@ public class Profile {
 	 * @param preferences
 	 *            Die zu setzenden Preferences.
 	 */
-	public Profile(String id, Date lastProfileChange, Date lastProfileContact, Preferences preferences) {
+	public Profile(String id, Date lastProfileChange, Date lastProfileContact, Object preferences) {
 		this.id = id;
 		this.lastProfileChange = lastProfileChange;
 		this.lastProfileContact = lastProfileContact;
@@ -175,7 +175,7 @@ public class Profile {
 	 * 
 	 * @return Die Profileinstellungen
 	 */
-	public Preferences getPreferences() {
+	public Object getPreferences() {
 		return preferences;
 	}
 
@@ -185,7 +185,7 @@ public class Profile {
 	 * @param preferences
 	 *            Die zu setzenden Preferences.
 	 */
-	public void setpreferences(Preferences preferences) {
+	public void setpreferences(Object preferences) {
 		this.preferences = preferences;
 	}
 

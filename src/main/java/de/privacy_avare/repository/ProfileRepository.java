@@ -17,7 +17,6 @@ import java.util.List;
 import org.springframework.data.couchbase.core.query.N1qlPrimaryIndexed;
 import org.springframework.data.repository.CrudRepository;
 
-import de.privacy_avare.domain.Preferences;
 import de.privacy_avare.domain.Profile;
 
 /**
@@ -66,6 +65,6 @@ public interface ProfileRepository extends CrudRepository<Profile, String> {
 
 	boolean findUnSyncById(String id);
 
-	Preferences findPreferencesById(String id);
+	Object findPreferencesById(String id);
 
 }
