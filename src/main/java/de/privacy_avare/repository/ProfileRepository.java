@@ -17,6 +17,7 @@ import java.util.List;
 import org.springframework.data.couchbase.core.query.N1qlPrimaryIndexed;
 import org.springframework.data.repository.CrudRepository;
 
+import de.privacy_avare.domain.Preferences;
 import de.privacy_avare.domain.Profile;
 
 /**
@@ -56,7 +57,15 @@ public interface ProfileRepository extends CrudRepository<Profile, String> {
 	 * @return Liste aller Profile mit unSync = 'false'
 	 */
 	List<Profile> findAllByUnSyncFalse();
-	
+
 	List<Profile> findAllByLastProfileContactBefore(Date date);
+
+	Date findLastProfileContactById(String id);
+
+	Date findLastProfileChangeById(String id);
+
+	boolean findUnSyncById(String id);
+
+	Preferences findPreferencesById(String id);
 
 }

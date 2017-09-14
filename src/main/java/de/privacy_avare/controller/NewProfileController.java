@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.privacy_avare.domain.Profile;
-import de.privacy_avare.service.IdGeneratorService;
+import de.privacy_avare.service.IdService;
 import de.privacy_avare.service.ProfileService;
 
 /**
@@ -28,10 +28,10 @@ public class NewProfileController {
 	 * Service stellt Methode zur automatischen Generierung einer eindeutigen
 	 * ProfileId bereit. Instanz wird über Dependency Injection bereitgestellt.
 	 * 
-	 * @see de.privacy_avare.service.IdGeneratorService
+	 * @see de.privacy_avare.service.IdService
 	 */
 	@Autowired
-	private IdGeneratorService idGeneratorService;
+	private IdService idService;
 
 	/**
 	 * Service stellt diverse Methoden zur Verarbeitung von Profilen sowie der

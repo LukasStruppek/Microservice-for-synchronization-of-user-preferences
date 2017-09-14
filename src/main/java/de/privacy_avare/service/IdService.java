@@ -5,18 +5,25 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/** 
- * Klasse stellt statische Methode zur Generierung einer 16-stelligen, eindeutigen UserID bereit.
- * Erzeugung von Instanzen der Klasse ist nicht möglich.
+import de.privacy_avare.repository.ProfileRepository;
+
+/**
+ * Klasse stellt statische Methode zur Generierung einer 16-stelligen,
+ * eindeutigen UserID bereit. Erzeugung von Instanzen der Klasse ist nicht
+ * möglich.
  * 
  * @author Lukas Struppek
  * @version 1.0
  */
 
 @Service
-public class IdGeneratorService {
+public class IdService {
+
+	@Autowired
+	ProfileRepository profileRepository;
 
 	/**
 	 * Erzeugt unter Verwendung des aktuellen Datum, der aktuellen Uhrzeit und
@@ -56,5 +63,34 @@ public class IdGeneratorService {
 		// Konvertierung und Rückgabe der UserID in String (immutable)
 		String result = id.toString();
 		return result;
+	}
+
+	public boolean isIdAlreadyTaken(String id) {
+		boolean idExists = profileRepository.exists(id);
+		return idExists;
+	}
+
+	public boolean validateId(String id) {
+		char[] chars = id.toCharArray();
+		int numbers = 0;
+		int characters = 0;
+		boolean isValid;
+		for (char c : chars) {
+			if (Character.isDigit(c)) {
+				++numbers;
+			} else if (Character.isLetter(c)) {
+				++characters;
+			} else {
+				isValid = false;
+				return isValid;
+			}
+		}
+		if (numbers == 10 && characters == 6) {
+			isValid = true;
+		} else {
+			isValid = false;
+		}
+		return isValid;
+
 	}
 }

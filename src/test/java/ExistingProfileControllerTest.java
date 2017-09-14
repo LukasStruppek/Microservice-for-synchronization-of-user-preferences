@@ -25,7 +25,6 @@ public class ExistingProfileControllerTest {
 		restTemplate.put("http://localhost:8080/v1/profiles/" + overwrite, profile);
 		Profile profile2 = restTemplate.getForObject("http://localhost:8080/v1/profiles/" + profile.getId(),
 				Profile.class);
-		restTemplate.
 		System.out.println("*** Aktualisiertes Profil aus der DB: " + profile2 + " ***");
 		System.out.println("*** Der Methode übergebenes Profil: " + profile);
 		System.out.println("*** Ende Aufruf: PUT - http://localhost:8080/v1/profiles/" + overwrite + " ***");

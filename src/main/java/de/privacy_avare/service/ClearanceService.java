@@ -32,7 +32,7 @@ public class ClearanceService {
 	 */
 	public void cleanDatabase() {
 		// Suchen & Löschen aller Profile in der DB mit unSync = true
-		List<Profile> delProfiles = profileRepository.findAllByUnSyncTrue();
+		Iterable<Profile> delProfiles = profileRepository.findAllByUnSyncTrue();
 		profileRepository.delete(delProfiles);
 
 		// Berechnung Zeitpunkt vor 18 Monaten
@@ -41,7 +41,7 @@ public class ClearanceService {
 
 		// Suchen und Löschen aller Profile mit lastProfileContact vor 18 Monaten oder
 		// früher
-		List<Profile> unusedProfiles = profileRepository.findAllByLastProfileContactBefore(cal.getTime());
+		Iterable<Profile> unusedProfiles = profileRepository.findAllByLastProfileContactBefore(cal.getTime());
 		profileRepository.delete(unusedProfiles);
 	}
 

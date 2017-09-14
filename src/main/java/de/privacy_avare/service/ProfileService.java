@@ -9,6 +9,7 @@ import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.privacy_avare.domain.Preferences;
 import de.privacy_avare.domain.Profile;
 import de.privacy_avare.repository.ProfileRepository;
 
@@ -28,7 +29,7 @@ public class ProfileService {
 	private ProfileRepository profileRepository;
 
 	@Autowired
-	private IdGeneratorService idGeneratorService;
+	private IdService idService;
 
 	/**
 	 * Erzeugt ein neues Profile-Objekt in der Datenbank mit zufällig generierter
@@ -39,8 +40,8 @@ public class ProfileService {
 	 *             UserID bereits vergeben.
 	 */
 	public Profile createNewProfile() throws RuntimeException {
-		String id = idGeneratorService.generateID();
-		if (profileRepository.exists(id) == true) {
+		String id = idService.generateID();
+		if (idService.isIdAlreadyTaken(id) == true) {
 			throw new RuntimeException("UserID wird bereits in einem bestehenden Profil verwendet.");
 		}
 		Profile profile = new Profile(id);
@@ -58,10 +59,10 @@ public class ProfileService {
 	 *             UserID bereits vergeben oder ungültiges Format.
 	 */
 	public Profile createNewProfile(String id) throws RuntimeException {
-		if (id.length() != 16) {
+		if (idService.validateId(id) == false) {
 			throw new RuntimeException("Ungültiges UserID-Format - keine 16-stellige ID.");
 		}
-		if (profileRepository.exists(id) == true) {
+		if (idService.isIdAlreadyTaken(id) == true) {
 			throw new RuntimeException("UserID wird bereits in einem bestehenden Profil verwendet.");
 		}
 		Profile profile = new Profile(id);
@@ -71,26 +72,28 @@ public class ProfileService {
 
 	/**
 	 * Sucht in der Datenbank nach einem Profil mit einer bestimmten ProfileId.
-	 * Eigenschaft lastProfileContact wird in der Datenbank aktualisiert, ist im
-	 * zurückgelieferten Profile aber noch vergangene Wert.
+	 * Eigenschaft lastProfileContact wird in der Datenbank aktualisiert. Das
+	 * zurückgelieferte Profil weist jedoch noch den ursprünglichen Zeitstempel auf.
 	 * 
 	 * @param id
 	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
 	 * @return Vorhandenes Profil der Datenbank.
 	 */
 	public Profile getProfileById(String id) {
-		Profile profile = profileRepository.findOne(id);
-		if (profile != null) {
-			updateProfile(profile);
+		Profile dbProfile = profileRepository.findOne(id);
+		if (dbProfile == null) {
+			throw new RuntimeException("Kein Profil mit entsprechender ID gefunden");
+		} else {
+			updateProfile(dbProfile);
 		}
-		return profile;
+		return dbProfile;
 	}
 
 	/**
 	 * Sucht in der Datenbank nach einem Profil mit einer bestimmten ProfileId. Wird
 	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChangeTimestamp mit
-	 * dem Parameter clientLastProfileChangeTimestamp verglichen. Ist das Profil aus
-	 * der Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
+	 * dem Parameter clientLastProfileChange verglichen. Ist das Profil aus der
+	 * Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
 	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
 	 * Andernfalls wird null zerückgegeben.
 	 * 
@@ -99,22 +102,22 @@ public class ProfileService {
 	 * 
 	 * @param id
 	 *            ProfileId des in der Datenbank zu suchenden Profils.
-	 * @param clientLastProfileChangeTimestamp
+	 * @param clientLastProfileChange
 	 *            Entspricht der Aktualität des Profils auf dem Clientgerät.
-	 * @return Gefundenes, aktuelleres Profil oder null.
+	 * @return Gefundenes, aktuelleres Datenbankprofil oder null.
 	 */
-	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChangeTimestamp) {
+	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChange) {
 		Profile dbProfile = getProfileById(id);
 		if (dbProfile == null) {
 			new RuntimeException("Kein Profil mit dieser ID gefunden");
 		}
-		if(dbProfile.isUnSync() == true) {
+		if (dbProfile.isUnSync() == true) {
 			new RuntimeException("Profil ist gelöscht!");
 		}
 		GregorianCalendar dbLastProfileChangeTimestamp = new GregorianCalendar();
 		dbLastProfileChangeTimestamp.setTime(dbProfile.getLastProfileChange());
 		dbLastProfileChangeTimestamp.set(Calendar.MINUTE, dbLastProfileChangeTimestamp.get(Calendar.MINUTE) - 5);
-		if (dbLastProfileChangeTimestamp.after(clientLastProfileChangeTimestamp)) {
+		if (dbLastProfileChangeTimestamp.after(clientLastProfileChange)) {
 			return dbProfile;
 		} else {
 			return null;
@@ -130,8 +133,8 @@ public class ProfileService {
 	 * 
 	 * @return Liste mit allen Profilen.
 	 */
-	public List<Profile> getAllProfiles() {
-		List<Profile> list = profileRepository.findAllByOrderByIdAsc();
+	public Iterable<Profile> getAllProfiles() {
+		Iterable<Profile> list = profileRepository.findAllByOrderByIdAsc();
 		if (list != null) {
 			updateProfiles(list);
 		}
@@ -147,8 +150,8 @@ public class ProfileService {
 	 * 
 	 * @return Liste mit allen Profilen mit gesetztem unSync-Flag.
 	 */
-	public List<Profile> getAllProfilesWithUnSync() {
-		List<Profile> list = profileRepository.findAllByUnSyncTrue();
+	public Iterable<Profile> getAllProfilesWithUnSync() {
+		Iterable<Profile> list = profileRepository.findAllByUnSyncTrue();
 		if (list != null) {
 			updateProfiles(list);
 		}
@@ -164,12 +167,82 @@ public class ProfileService {
 	 * 
 	 * @return Liste mit allen Profilen mit ungesetzem unSync-Flag.
 	 */
-	public List<Profile> getAllProfilesWithoutUnSync() {
-		List<Profile> list = profileRepository.findAllByUnSyncFalse();
+	public Iterable<Profile> getAllProfilesWithoutUnSync() {
+		Iterable<Profile> list = profileRepository.findAllByUnSyncFalse();
 		if (list != null) {
 			updateProfiles(list);
 		}
 		return list;
+	}
+
+	/**
+	 * Liefert den Zeitstempel für die Eigenschaft lastProfileChange des
+	 * entsprechenden Profils zurück. Die Eigenschaft lastProfileContact wird bei
+	 * diesem Zugriff nicht verändert.
+	 * 
+	 * @param id
+	 *            ProfielId des gesuchten Profils.
+	 * @return lastProfileChange des entsprechenden Profils.
+	 */
+	public Date getLastProfileChange(String id) {
+		Profile dbProfile = profileRepository.findOne(id);
+		if (dbProfile == null) {
+			throw new RuntimeException("Kein Profil mit dieser ID gefunden");
+		}
+		Date dbProfileLastProfileChange = dbProfile.getLastProfileChange();
+		return dbProfileLastProfileChange;
+	}
+
+	/**
+	 * Liefert den Zeitstempel für die Eigenschaft lastProfileContact des
+	 * entsprechenden Profils zurück. Die Eigenschaft lastProfileContact wird bei
+	 * diesem Zugriff nicht verändert.
+	 * 
+	 * @param id
+	 *            ProfielId des gesuchten Profils.
+	 * @return lastProfileContact des entsprechenden Profils.
+	 */
+	public Date getLastProfileContact(String id) {
+		Profile dbProfile = profileRepository.findOne(id);
+		if (dbProfile == null) {
+			throw new RuntimeException("Kein Profil mit dieser ID gefunden");
+		}
+		Date dbProfileLastProfileContact = dbProfile.getLastProfileContact();
+		return dbProfileLastProfileContact;
+	}
+
+	/**
+	 * Liefert die Preferences des entsprechenden Profils zurück. Die Eigenschaft
+	 * lastProfileContact wird bei diesem Zugriff nicht verändert.
+	 * 
+	 * @param id
+	 *            ProfielId des gesuchten Profils.
+	 * @return Preferences des entsprechenden Profils.
+	 */
+	public Preferences getPreferences(String id) {
+		Profile dbProfile = profileRepository.findOne(id);
+		if (dbProfile == null) {
+			throw new RuntimeException("Kein Profil mit dieser ID gefunden");
+		}
+		Preferences dbProfilePreferences = dbProfile.getPreferences();
+		return dbProfilePreferences;
+	}
+
+	/**
+	 * Liefert den Status des unSync-Flags des entsprechenden Profils zurück. Die
+	 * Eigenschaft lastProfileContact wird bei diesem Zugriff nicht verändert.
+	 * 
+	 * @param id
+	 *            ProfielId des gesuchten Profils.
+	 * @return lastProfileChange des entsprechenden Profils.
+	 */
+	public boolean isUnSync(String id) {
+		Profile dbProfile = profileRepository.findOne(id);
+		if (dbProfile == null) {
+			throw new RuntimeException("Kein Profil mit dieser ID gefunden");
+		}
+		boolean dbProfileUnSync = dbProfile.isUnSync();
+		return dbProfileUnSync;
 	}
 
 	/**
@@ -204,7 +277,7 @@ public class ProfileService {
 			GregorianCalendar dbProfileLastProfileChange = new GregorianCalendar();
 			dbProfileLastProfileChange.setTime(dbProfile.getLastProfileChange());
 			dbProfileLastProfileChange.set(Calendar.MINUTE, dbProfileLastProfileChange.get(Calendar.MINUTE) + 5);
-			if (clientProfile.getLastProfileChange().after(dbProfile.getLastProfileChange())) {
+			if (dbProfileLastProfileChange.before(clientProfile.getLastProfileChange())) {
 				updateProfile(clientProfile);
 			} else {
 				if (overwrite == true) {
@@ -234,7 +307,7 @@ public class ProfileService {
 	}
 
 	/**
-	 * Fügt eine Liste von Profilen in die Datenbank ein. Bereits bestehende Profile
+	 * Fügt eine Menge von Profilen in die Datenbank ein. Bereits bestehende Profile
 	 * mit identischer ProfileId werden überschrieben. Bei jedem Methodenaufruf wird
 	 * in jedem Profil der Zeitpunkt lastProfileContact aktualisiert.
 	 * 
@@ -245,7 +318,7 @@ public class ProfileService {
 	 * @param profileList
 	 *            Liste der in die Datenbank zu schreibende Profile.
 	 */
-	public void updateProfiles(List<Profile> profileList) {
+	public void updateProfiles(Iterable<Profile> profileList) {
 		for (Profile profile : profileList) {
 			profile.setLastProfileContact(GregorianCalendar.getInstance(Locale.GERMANY).getTime());
 			profileRepository.save(profile);
@@ -264,23 +337,24 @@ public class ProfileService {
 	 *            ProfileId des zu löschen Profiles.
 	 */
 	public void setProfileOnDeletion(String id) {
-		Profile profile = getProfileById(id);
-		if (profile == null) {
+		Profile dbProfile = getProfileById(id);
+		if (dbProfile == null) {
 			throw new RuntimeException("Kein Profil mit dieser ID vorhanden");
 		}
 
 		// Bestimmung des aktuellen Zeitpunktes plus 100 Jahre.
 		Calendar lastProfileChange = GregorianCalendar.getInstance(Locale.GERMANY);
-		lastProfileChange.setTime(profile.getLastProfileChange());
-		int yearPlusHundred = lastProfileChange.get(Calendar.YEAR) + 100;
-		lastProfileChange.set(Calendar.YEAR, yearPlusHundred);
+		lastProfileChange.setTime(dbProfile.getLastProfileChange());
+		lastProfileChange.set(Calendar.YEAR, lastProfileChange.get(Calendar.YEAR) + 100);
 
 		// Setzen der Eigenschaften lastProfileChange + 100 Jahre und unSync = true;
-		profile.setLastProfileChange(lastProfileChange.getTime());
-		profile.setUnSync(true);
+		// Löschen der Nutzerpräferenzen
+		dbProfile.setLastProfileChange(lastProfileChange.getTime());
+		dbProfile.setUnSync(true);
+		dbProfile.setpreferences(null);
 
 		// Überschreiben des zu löschenden Profils in der Datenbank
-		updateProfile(profile);
+		updateProfile(dbProfile);
 	}
 
 	/**

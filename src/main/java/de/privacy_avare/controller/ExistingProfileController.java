@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.privacy_avare.domain.Preferences;
 import de.privacy_avare.domain.Profile;
 import de.privacy_avare.service.ProfileService;
 
@@ -67,6 +68,36 @@ public class ExistingProfileController {
 		return profile;
 	}
 
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public Profile pullProfileIgnoringLastProfileChange(@PathVariable("id") String id) {
+		Profile profile = profileService.getProfileById(id);
+		return profile;
+	}
+
+	@RequestMapping(value = "/{id}/lastProfileChange")
+	public Date getLastProfileChange(@PathVariable("id") String id) {
+		Date lastProfileChange = profileService.getLastProfileChange(id);
+		return lastProfileChange;
+	}
+
+	@RequestMapping(value = "/{id}/lastProfileContact")
+	public Date getLastProfileContact(@PathVariable("id") String id) {
+		Date lastProfileContact = profileService.getLastProfileContact(id);
+		return lastProfileContact;
+	}
+
+	@RequestMapping(value = "/{id}/unSync")
+	public boolean isProfileUnsync(@PathVariable("id") String id) {
+		boolean unSync = profileService.isUnSync(id);
+		return unSync;
+	}
+
+	@RequestMapping(value = "/{id}/preferences")
+	public Preferences getPreferences(@PathVariable("id") String id) {
+		Preferences preferences = profileService.getPreferences(id);
+		return preferences;
+	}
+
 	/**
 	 * Sucht alle Profile in der Datenbank und liefert diese in Form einer Liste
 	 * zurück.
@@ -74,8 +105,8 @@ public class ExistingProfileController {
 	 * @return Liste mit allen enthaltenen Profilen.
 	 */
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
-	public List<Profile> getAllProfiles() {
-		List<Profile> list = profileService.getAllProfiles();
+	public Iterable<Profile> getAllProfiles() {
+		Iterable<Profile> list = profileService.getAllProfiles();
 		return list;
 	}
 
@@ -102,11 +133,6 @@ public class ExistingProfileController {
 	public void pushProfile(@RequestBody Profile pushProfile, @PathVariable("overwrite") boolean overwrite)
 			throws Exception {
 		profileService.pushProfile(pushProfile, overwrite);
-	}
-	
-	@RequestMapping(value = "/{id}", method = RequestMethod.HEAD)
-	public Date getLastProfileChange(@PathVariable("id") String id) {
-		return null;
 	}
 
 	// Methode für spezielle Testläufe. Wird fortlaufend geändert!
