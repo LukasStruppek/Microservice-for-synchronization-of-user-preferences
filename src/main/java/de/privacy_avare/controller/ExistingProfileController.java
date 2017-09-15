@@ -1,6 +1,8 @@
 package de.privacy_avare.controller;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -78,6 +80,7 @@ public class ExistingProfileController {
 	public ResponseEntity<Void> pushProfile(@PathVariable("id") String id,
 			@PathVariable("clientProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
 			@RequestBody Object preferences) throws RuntimeException {
+		System.out.println("Methode aufgerufen: " + clientLastProfileChangeTimestamp);
 		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, false);
 		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		return response;
@@ -131,17 +134,21 @@ public class ExistingProfileController {
 	 * @return ggfs. gefundenes, aktuelleres Profil.
 	 */
 	@RequestMapping(value = "/{id}/{lastProfileChangeTimestamp}", method = RequestMethod.GET)
-	public ResponseEntity<Profile> pullProfile(@PathVariable("id") String id,
+	public ResponseEntity<HashMap<String, Object>> pullProfile(@PathVariable("id") String id,
 			@PathVariable("lastProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp) {
-		Profile dbProfile = profileService.getProfileByIdComparingLastChange(id, clientLastProfileChangeTimestamp);
-		ResponseEntity<Profile> response = new ResponseEntity<Profile>(dbProfile, HttpStatus.OK);
+		Profile serverProfile = profileService.getProfileByIdComparingLastChange(id, clientLastProfileChangeTimestamp);
+		HashMap<String, Object> map = serverProfile.toHashMap();
+		ResponseEntity<HashMap<String, Object>> response = new ResponseEntity<HashMap<String, Object>>(map,
+				HttpStatus.OK);
 		return response;
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Profile> pullProfileIgnoringLastProfileChange(@PathVariable("id") String id) {
-		Profile dbProfile = profileService.getProfileById(id);
-		ResponseEntity<Profile> response = new ResponseEntity<Profile>(dbProfile, HttpStatus.OK);
+	public ResponseEntity<HashMap<String, Object>> pullProfileIgnoringLastProfileChange(@PathVariable("id") String id) {
+		Profile serverProfile = profileService.getProfileById(id);
+		HashMap<String, Object> map = serverProfile.toHashMap();
+		ResponseEntity<HashMap<String, Object>> response = new ResponseEntity<HashMap<String, Object>>(map,
+				HttpStatus.OK);
 		return response;
 	}
 
@@ -180,9 +187,14 @@ public class ExistingProfileController {
 	 * @return Liste mit allen enthaltenen Profilen.
 	 */
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
-	public ResponseEntity<Iterable<Profile>> getAllProfiles() {
-		Iterable<Profile> list = profileService.getAllProfiles();
-		ResponseEntity<Iterable<Profile>> response = new ResponseEntity<Iterable<Profile>>(list, HttpStatus.OK);
+	public ResponseEntity<List<HashMap<String, Object>>> getAllProfiles() {
+		Iterable<Profile> serverList = profileService.getAllProfiles();
+		List<HashMap<String, Object>> responseList = new LinkedList<HashMap<String, Object>>();
+		for (Profile p : serverList) {
+			responseList.add(p.toHashMap());
+		}
+		ResponseEntity<List<HashMap<String, Object>>> response = new ResponseEntity<List<HashMap<String, Object>>>(
+				responseList, HttpStatus.OK);
 		return response;
 	}
 

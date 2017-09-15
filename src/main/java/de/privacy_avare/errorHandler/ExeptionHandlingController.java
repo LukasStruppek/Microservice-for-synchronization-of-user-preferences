@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import de.privacy_avare.dto.ErrorInformation;
 import de.privacy_avare.exeption.ClientProfileOutdatedException;
@@ -118,6 +119,21 @@ public class ExeptionHandlingController {
 		errorInformation.setException(htmnse.getClass().getName());
 		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
 		errorInformation.setDetail(htmnse.getMessage());
+		errorInformation.setRequestedURI(request.getRequestURI());
+		errorInformation.setTimestamp(new Date());
+		errorInformation.setAdditionalInformation("");
+		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.NOT_FOUND);
+		return responseEntity;
+	}
+	
+	@ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<?> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException matme,
+			HttpServletRequest request) {
+		ErrorInformation errorInformation = new ErrorInformation();
+		errorInformation.setTitle("Falscher Datentyp im Parameter");
+		errorInformation.setException(matme.getClass().getName());
+		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
+		errorInformation.setDetail(matme.getMessage());
 		errorInformation.setRequestedURI(request.getRequestURI());
 		errorInformation.setTimestamp(new Date());
 		errorInformation.setAdditionalInformation("");

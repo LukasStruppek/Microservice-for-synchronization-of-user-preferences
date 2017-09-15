@@ -3,6 +3,7 @@ package de.privacy_avare.domain;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Locale;
 
 import org.springframework.data.couchbase.core.mapping.Document;
@@ -232,5 +233,16 @@ public class Profile {
 		String result = "{" + "Id: " + this.id + ", lastProfileChange: " + strLastProfileChange
 				+ ", lastProfileContact: " + strLastProfileContact + ", unSync: " + this.unSync + "}";
 		return result;
+	}
+
+	public HashMap<String, Object> toHashMap() {
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("id", this.id);
+		map.put("lastProfileChange", this.lastProfileChange);
+		map.put("lastProfileContact", this.lastProfileContact);
+		map.put("preferences", this.preferences);
+		map.put("unsync", this.unSync);
+
+		return map;
 	}
 }
