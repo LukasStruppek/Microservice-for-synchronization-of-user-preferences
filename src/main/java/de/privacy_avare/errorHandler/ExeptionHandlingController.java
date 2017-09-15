@@ -6,23 +6,25 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import de.privacy_avare.domain.ErrorInformation;
+import de.privacy_avare.dto.ErrorInformation;
 import de.privacy_avare.exeption.ClientProfileOutdatedException;
 import de.privacy_avare.exeption.MalformedProfileIdException;
 import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
 import de.privacy_avare.exeption.ProfileSetOnDeletionException;
+import de.privacy_avare.exeption.ServerProfileOutdatedException;
 
 @ControllerAdvice
 public class ExeptionHandlingController {
 
-	@ExceptionHandler(ProfileNotFoundException.class)
+	@ExceptionHandler(value = ProfileNotFoundException.class)
 	public ResponseEntity<?> handleProfileNotFoundException(ProfileNotFoundException pnfe, HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
-		errorInformation.setTitle("Profile Not Found");
+		errorInformation.setTitle("Profil nicht gefunden");
 		errorInformation.setException(pnfe.getClass().getName());
 		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
 		errorInformation.setDetail(pnfe.getMessage());
@@ -33,11 +35,11 @@ public class ExeptionHandlingController {
 		return responseEntity;
 	}
 
-	@ExceptionHandler(ClientProfileOutdatedException.class)
+	@ExceptionHandler(value = ClientProfileOutdatedException.class)
 	public ResponseEntity<?> handleClientProfileOutdatedException(ClientProfileOutdatedException cpoe,
 			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
-		errorInformation.setTitle("Client Profile Outdated");
+		errorInformation.setTitle("Client Profil veraltet");
 		errorInformation.setException(cpoe.getClass().getName());
 		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
 		errorInformation.setDetail(cpoe.getMessage());
@@ -47,12 +49,27 @@ public class ExeptionHandlingController {
 		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.NOT_FOUND);
 		return responseEntity;
 	}
+	
+	@ExceptionHandler(value = ServerProfileOutdatedException.class)
+	public ResponseEntity<?> handleServerProfileOutdatedException(ServerProfileOutdatedException spoe,
+			HttpServletRequest request) {
+		ErrorInformation errorInformation = new ErrorInformation();
+		errorInformation.setTitle("Server Profil veraltet");
+		errorInformation.setException(spoe.getClass().getName());
+		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
+		errorInformation.setDetail(spoe.getMessage());
+		errorInformation.setRequestedURI(request.getRequestURI());
+		errorInformation.setTimestamp(new Date());
+		errorInformation.setAdditionalInformation("");
+		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.NOT_FOUND);
+		return responseEntity;
+	}
 
-	@ExceptionHandler(MalformedProfileIdException.class)
+	@ExceptionHandler(value = MalformedProfileIdException.class)
 	public ResponseEntity<?> handleMalformedProfileIdException(MalformedProfileIdException mpide,
 			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
-		errorInformation.setTitle("No Valid Profile ID");
+		errorInformation.setTitle("Ungültige ProfilId");
 		errorInformation.setException(mpide.getClass().getName());
 		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
 		errorInformation.setDetail(mpide.getMessage());
@@ -63,11 +80,11 @@ public class ExeptionHandlingController {
 		return responseEntity;
 	}
 
-	@ExceptionHandler(ProfileAlreadyExistsException.class)
+	@ExceptionHandler(value = ProfileAlreadyExistsException.class)
 	public ResponseEntity<?> handleProfileAlreadyExistsException(ProfileAlreadyExistsException paee,
 			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
-		errorInformation.setTitle("Profile Already Exists");
+		errorInformation.setTitle("Profil bereits vorhanden");
 		errorInformation.setException(paee.getClass().getName());
 		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
 		errorInformation.setDetail(paee.getMessage());
@@ -78,11 +95,11 @@ public class ExeptionHandlingController {
 		return responseEntity;
 	}
 
-	@ExceptionHandler(ProfileSetOnDeletionException.class)
+	@ExceptionHandler(value = ProfileSetOnDeletionException.class)
 	public ResponseEntity<?> handleProfileSetOnDeletionException(ProfileSetOnDeletionException psode,
 			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
-		errorInformation.setTitle("Profile Set On Deletion");
+		errorInformation.setTitle("Profil zum Löschen freigegeben");
 		errorInformation.setException(psode.getClass().getName());
 		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
 		errorInformation.setDetail(psode.getMessage());
@@ -92,5 +109,22 @@ public class ExeptionHandlingController {
 		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.NOT_FOUND);
 		return responseEntity;
 	}
+	
+	@ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<?> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException htmnse,
+			HttpServletRequest request) {
+		ErrorInformation errorInformation = new ErrorInformation();
+		errorInformation.setTitle("HTTP-Methode nicht unterstützt");
+		errorInformation.setException(htmnse.getClass().getName());
+		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
+		errorInformation.setDetail(htmnse.getMessage());
+		errorInformation.setRequestedURI(request.getRequestURI());
+		errorInformation.setTimestamp(new Date());
+		errorInformation.setAdditionalInformation("");
+		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.NOT_FOUND);
+		return responseEntity;
+	}
+	
+	
 
 }

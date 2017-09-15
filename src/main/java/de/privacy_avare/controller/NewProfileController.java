@@ -1,6 +1,10 @@
 package de.privacy_avare.controller;
 
+import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -48,15 +52,16 @@ public class NewProfileController {
 	 * erzeugte Profil wird automatisch in der Datenbank mit default-Werten
 	 * hinterlegt. Entspricht UC1 ohne Parameter.
 	 * 
-	 * @return ProfileId des generierten Zufalls, über welche das Objekt in der
-	 *         Datenbank angesprochen werden kann.
+	 * @return ResponseEntity<String>, welche im Body die ProfileId des generierten
+	 *         Profils enthält.
 	 * @throws Exception
 	 *             Profilerzeugung fehlgeschlagen
 	 */
-	@RequestMapping(value = "", method = RequestMethod.GET)
-	public Profile createProfile() throws Exception {
-		Profile profile = profileService.createNewProfile();
-		return profile;
+	@RequestMapping(value = "", method = RequestMethod.POST)
+	public ResponseEntity<String> createProfile() throws Exception {
+		Profile serverProfile = profileService.createNewProfile();
+		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getId(), HttpStatus.CREATED);
+		return response;
 	}
 
 	/**
@@ -64,15 +69,17 @@ public class NewProfileController {
 	 * Profil wird automatisch in der Datenbank mit default-Werten hinterlegt.
 	 * Entspricht UC1 mit Parameter.
 	 * 
-	 * @param id ProfileId, mit welcher ein neues Profil erzeugt werden soll.
+	 * @param id
+	 *            ProfileId, mit welcher ein neues Profil erzeugt werden soll.
 	 * @return id des generierten Zufalls, über welche das Objekt in der Datenbank
 	 *         angesprochen werden kann.
 	 * @throws Exception
 	 *             Profilerzeugung fehlgeschlagen
 	 */
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public Profile createProfile(@PathVariable("id") String id) throws Exception {
-		Profile profile = profileService.createNewProfile(id);
-		return profile;
+	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
+	public ResponseEntity<String> createProfile(@PathVariable("id") String id) throws Exception {
+		Profile serverProfile = profileService.createNewProfile(id);
+		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getId(), HttpStatus.CREATED);
+		return response;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import org.springframework.aop.ThrowsAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import de.privacy_avare.exeption.ClientProfileOutdatedException;
 import de.privacy_avare.exeption.MalformedProfileIdException;
 import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileSetOnDeletionException;
+import de.privacy_avare.exeption.ServerProfileOutdatedException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
 import de.privacy_avare.repository.ProfileRepository;
 
@@ -136,7 +138,7 @@ public class ProfileService {
 		if (dbLastProfileChangeTimestamp.getTime().after(clientLastProfileChange)) {
 			return dbProfile;
 		} else {
-			return null;
+			throw new ServerProfileOutdatedException("Profil in DB älter als Clientprofil");
 		}
 	}
 
@@ -383,26 +385,22 @@ public class ProfileService {
 	 *             Profile bereits gelöscht.
 	 */
 	public void setProfileOnDeletion(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
+		// throws ProfileNotFoundException und ProfileSetOnDeletionException
 		Profile dbProfile = getProfileById(id);
-		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit dieser ID vorhanden.");
-		} else if (dbProfile.isUnSync() == true) {
-			throw new ProfileSetOnDeletionException("Profile bereits gelöscht.");
-		} else {
-			// Bestimmung des aktuellen Zeitpunktes plus 100 Jahre.
-			Calendar lastProfileChange = GregorianCalendar.getInstance(Locale.GERMANY);
-			lastProfileChange.setTime(dbProfile.getLastProfileChange());
-			lastProfileChange.set(Calendar.YEAR, lastProfileChange.get(Calendar.YEAR) + 100);
 
-			// Setzen der Eigenschaften lastProfileChange + 100 Jahre und unSync = true;
-			// Löschen der Nutzerpräferenzen
-			dbProfile.setLastProfileChange(lastProfileChange.getTime());
-			dbProfile.setUnSync(true);
-			dbProfile.setpreferences(null);
+		// Bestimmung des aktuellen Zeitpunktes plus 100 Jahre.
+		Calendar lastProfileChange = GregorianCalendar.getInstance(Locale.GERMANY);
+		lastProfileChange.setTime(dbProfile.getLastProfileChange());
+		lastProfileChange.set(Calendar.YEAR, lastProfileChange.get(Calendar.YEAR) + 100);
 
-			// Überschreiben des zu löschenden Profils in der Datenbank
-			updateProfile(dbProfile);
-		}
+		// Setzen der Eigenschaften lastProfileChange + 100 Jahre und unSync = true;
+		// Löschen der Nutzerpräferenzen
+		dbProfile.setLastProfileChange(lastProfileChange.getTime());
+		dbProfile.setUnSync(true);
+		dbProfile.setpreferences(null);
+
+		// Überschreiben des zu löschenden Profils in der Datenbank
+		updateProfile(dbProfile);
 	}
 
 	/**

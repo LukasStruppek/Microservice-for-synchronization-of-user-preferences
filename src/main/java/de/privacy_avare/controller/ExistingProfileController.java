@@ -2,10 +2,13 @@ package de.privacy_avare.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,8 +50,10 @@ public class ExistingProfileController {
 	 *            ProfileId des zu löschenden Profils.
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public void deleteProfile(@PathVariable("id") String id) {
+	public ResponseEntity<Void> deleteProfile(@PathVariable("id") String id) {
 		profileService.setProfileOnDeletion(id);
+		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return response;
 	}
 
 	/**
@@ -70,10 +75,12 @@ public class ExistingProfileController {
 	 * @throws RuntimeException
 	 */
 	@RequestMapping(value = "/{id}/{clientProfileChangeTimestamp}", method = RequestMethod.PUT)
-	public void pushProfile(@PathVariable("id") String id,
+	public ResponseEntity<Void> pushProfile(@PathVariable("id") String id,
 			@PathVariable("clientProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
 			@RequestBody Object preferences) throws RuntimeException {
 		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, false);
+		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return response;
 	}
 
 	/**
@@ -97,10 +104,12 @@ public class ExistingProfileController {
 	 * @throws RuntimeException
 	 */
 	@RequestMapping(value = "/{id}/{clientProfileChangeTimestamp}/{overwrite}", method = RequestMethod.PUT)
-	public void pushProfile(@PathVariable("id") String id,
+	public ResponseEntity<Void> pushProfile(@PathVariable("id") String id,
 			@PathVariable("clientProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
 			@RequestBody Object preferences, @PathVariable("overwrite") boolean overwrite) throws RuntimeException {
 		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, overwrite);
+		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		return response;
 	}
 
 	/**
@@ -122,40 +131,46 @@ public class ExistingProfileController {
 	 * @return ggfs. gefundenes, aktuelleres Profil.
 	 */
 	@RequestMapping(value = "/{id}/{lastProfileChangeTimestamp}", method = RequestMethod.GET)
-	public Profile pullProfile(@PathVariable("id") String id,
+	public ResponseEntity<Profile> pullProfile(@PathVariable("id") String id,
 			@PathVariable("lastProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp) {
-		Profile profile = profileService.getProfileByIdComparingLastChange(id, clientLastProfileChangeTimestamp);
-		return profile;
+		Profile dbProfile = profileService.getProfileByIdComparingLastChange(id, clientLastProfileChangeTimestamp);
+		ResponseEntity<Profile> response = new ResponseEntity<Profile>(dbProfile, HttpStatus.OK);
+		return response;
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public Profile pullProfileIgnoringLastProfileChange(@PathVariable("id") String id) {
-		Profile profile = profileService.getProfileById(id);
-		return profile;
+	public ResponseEntity<Profile> pullProfileIgnoringLastProfileChange(@PathVariable("id") String id) {
+		Profile dbProfile = profileService.getProfileById(id);
+		ResponseEntity<Profile> response = new ResponseEntity<Profile>(dbProfile, HttpStatus.OK);
+		return response;
 	}
 
 	@RequestMapping(value = "/{id}/lastProfileChange")
-	public Date getLastProfileChange(@PathVariable("id") String id) {
-		Date lastProfileChange = profileService.getLastProfileChange(id);
-		return lastProfileChange;
+	public ResponseEntity<Date> getLastProfileChange(@PathVariable("id") String id) {
+		Date serverLastProfileChange = profileService.getLastProfileChange(id);
+		ResponseEntity<Date> response = new ResponseEntity<Date>(serverLastProfileChange, HttpStatus.OK);
+		return response;
 	}
 
 	@RequestMapping(value = "/{id}/lastProfileContact")
-	public Date getLastProfileContact(@PathVariable("id") String id) {
-		Date lastProfileContact = profileService.getLastProfileContact(id);
-		return lastProfileContact;
+	public ResponseEntity<Date> getLastProfileContact(@PathVariable("id") String id) {
+		Date serverLastProfileContact = profileService.getLastProfileContact(id);
+		ResponseEntity<Date> response = new ResponseEntity<Date>(serverLastProfileContact, HttpStatus.OK);
+		return response;
 	}
 
 	@RequestMapping(value = "/{id}/unSync")
-	public boolean isProfileUnsync(@PathVariable("id") String id) {
+	public ResponseEntity<Boolean> isProfileUnsync(@PathVariable("id") String id) {
 		boolean unSync = profileService.isUnSync(id);
-		return unSync;
+		ResponseEntity<Boolean> response = new ResponseEntity<Boolean>(unSync, HttpStatus.OK);
+		return response;
 	}
 
 	@RequestMapping(value = "/{id}/preferences")
-	public Object getPreferences(@PathVariable("id") String id) {
-		Object preferences = profileService.getPreferences(id);
-		return preferences;
+	public ResponseEntity<Object> getPreferences(@PathVariable("id") String id) {
+		Object serverPreferences = profileService.getPreferences(id);
+		ResponseEntity<Object> response = new ResponseEntity<Object>(serverPreferences, HttpStatus.OK);
+		return response;
 	}
 
 	/**
@@ -165,9 +180,10 @@ public class ExistingProfileController {
 	 * @return Liste mit allen enthaltenen Profilen.
 	 */
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
-	public Iterable<Profile> getAllProfiles() {
+	public ResponseEntity<Iterable<Profile>> getAllProfiles() {
 		Iterable<Profile> list = profileService.getAllProfiles();
-		return list;
+		ResponseEntity<Iterable<Profile>> response = new ResponseEntity<Iterable<Profile>>(list, HttpStatus.OK);
+		return response;
 	}
 
 	// Methode für spezielle Testläufe. Wird fortlaufend geändert!

@@ -1,4 +1,4 @@
-package de.privacy_avare.domain;
+package de.privacy_avare.dto;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
