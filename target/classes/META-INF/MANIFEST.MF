@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Implementation-Title: syncServer
 Implementation-Version: 0.0.1-SNAPSHOT
-Built-By: Lukas
+Built-By: Admin
 Implementation-Vendor-Id: de.privacy-avare.synchServer
 Build-Jdk: 1.8.0_144
 Implementation-URL: http://projects.spring.io/spring-boot/syncServer/

@@ -3,13 +3,17 @@ package de.privacy_avare.service;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.privacy_avare.domain.Profile;
+import de.privacy_avare.exeption.ClientProfileOutdatedException;
+import de.privacy_avare.exeption.MalformedProfileIdException;
+import de.privacy_avare.exeption.ProfileAlreadyExistsException;
+import de.privacy_avare.exeption.ProfileSetOnDeletionException;
+import de.privacy_avare.exeption.ProfileNotFoundException;
 import de.privacy_avare.repository.ProfileRepository;
 
 /**
@@ -35,13 +39,13 @@ public class ProfileService {
 	 * ProfileID.
 	 * 
 	 * @return Neu erzeugtes Profil.
-	 * @throws RuntimeException
+	 * @throws ProfileAlreadyExistsException
 	 *             UserID bereits vergeben.
 	 */
-	public Profile createNewProfile() throws RuntimeException {
+	public Profile createNewProfile() throws ProfileAlreadyExistsException {
 		String id = idService.generateID();
 		if (idService.isIdAlreadyTaken(id) == true) {
-			throw new RuntimeException("UserID wird bereits in einem bestehenden Profil verwendet.");
+			throw new ProfileAlreadyExistsException("UserID wird bereits in einem bestehenden Profil verwendet.");
 		}
 		Profile profile = new Profile(id);
 		updateProfile(profile);
@@ -54,15 +58,17 @@ public class ProfileService {
 	 * @param id
 	 *            Bestehende UserID.
 	 * @return Neu erzeugtes Profil.
-	 * @throws RuntimeException
-	 *             UserID bereits vergeben oder ungültiges Format.
+	 * @throws ProfileAlreadyExistsException
+	 *             UserID bereits vergeben.
+	 * @throws MalformedProfileIdException
+	 *             Ungültiges UserID-Format.
 	 */
-	public Profile createNewProfile(String id) throws RuntimeException {
+	public Profile createNewProfile(String id) throws ProfileAlreadyExistsException, MalformedProfileIdException {
 		if (idService.validateId(id) == false) {
-			throw new RuntimeException("Ungültiges UserID-Format - keine 16-stellige ID.");
+			throw new MalformedProfileIdException("Ungültiges UserID-Format - keine 16-stellige ID.");
 		}
 		if (idService.isIdAlreadyTaken(id) == true) {
-			throw new RuntimeException("UserID wird bereits in einem bestehenden Profil verwendet.");
+			throw new ProfileAlreadyExistsException("UserID wird bereits in einem bestehenden Profil verwendet.");
 		}
 		Profile profile = new Profile(id);
 		updateProfile(profile);
@@ -77,11 +83,17 @@ public class ProfileService {
 	 * @param id
 	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
 	 * @return Vorhandenes Profil der Datenbank.
+	 * @throws ProfileNotFoundException
+	 *             Kein Profil mit entsprechender ID gefunden.
+	 * @throws ProfileSetOnDeletionException
+	 *             Profil zum Löschen auf unSync gesetzt.
 	 */
-	public Profile getProfileById(String id) {
+	public Profile getProfileById(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new RuntimeException("Kein Profil mit entsprechender ID gefunden");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
+		} else if (dbProfile.isUnSync() == true) {
+			throw new ProfileSetOnDeletionException("Profil ist gelöscht.");
 		} else {
 			updateProfile(dbProfile);
 		}
@@ -104,14 +116,19 @@ public class ProfileService {
 	 * @param clientLastProfileChange
 	 *            Entspricht der Aktualität des Profils auf dem Clientgerät.
 	 * @return Gefundenes, aktuelleres Datenbankprofil oder null.
+	 * @throws ProfileNotFoundException
+	 *             Kein Profil mit entsprechender ID gefunden.
+	 * @throws ProfileSetOnDeletionException
+	 *             Profil zum Löschen auf unSync gesetzt.
 	 */
-	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChange) {
+	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChange)
+			throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		Profile dbProfile = getProfileById(id);
 		if (dbProfile == null) {
-			new RuntimeException("Kein Profil mit dieser ID gefunden");
+			new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
 		}
 		if (dbProfile.isUnSync() == true) {
-			new RuntimeException("Profil ist gelöscht!");
+			new ProfileSetOnDeletionException("Profil ist gelöscht.");
 		}
 		GregorianCalendar dbLastProfileChangeTimestamp = new GregorianCalendar();
 		dbLastProfileChangeTimestamp.setTime(dbProfile.getLastProfileChange());
@@ -182,11 +199,13 @@ public class ProfileService {
 	 * @param id
 	 *            ProfielId des gesuchten Profils.
 	 * @return lastProfileChange des entsprechenden Profils.
+	 * @throws ProfileNotFoundException
+	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
-	public Date getLastProfileChange(String id) {
+	public Date getLastProfileChange(String id) throws ProfileNotFoundException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new RuntimeException("Kein Profil mit dieser ID gefunden");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
 		}
 		Date dbProfileLastProfileChange = dbProfile.getLastProfileChange();
 		return dbProfileLastProfileChange;
@@ -200,11 +219,13 @@ public class ProfileService {
 	 * @param id
 	 *            ProfielId des gesuchten Profils.
 	 * @return lastProfileContact des entsprechenden Profils.
+	 * @throws ProfileNotFoundException
+	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
-	public Date getLastProfileContact(String id) {
+	public Date getLastProfileContact(String id) throws ProfileNotFoundException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new RuntimeException("Kein Profil mit dieser ID gefunden");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
 		}
 		Date dbProfileLastProfileContact = dbProfile.getLastProfileContact();
 		return dbProfileLastProfileContact;
@@ -217,11 +238,17 @@ public class ProfileService {
 	 * @param id
 	 *            ProfielId des gesuchten Profils.
 	 * @return Preferences des entsprechenden Profils.
+	 * @throws ProfileNotFoundException
+	 *             Kein Profil mit entsprechender ID gefunden.
+	 * @throws ProfileSetOnDeletionException
+	 *             Profil zum Löschen auf unSync gesetzt.
 	 */
-	public Object getPreferences(String id) {
+	public Object getPreferences(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new RuntimeException("Kein Profil mit dieser ID gefunden");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
+		} else if (dbProfile.isUnSync() == true) {
+			throw new ProfileSetOnDeletionException("Profil ist gelöscht.");
 		}
 		Object dbProfilePreferences = dbProfile.getPreferences();
 		return dbProfilePreferences;
@@ -234,11 +261,13 @@ public class ProfileService {
 	 * @param id
 	 *            ProfielId des gesuchten Profils.
 	 * @return lastProfileChange des entsprechenden Profils.
+	 * @throws ProfileNotFoundException
+	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
-	public boolean isUnSync(String id) {
+	public boolean isUnSync(String id) throws ProfileNotFoundException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new RuntimeException("Kein Profil mit dieser ID gefunden");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
 		}
 		boolean dbProfileUnSync = dbProfile.isUnSync();
 		return dbProfileUnSync;
@@ -256,23 +285,31 @@ public class ProfileService {
 	 * Ist kein Profil mit entsprechender ID in der Datenbank vorhanden, so wird das
 	 * zu pushende Profil in die DB geschrieben.
 	 * 
-	 * @param clientProfile
-	 *            Das zu pushende Profil.
+	 * @param id
+	 *            Die ProfileID.
+	 * @param clientLastProfileChange
+	 *            Letzte Änderungszeitpunkt des Profils auf Clienseite.
+	 * @param clientPreferences
+	 *            Die zu pushende Präferenzen.
 	 * @param overwrite
 	 *            Bestehendes, aktuelleres Profil überschreiben?
-	 * @throws Exception
-	 *             Platzhalter
+	 * @throws ProfileNotFoundException
+	 *             Kein Profil mit entsprechender ID gefunden.
+	 * @throws ProfileSetOnDeletionException
+	 *             Profil zum Löschen auf unSync gesetzt.
+	 * @throws ClientProfileOutdatedException
+	 *             Profil in DB aktueller als Clientprofile.
 	 */
 	public void pushProfile(String id, Date clientLastProfileChange, Object clientPreferences, boolean overwrite)
-			throws RuntimeException {
+			throws ProfileNotFoundException, ProfileSetOnDeletionException, ClientProfileOutdatedException {
 		// Abrufen des entsprechenden Profils aus der Datenbank
-		Profile dbProfile = getProfileById(id);
+		Profile dbProfile = profileRepository.findOne(id);
 
 		// Falls kein Profil in der DB ist, wird das neue in die DB geschrieben.
 		if (dbProfile == null) {
-			throw new RuntimeException("Kein Profil in der DB vorhanden");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
 		} else if (dbProfile.isUnSync() == true) {
-			throw new RuntimeException("Profil zum löschen freigegeben");
+			throw new ProfileSetOnDeletionException("Profil ist gelöscht.");
 		} else {
 			if (overwrite == true) {
 				dbProfile.setpreferences(clientPreferences);
@@ -288,8 +325,7 @@ public class ProfileService {
 					dbProfile.setLastProfileChange(clientLastProfileChange);
 					updateProfile(dbProfile);
 				} else {
-
-					updateProfile(dbProfile);
+					new ClientProfileOutdatedException("Profil in DB aktueller als Clientprofile.");
 				}
 			}
 		}
@@ -341,15 +377,17 @@ public class ProfileService {
 	 * 
 	 * @param id
 	 *            ProfileId des zu löschen Profiles.
+	 * @throws ProfileNotFoundException
+	 *             Kein Profil mit dieser ID vorhanden.
+	 * @throws ProfileSetOnDeletionException
+	 *             Profile bereits gelöscht.
 	 */
-	public void setProfileOnDeletion(String id) {
+	public void setProfileOnDeletion(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		Profile dbProfile = getProfileById(id);
 		if (dbProfile == null) {
-			throw new RuntimeException("Kein Profil mit dieser ID vorhanden");
-		}
-
-		else if (dbProfile.isUnSync() == true) {
-			throw new RuntimeException("Profile bereits gelöscht");
+			throw new ProfileNotFoundException("Kein Profil mit dieser ID vorhanden.");
+		} else if (dbProfile.isUnSync() == true) {
+			throw new ProfileSetOnDeletionException("Profile bereits gelöscht.");
 		} else {
 			// Bestimmung des aktuellen Zeitpunktes plus 100 Jahre.
 			Calendar lastProfileChange = GregorianCalendar.getInstance(Locale.GERMANY);
@@ -377,8 +415,12 @@ public class ProfileService {
 	 * 
 	 * @param profile
 	 *            Instanz des zu löschenden Profils.
+	 * @throws ProfileNotFoundException
+	 *             Kein Profil mit dieser ID vorhanden.
+	 * @throws ProfileSetOnDeletionException
+	 *             Profile bereits gelöscht.
 	 */
-	public void setProfileOnDeletion(Profile profile) {
+	public void setProfileOnDeletion(Profile profile) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		setProfileOnDeletion(profile.getId());
 	}
 
@@ -388,6 +430,7 @@ public class ProfileService {
 	 * nicht mehr genutzt werden.
 	 * 
 	 * @param p
+	 *            Zu speicherndes Profil.
 	 * 
 	 * @deprecated Nur für Testzwecke gedacht!
 	 */
