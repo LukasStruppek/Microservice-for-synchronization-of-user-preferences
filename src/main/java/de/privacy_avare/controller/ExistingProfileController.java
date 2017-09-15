@@ -80,7 +80,6 @@ public class ExistingProfileController {
 	public ResponseEntity<Void> pushProfile(@PathVariable("id") String id,
 			@PathVariable("clientProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
 			@RequestBody Object preferences) throws RuntimeException {
-		System.out.println("Methode aufgerufen: " + clientLastProfileChangeTimestamp);
 		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, false);
 		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		return response;

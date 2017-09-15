@@ -7,10 +7,12 @@ import java.util.Date;
  * Klasse dient der problembasierten Darstellung von auftretetenden Exceptions.
  * Der Aufbau der Klasse orientierte sich dabei an der Definition von HTTP
  * Problem Details der UC Berkeley:
- * https://tools.ietf.org/html/draft-nottingham-http-problem-07
+ * 
  * 
  * @author Lukas Struppek
- * @version 1.0
+ * @version 1.0 * @see <a href=
+ *          "https://tools.ietf.org/html/draft-nottingham-http-problem-07">Problem
+ *          Details for HTTP APIs draft-nottingham-http-problem-07 </a>
  *
  */
 
