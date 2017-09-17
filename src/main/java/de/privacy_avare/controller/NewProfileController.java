@@ -1,7 +1,5 @@
 package de.privacy_avare.controller;
 
-import java.net.URI;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.privacy_avare.domain.Profile;
-import de.privacy_avare.service.IdService;
 import de.privacy_avare.service.ProfileService;
 
 /**
@@ -34,8 +31,6 @@ public class NewProfileController {
 	 * 
 	 * @see de.privacy_avare.service.IdService
 	 */
-	@Autowired
-	private IdService idService;
 
 	/**
 	 * Service stellt diverse Methoden zur Verarbeitung von Profilen sowie der
@@ -52,8 +47,8 @@ public class NewProfileController {
 	 * erzeugte Profil wird automatisch in der Datenbank mit default-Werten
 	 * hinterlegt. Entspricht UC1 ohne Parameter.
 	 * 
-	 * @return ResponseEntity<String>, welche im Body die ProfileId des generierten
-	 *         Profils enthält.
+	 * @return ResponseEntity, welche im Body die ProfileId des generierten Profils
+	 *         enthält.
 	 * @throws Exception
 	 *             Profilerzeugung fehlgeschlagen
 	 */

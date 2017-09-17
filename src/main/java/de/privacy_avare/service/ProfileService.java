@@ -5,13 +5,13 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-import org.springframework.aop.ThrowsAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.privacy_avare.domain.Profile;
 import de.privacy_avare.exeption.ClientProfileOutdatedException;
 import de.privacy_avare.exeption.MalformedProfileIdException;
+import de.privacy_avare.exeption.NoProfilesInDatabaseException;
 import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileSetOnDeletionException;
 import de.privacy_avare.exeption.ServerProfileOutdatedException;
@@ -37,12 +37,16 @@ public class ProfileService {
 	private IdService idService;
 
 	/**
-	 * Erzeugt ein neues Profile-Objekt in der Datenbank mit zufällig generierter
-	 * ProfileID.
+	 * Erzeugt ein neues Profil mit einer gegebenen ProfileId. Bei erfolgreicher
+	 * Erzeugung wird ein entsprechendes DB-Profil angelegt, wobei die Eigenschaft
+	 * lastProfileChangeTimestamp auf 0 gesetzt wird. Das DB-Profil enthält noch
+	 * keine preferences.
+	 * 
 	 * 
 	 * @return Neu erzeugtes Profil.
 	 * @throws ProfileAlreadyExistsException
-	 *             UserID bereits vergeben.
+	 *             ProfileId bereits vergeben.
+	 * 
 	 */
 	public Profile createNewProfile() throws ProfileAlreadyExistsException {
 		String id = idService.generateID();
@@ -55,15 +59,19 @@ public class ProfileService {
 	}
 
 	/**
-	 * Erzeugt ein neues Profil mit einer gegebenen UserID.
+	 * Erzeugt ein neues Profil mit einer gegebenen ProfileId. Bei erfolgreicher
+	 * Erzeugung wird ein entsprechendes DB-Profil angelegt, wobei die Eigenschaft
+	 * lastProfileChangeTimestamp auf 0 gesetzt wird. Das DB-Profil enthält noch
+	 * keine preferences.
+	 * 
 	 * 
 	 * @param id
-	 *            Bestehende UserID.
+	 *            Bestehende ProfileID.
 	 * @return Neu erzeugtes Profil.
 	 * @throws ProfileAlreadyExistsException
-	 *             UserID bereits vergeben.
+	 *             ProfileId bereits vergeben.
 	 * @throws MalformedProfileIdException
-	 *             Ungültiges UserID-Format.
+	 *             Ungültiges ProfileId-Format.
 	 */
 	public Profile createNewProfile(String id) throws ProfileAlreadyExistsException, MalformedProfileIdException {
 		if (idService.validateId(id) == false) {
@@ -108,23 +116,25 @@ public class ProfileService {
 	 * dem Parameter clientLastProfileChange verglichen. Ist das Profil aus der
 	 * Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
 	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
-	 * Andernfalls wird null zerückgegeben.
 	 * 
 	 * Der Wert lastProfileContactTimestamp wird in der Datenbank in allen Fällen
 	 * angepasst.
 	 * 
 	 * @param id
-	 *            ProfileId des in der Datenbank zu suchenden Profils.
+	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
 	 * @param clientLastProfileChange
 	 *            Entspricht der Aktualität des Profils auf dem Clientgerät.
-	 * @return Gefundenes, aktuelleres Datenbankprofil oder null.
+	 * @return Gefundenes, aktuelleres Datenbankprofil.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 * @throws ProfileSetOnDeletionException
 	 *             Profil zum Löschen auf unSync gesetzt.
+	 * @throws ServerProfileOutdatedException
+	 *             Profil in DB weist einen älteren Zeitpunkt
+	 *             lastProfileChangeTimestamp auf als der Parameter.
 	 */
 	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChange)
-			throws ProfileNotFoundException, ProfileSetOnDeletionException {
+			throws ProfileNotFoundException, ProfileSetOnDeletionException, ServerProfileOutdatedException {
 		Profile dbProfile = getProfileById(id);
 		if (dbProfile == null) {
 			new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
@@ -144,18 +154,22 @@ public class ProfileService {
 
 	/**
 	 * Liefert eine Liste aller in der Datenbank vorhandenen Profilen, absteigend
-	 * nach der ProfileId sortiert, zurück.
+	 * nach der ProfileId sortiert, zurück. Dabei werden die Profile unabhängig
+	 * ihrer gesetzten Eigenschaften zurückgeliefert.
 	 * 
 	 * Bei allen gefundenen Profilen wird die Eigenschaft
 	 * lastProfileContactTimestamp aktualisiert.
 	 * 
 	 * @return Liste mit allen Profilen.
+	 * @throws NoProfilesInDatabaseException
+	 *             Datenbank ist leer.
 	 */
-	public Iterable<Profile> getAllProfiles() {
+	public Iterable<Profile> getAllProfiles() throws NoProfilesInDatabaseException {
 		Iterable<Profile> list = profileRepository.findAllByOrderByIdAsc();
-		if (list != null) {
-			updateProfiles(list);
+		if (list.iterator().hasNext() == false) {
+			throw new NoProfilesInDatabaseException("Keine Profile in der DB vorhanden.");
 		}
+		updateProfiles(list);
 		return list;
 	}
 
@@ -199,7 +213,7 @@ public class ProfileService {
 	 * diesem Zugriff nicht verändert.
 	 * 
 	 * @param id
-	 *            ProfielId des gesuchten Profils.
+	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
 	 * @return lastProfileChange des entsprechenden Profils.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
@@ -219,7 +233,7 @@ public class ProfileService {
 	 * diesem Zugriff nicht verändert.
 	 * 
 	 * @param id
-	 *            ProfielId des gesuchten Profils.
+	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
 	 * @return lastProfileContact des entsprechenden Profils.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
@@ -238,7 +252,7 @@ public class ProfileService {
 	 * lastProfileContact wird bei diesem Zugriff nicht verändert.
 	 * 
 	 * @param id
-	 *            ProfielId des gesuchten Profils.
+	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
 	 * @return Preferences des entsprechenden Profils.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
@@ -261,7 +275,7 @@ public class ProfileService {
 	 * Eigenschaft lastProfileContact wird bei diesem Zugriff nicht verändert.
 	 * 
 	 * @param id
-	 *            ProfielId des gesuchten Profils.
+	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
 	 * @return lastProfileChange des entsprechenden Profils.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
@@ -288,17 +302,17 @@ public class ProfileService {
 	 * zu pushende Profil in die DB geschrieben.
 	 * 
 	 * @param id
-	 *            Die ProfileID.
+	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
 	 * @param clientLastProfileChange
 	 *            Letzte Änderungszeitpunkt des Profils auf Clienseite.
 	 * @param clientPreferences
-	 *            Die zu pushende Präferenzen.
+	 *            Die zu pushenden Präferenzen.
 	 * @param overwrite
-	 *            Bestehendes, aktuelleres Profil überschreiben?
+	 *            Soll ein bestehendes, aktuelleres Profil überschrieben werden?
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 * @throws ProfileSetOnDeletionException
-	 *             Profil zum Löschen auf unSync gesetzt.
+	 *             DB-Profil zum Löschen auf unSync gesetzt.
 	 * @throws ClientProfileOutdatedException
 	 *             Profil in DB aktueller als Clientprofile.
 	 */
@@ -335,8 +349,9 @@ public class ProfileService {
 
 	/**
 	 * Fügt ein Profil in die Datenbank ein. Bereits bestehende Profile mit
-	 * identischer ProfileId werden überschrieben. Bei jedem Methodenaufruf wird im
-	 * Profil der Zeitpunkt lastProfileContact aktualisiert.
+	 * identischer ProfileId werden überschrieben.
+	 * 
+	 * Der Zeitpunkt lastProfileContact wird in allen Fällen aktualisiert.
 	 * 
 	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
 	 * um eine Aktualisierung der Eigenschaft lastProfileContactTimestamp
@@ -380,9 +395,9 @@ public class ProfileService {
 	 * @param id
 	 *            ProfileId des zu löschen Profiles.
 	 * @throws ProfileNotFoundException
-	 *             Kein Profil mit dieser ID vorhanden.
+	 *             Kein Profil mit entsprechender ID gefunden.
 	 * @throws ProfileSetOnDeletionException
-	 *             Profile bereits gelöscht.
+	 *             Profile bereits zum Löschen freigegeben.
 	 */
 	public void setProfileOnDeletion(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		// throws ProfileNotFoundException und ProfileSetOnDeletionException
@@ -414,9 +429,9 @@ public class ProfileService {
 	 * @param profile
 	 *            Instanz des zu löschenden Profils.
 	 * @throws ProfileNotFoundException
-	 *             Kein Profil mit dieser ID vorhanden.
+	 *             Kein Profil mit entsprechender ID gefunden.
 	 * @throws ProfileSetOnDeletionException
-	 *             Profile bereits gelöscht.
+	 *             Profile bereits zum Löschen freigegeben.
 	 */
 	public void setProfileOnDeletion(Profile profile) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		setProfileOnDeletion(profile.getId());

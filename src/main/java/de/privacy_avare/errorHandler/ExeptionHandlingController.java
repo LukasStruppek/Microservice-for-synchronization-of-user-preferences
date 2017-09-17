@@ -15,37 +15,38 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import de.privacy_avare.dto.ErrorInformation;
 import de.privacy_avare.exeption.ClientProfileOutdatedException;
 import de.privacy_avare.exeption.MalformedProfileIdException;
+import de.privacy_avare.exeption.NoProfilesInDatabaseException;
 import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
 import de.privacy_avare.exeption.ProfileSetOnDeletionException;
 import de.privacy_avare.exeption.ServerProfileOutdatedException;
 
 /**
- * 
+ * Klasse fängt Programmweit auftretende Exception ab und liefert an den
+ * aufrufenden Dienst eine ResponseEntity mit detaillierten Fehlerinformationen
+ * zurück.
  * 
  * @author Lukas Struppek
  * @version 1.0
+ * @see ResponseEntity
+ * @see ErrorInformation
  */
 
 @ControllerAdvice
 public class ExeptionHandlingController {
 
-	@ExceptionHandler(value = ProfileNotFoundException.class)
-	public ResponseEntity<?> handleProfileNotFoundException(ProfileNotFoundException pnfe, HttpServletRequest request) {
-		ErrorInformation errorInformation = new ErrorInformation();
-		errorInformation.setTitle("Profil nicht gefunden");
-		errorInformation.setException(pnfe.getClass().getName());
-		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
-		errorInformation.setDetail(pnfe.getMessage());
-		errorInformation.setRequestedURI(request.getRequestURI());
-		errorInformation.setTimestamp(new Date());
-		errorInformation.setAdditionalInformation("");
-		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.NOT_FOUND);
-		return responseEntity;
-	}
-
+	/**
+	 * Kümmert sich um das abfangen von ClientProfileOutdatedException.
+	 * 
+	 * @param cpoe
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI.
+	 * @return Informationen zum Fehler.
+	 * @see ClientProfileOutdatedException
+	 */
 	@ExceptionHandler(value = ClientProfileOutdatedException.class)
-	public ResponseEntity<?> handleClientProfileOutdatedException(ClientProfileOutdatedException cpoe,
+	public ResponseEntity<ErrorInformation> handleClientProfileOutdatedException(ClientProfileOutdatedException cpoe,
 			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
 		errorInformation.setTitle("Client Profil veraltet");
@@ -55,27 +56,49 @@ public class ExeptionHandlingController {
 		errorInformation.setRequestedURI(request.getRequestURI());
 		errorInformation.setTimestamp(new Date());
 		errorInformation.setAdditionalInformation("");
-		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.CONFLICT);
-		return responseEntity;
-	}
-	
-	@ExceptionHandler(value = ServerProfileOutdatedException.class)
-	public ResponseEntity<?> handleServerProfileOutdatedException(ServerProfileOutdatedException spoe,
-			HttpServletRequest request) {
-		ErrorInformation errorInformation = new ErrorInformation();
-		errorInformation.setTitle("Server Profil veraltet");
-		errorInformation.setException(spoe.getClass().getName());
-		errorInformation.setStatus(HttpStatus.CONFLICT.value());
-		errorInformation.setDetail(spoe.getMessage());
-		errorInformation.setRequestedURI(request.getRequestURI());
-		errorInformation.setTimestamp(new Date());
-		errorInformation.setAdditionalInformation("");
-		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.CONFLICT);
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.CONFLICT);
 		return responseEntity;
 	}
 
+	/**
+	 * Kümmert sich um das abfangen von HttpRequestMethodNotSupportedException.
+	 * 
+	 * @param htmnse
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI
+	 * @return Informationen zum Fehler.
+	 * @see HttpRequestMethodNotSupportedException
+	 */
+	@ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<ErrorInformation> handleHttpRequestMethodNotSupportedException(
+			HttpRequestMethodNotSupportedException htmnse, HttpServletRequest request) {
+		ErrorInformation errorInformation = new ErrorInformation();
+		errorInformation.setTitle("HTTP-Methode nicht unterstützt");
+		errorInformation.setException(htmnse.getClass().getName());
+		errorInformation.setStatus(HttpStatus.METHOD_NOT_ALLOWED.value());
+		errorInformation.setDetail(htmnse.getMessage());
+		errorInformation.setRequestedURI(request.getRequestURI());
+		errorInformation.setTimestamp(new Date());
+		errorInformation.setAdditionalInformation("");
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.METHOD_NOT_ALLOWED);
+		return responseEntity;
+	}
+
+	/**
+	 * Kümmert sich um das abfangen von MalformedProfileIdException.
+	 * 
+	 * @param mpide
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI
+	 * @return Informationen zum Fehler.
+	 * @see MalformedProfileIdException
+	 */
 	@ExceptionHandler(value = MalformedProfileIdException.class)
-	public ResponseEntity<?> handleMalformedProfileIdException(MalformedProfileIdException mpide,
+	public ResponseEntity<ErrorInformation> handleMalformedProfileIdException(MalformedProfileIdException mpide,
 			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
 		errorInformation.setTitle("Ungültige ProfilId");
@@ -85,55 +108,46 @@ public class ExeptionHandlingController {
 		errorInformation.setRequestedURI(request.getRequestURI());
 		errorInformation.setTimestamp(new Date());
 		errorInformation.setAdditionalInformation("");
-		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.UNPROCESSABLE_ENTITY);
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.UNPROCESSABLE_ENTITY);
 		return responseEntity;
 	}
 
-	@ExceptionHandler(value = ProfileAlreadyExistsException.class)
-	public ResponseEntity<?> handleProfileAlreadyExistsException(ProfileAlreadyExistsException paee,
-			HttpServletRequest request) {
+	/**
+	 * Kümmert sich um das abfangen von MappingException.
+	 * 
+	 * @param me
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI
+	 * @return Informationen zum Fehler.
+	 * @see MappingException
+	 */
+	@ExceptionHandler(value = MappingException.class)
+	public ResponseEntity<?> handleMappingException(MappingException me, HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
-		errorInformation.setTitle("Profil bereits vorhanden");
-		errorInformation.setException(paee.getClass().getName());
-		errorInformation.setStatus(HttpStatus.CONFLICT.value());
-		errorInformation.setDetail(paee.getMessage());
+		errorInformation.setTitle("Daten entsprechen nicht denen der Profile-Klasse -> Konvertierungsfehler");
+		errorInformation.setException(me.getClass().getName());
+		errorInformation.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		errorInformation.setDetail(me.getMessage());
 		errorInformation.setRequestedURI(request.getRequestURI());
 		errorInformation.setTimestamp(new Date());
 		errorInformation.setAdditionalInformation("");
-		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.CONFLICT);
+		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null,
+				HttpStatus.INTERNAL_SERVER_ERROR);
 		return responseEntity;
 	}
 
-	@ExceptionHandler(value = ProfileSetOnDeletionException.class)
-	public ResponseEntity<?> handleProfileSetOnDeletionException(ProfileSetOnDeletionException psode,
-			HttpServletRequest request) {
-		ErrorInformation errorInformation = new ErrorInformation();
-		errorInformation.setTitle("Profil zum Löschen freigegeben");
-		errorInformation.setException(psode.getClass().getName());
-		errorInformation.setStatus(HttpStatus.GONE.value());
-		errorInformation.setDetail(psode.getMessage());
-		errorInformation.setRequestedURI(request.getRequestURI());
-		errorInformation.setTimestamp(new Date());
-		errorInformation.setAdditionalInformation("");
-		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.GONE);
-		return responseEntity;
-	}
-	
-	@ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
-	public ResponseEntity<?> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException htmnse,
-			HttpServletRequest request) {
-		ErrorInformation errorInformation = new ErrorInformation();
-		errorInformation.setTitle("HTTP-Methode nicht unterstützt");
-		errorInformation.setException(htmnse.getClass().getName());
-		errorInformation.setStatus(HttpStatus.METHOD_NOT_ALLOWED.value());
-		errorInformation.setDetail(htmnse.getMessage());
-		errorInformation.setRequestedURI(request.getRequestURI());
-		errorInformation.setTimestamp(new Date());
-		errorInformation.setAdditionalInformation("");
-		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.METHOD_NOT_ALLOWED);
-		return responseEntity;
-	}
-	
+	/**
+	 * Kümmert sich um das abfangen von MethodArgumentTypeMismatchException.
+	 * 
+	 * @param matme
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI
+	 * @return Informationen zum Fehler.
+	 * @see MethodArgumentTypeMismatchException
+	 */
 	@ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
 	public ResponseEntity<?> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException matme,
 			HttpServletRequest request) {
@@ -148,20 +162,133 @@ public class ExeptionHandlingController {
 		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.BAD_REQUEST);
 		return responseEntity;
 	}
-	
-	
-	@ExceptionHandler(value = MappingException.class)
-	public ResponseEntity<?> handleMappingException(MappingException me,
+
+	/**
+	 * Kümmert sich um das abfangen von NoProfilesInDatabaseException.
+	 * 
+	 * @param npide
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI.
+	 * @return Informationen zum Fehler.
+	 * @see NoProfilesInDatabaseException
+	 */
+	@ExceptionHandler(value = NoProfilesInDatabaseException.class)
+	public ResponseEntity<ErrorInformation> handleNoProfilesInDatabaseException(NoProfilesInDatabaseException npide,
 			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
-		errorInformation.setTitle("Daten entsprechen nicht denen der Profile-Klasse -> Konvertierungsfehler");
-		errorInformation.setException(me.getClass().getName());
-		errorInformation.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-		errorInformation.setDetail(me.getMessage());
+		errorInformation.setTitle("Keine Profile in DB vorhanden.");
+		errorInformation.setException(npide.getClass().getName());
+		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
+		errorInformation.setDetail(npide.getMessage());
 		errorInformation.setRequestedURI(request.getRequestURI());
 		errorInformation.setTimestamp(new Date());
 		errorInformation.setAdditionalInformation("");
-		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.INTERNAL_SERVER_ERROR);
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.NOT_FOUND);
+		return responseEntity;
+	}
+
+	/**
+	 * Kümmert sich um das abfangen von ProfileAlreadyExistsException.
+	 * 
+	 * @param paee
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI
+	 * @return Informationen zum Fehler.
+	 * @see ProfileAlreadyExistsException
+	 */
+	@ExceptionHandler(value = ProfileAlreadyExistsException.class)
+	public ResponseEntity<ErrorInformation> handleProfileAlreadyExistsException(ProfileAlreadyExistsException paee,
+			HttpServletRequest request) {
+		ErrorInformation errorInformation = new ErrorInformation();
+		errorInformation.setTitle("Profil bereits vorhanden");
+		errorInformation.setException(paee.getClass().getName());
+		errorInformation.setStatus(HttpStatus.CONFLICT.value());
+		errorInformation.setDetail(paee.getMessage());
+		errorInformation.setRequestedURI(request.getRequestURI());
+		errorInformation.setTimestamp(new Date());
+		errorInformation.setAdditionalInformation("");
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.CONFLICT);
+		return responseEntity;
+	}
+
+	/**
+	 * Kümmert sich um das abfangen von ProfileNotFoundExceptions.
+	 * 
+	 * @param pnfe
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI.
+	 * @return Informationen zum Fehler.
+	 * @see ProfileNotFoundException
+	 */
+	public ResponseEntity<ErrorInformation> handleProfileNotFoundException(ProfileNotFoundException pnfe,
+			HttpServletRequest request) {
+		ErrorInformation errorInformation = new ErrorInformation();
+		errorInformation.setTitle("Profil nicht gefunden");
+		errorInformation.setException(pnfe.getClass().getName());
+		errorInformation.setStatus(HttpStatus.NOT_FOUND.value());
+		errorInformation.setDetail(pnfe.getMessage());
+		errorInformation.setRequestedURI(request.getRequestURI());
+		errorInformation.setTimestamp(new Date());
+		errorInformation.setAdditionalInformation("");
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.NOT_FOUND);
+		return responseEntity;
+	}
+
+	/**
+	 * Kümmert sich um das abfangen von ProfileSetOnDeletionException.
+	 * 
+	 * @param psode
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI
+	 * @return Informationen zum Fehler.
+	 * @see ProfileSetOnDeletionException
+	 */
+	@ExceptionHandler(value = ProfileSetOnDeletionException.class)
+	public ResponseEntity<ErrorInformation> handleProfileSetOnDeletionException(ProfileSetOnDeletionException psode,
+			HttpServletRequest request) {
+		ErrorInformation errorInformation = new ErrorInformation();
+		errorInformation.setTitle("Profil zum Löschen freigegeben");
+		errorInformation.setException(psode.getClass().getName());
+		errorInformation.setStatus(HttpStatus.GONE.value());
+		errorInformation.setDetail(psode.getMessage());
+		errorInformation.setRequestedURI(request.getRequestURI());
+		errorInformation.setTimestamp(new Date());
+		errorInformation.setAdditionalInformation("");
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.GONE);
+		return responseEntity;
+	}
+
+	/**
+	 * Kümmert sich um das abfangen von ServerProfileOutdatedException.
+	 * 
+	 * @param spoe
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI
+	 * @return Informationen zum Fehler.
+	 * @see ServerProfileOutdatedException
+	 */
+	@ExceptionHandler(value = ServerProfileOutdatedException.class)
+	public ResponseEntity<ErrorInformation> handleServerProfileOutdatedException(ServerProfileOutdatedException spoe,
+			HttpServletRequest request) {
+		ErrorInformation errorInformation = new ErrorInformation();
+		errorInformation.setTitle("Server Profil veraltet");
+		errorInformation.setException(spoe.getClass().getName());
+		errorInformation.setStatus(HttpStatus.CONFLICT.value());
+		errorInformation.setDetail(spoe.getMessage());
+		errorInformation.setRequestedURI(request.getRequestURI());
+		errorInformation.setTimestamp(new Date());
+		errorInformation.setAdditionalInformation("");
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.CONFLICT);
 		return responseEntity;
 	}
 }

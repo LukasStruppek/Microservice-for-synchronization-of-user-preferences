@@ -11,9 +11,8 @@ import org.springframework.stereotype.Service;
 import de.privacy_avare.repository.ProfileRepository;
 
 /**
- * Klasse stellt statische Methode zur Generierung einer 16-stelligen,
- * eindeutigen UserID bereit. Erzeugung von Instanzen der Klasse ist nicht
- * möglich.
+ * Klasse stellt statische Methode zur Generierung und Überprüfung einer
+ * 16-stelligen, eindeutigen ProfileID bereit.
  * 
  * @author Lukas Struppek
  * @version 1.0
@@ -27,7 +26,9 @@ public class IdService {
 
 	/**
 	 * Erzeugt unter Verwendung des aktuellen Datum, der aktuellen Uhrzeit und
-	 * zufälligen Buchstaben eine eindeutige UserID.
+	 * zufälligen Buchstaben eine eindeutige ProfileId. Die ProfileID besteht dabei
+	 * aus 10 Zahlen, welche mit dem Erzeugungszeitpunkt zusammenhängen sowie 6
+	 * zufällig gewählten Buchstaben.
 	 * 
 	 * @return generierte UserID
 	 */
@@ -65,11 +66,25 @@ public class IdService {
 		return result;
 	}
 
+	/**
+	 * Überprüft, ob eine ProfileID bereits in der DB vorhanden ist.
+	 * 
+	 * @param id
+	 *            Zu prüfende ProfileId.
+	 * @return Ergebnis der Prüfung.
+	 */
 	public boolean isIdAlreadyTaken(String id) {
 		boolean idExists = profileRepository.exists(id);
 		return idExists;
 	}
 
+	/**
+	 * Prüft, ob ein String dem Aufbau einer gültigen ProfileId entspricht.
+	 * 
+	 * @param id
+	 *            Zu prüfender String.
+	 * @return Ergebnis der Prüfung.
+	 */
 	public boolean validateId(String id) {
 		char[] chars = id.toCharArray();
 		int numbers = 0;

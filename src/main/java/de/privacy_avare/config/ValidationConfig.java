@@ -6,11 +6,13 @@ import org.springframework.data.couchbase.core.mapping.event.ValidatingCouchbase
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 /**
- * Klasse dient zur Konfiguration innerhalb des Spring-Frameworks und dient als
- * Alternative eines xml-Files für Einstellungen.
+ * Klasse dient zur Konfiguration von Data Validation. Hierzu zählt die Nutzung
+ * von Annotations gemäß JSR303 Bean Validation.
  * 
  * @author Lukas Struppek
  * @version 1.0
+ * @see <a href = "http://beanvalidation.org/1.0/spec/"> JSR303 Bean Validation
+ *      </a>
  */
 
 @Configuration

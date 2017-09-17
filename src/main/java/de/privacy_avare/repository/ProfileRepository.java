@@ -29,6 +29,7 @@ import de.privacy_avare.domain.Profile;
  * 
  * @author Lukas Struppek
  * @version 1.0
+ * @see CrudRepository
  */
 @N1qlPrimaryIndexed
 public interface ProfileRepository extends CrudRepository<Profile, String> {
@@ -57,14 +58,50 @@ public interface ProfileRepository extends CrudRepository<Profile, String> {
 	 */
 	List<Profile> findAllByUnSyncFalse();
 
+	/**
+	 * Liefert alle Profile aus der Datenbank, bei welchen der Zeitstempel
+	 * lastProfileContact vor dem Zeitpunkt des Parameters date liegt.
+	 * 
+	 * @param date
+	 *            Zeitpunkt, bis zu welchem alle Profile gesucht werden.
+	 * @return Profile mit lastProfileContact vor Zeitpunkt des Parameters.
+	 */
 	List<Profile> findAllByLastProfileContactBefore(Date date);
 
+	/**
+	 * Liefert den Zeitpunkt lastProfileContact eines einzelnen Profils zurück.
+	 * 
+	 * @param id
+	 *            ProfileId des gesuchten Profils.
+	 * @return Zeitpunkt lastProfileContact.
+	 */
 	Date findLastProfileContactById(String id);
 
+	/**
+	 * Liefert den Zeitpunkt lastPRofileChange eines einzelnen Profils zurück.
+	 * 
+	 * @param id
+	 *            ProfileId des gesuchten Profils.
+	 * @return Zeitpunkt lastProfileChange.
+	 */
 	Date findLastProfileChangeById(String id);
 
+	/**
+	 * Liefert die Eigenschaft des Flags unSync eines einzelnen Profils zurück.
+	 * 
+	 * @param id
+	 *            ProfileId des gesuchten Profils.
+	 * @return Zustand des Flags unSync.
+	 */
 	boolean findUnSyncById(String id);
 
+	/**
+	 * Liefert die preferences eines Profils zurück.
+	 * 
+	 * @param id
+	 *            ProfileId des gesuchten Profils.
+	 * @return Preferences eines Profils.
+	 */
 	Object findPreferencesById(String id);
 
 }

@@ -1,7 +1,6 @@
 package de.privacy_avare.scheduler;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +26,9 @@ import de.privacy_avare.service.ClearanceService;
 @Component
 public class ScheduledTasks {
 
+	/**
+	 * Instanz des Services, welcher die Aufräumarbeiten des Servers übernimmt.
+	 */
 	@Autowired
 	ClearanceService clearanceService;
 

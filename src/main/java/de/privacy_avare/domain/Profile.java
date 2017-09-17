@@ -12,9 +12,9 @@ import com.couchbase.client.java.repository.annotation.Field;
 import com.couchbase.client.java.repository.annotation.Id;
 
 /**
- * Die Klasse repräsentiert die Userdaten. Diese beinhalten die Eigenschaften
- * ProfileId, lastProfileChange, lastProfileContact, preferences und ein
- * unSync-Flag.
+ * Die Klasse repräsentiert die Profildaten in der Datenbank. Diese beinhalten
+ * die Eigenschaften id, lastProfileChange, lastProfileContact, preferences und
+ * ein unSync-Flag.
  * 
  * @author Lukas Struppek
  * @version 1.0
@@ -24,7 +24,8 @@ import com.couchbase.client.java.repository.annotation.Id;
 public class Profile {
 	/**
 	 * Entspricht der ProfileID, mit welcher ein Profil eindeutig identifiziert
-	 * werden kann. Wird auch zur Identifikation innerhalb der Datenbank verwendet.
+	 * werden kann. Wird auch zur Identifikation der Dokumente innerhalb der
+	 * Datenbank verwendet.
 	 */
 	@Id
 	@Field
@@ -47,7 +48,7 @@ public class Profile {
 	private Date lastProfileContact;
 
 	/**
-	 * Repräsentiert die Nutzerpräferenzen. <<<Zur Zeit noch als Platzhalter.>>>
+	 * Repräsentiert die Nutzerpräferenzen. !!!Zur Zeit noch als Platzhalter.!!!
 	 */
 	@Field
 	private Object preferences;
@@ -235,6 +236,12 @@ public class Profile {
 		return result;
 	}
 
+	/**
+	 * Generiert eine HashMap mit den Eigenschaften und ihren entsprechenden
+	 * Zuständen eines PRofile-Objekts zurück.
+	 * 
+	 * @return Generierte HashMap mit allen aktuellen Zuständen des Objekts.
+	 */
 	public HashMap<String, Object> toHashMap() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("id", this.id);

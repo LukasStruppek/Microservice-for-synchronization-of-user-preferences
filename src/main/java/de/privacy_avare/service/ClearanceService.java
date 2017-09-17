@@ -2,7 +2,6 @@ package de.privacy_avare.service;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +22,15 @@ import de.privacy_avare.repository.ProfileRepository;
 @Service
 public class ClearanceService {
 
+	/**
+	 * Service zum Abruf der Profile aus der Datenbank.
+	 */
 	@Autowired
 	ProfileRepository profileRepository;
 
 	/**
-	 * Löscht alle Profile in der Datenbank mit unSync-Flag auf true sowie Profile,
-	 * auf welche länger als 18 Monate nicht zugegriffen wurde.
+	 * Löscht alle Profile in der Datenbank endgültig mit unSync-Flag auf true sowie
+	 * Profile, auf welche länger als 18 Monate nicht zugegriffen wurde.
 	 */
 	public void cleanDatabase() {
 		// Suchen & Löschen aller Profile in der DB mit unSync = true

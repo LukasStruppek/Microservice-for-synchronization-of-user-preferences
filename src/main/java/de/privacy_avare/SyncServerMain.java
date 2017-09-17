@@ -6,7 +6,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Einstiegspunkt für das Server-Programm. Startet automatisch einen
- * Tomcat-Server.
+ * embedded Tomcat-Server. 
+ * 
+ * In der main-Methode können weitere Konfigurationen vorgenommen werden.
  * 
  * @author Lukas Struppek
  * @version 1.0
