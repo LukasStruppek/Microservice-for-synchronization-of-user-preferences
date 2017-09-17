@@ -69,7 +69,8 @@ public class ExeptionHandlingController {
 	 * @param request
 	 *            Aufgerufene URI
 	 * @return Informationen zum Fehler.
-	 * @see HttpRequestMethodNotSupportedException
+	 * @see <a href =
+	 *      "https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/HttpRequestMethodNotSupportedException.html">HttpRequestMethodNotSupportedException</a>
 	 */
 	@ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
 	public ResponseEntity<ErrorInformation> handleHttpRequestMethodNotSupportedException(
@@ -121,10 +122,11 @@ public class ExeptionHandlingController {
 	 * @param request
 	 *            Aufgerufene URI
 	 * @return Informationen zum Fehler.
-	 * @see MappingException
+	 * @see <a href =
+	 *      "https://docs.spring.io/spring-data/commons/docs/1.10.0.M1/api/org/springframework/data/mapping/model/MappingException.html">MappingException</a>
 	 */
 	@ExceptionHandler(value = MappingException.class)
-	public ResponseEntity<?> handleMappingException(MappingException me, HttpServletRequest request) {
+	public ResponseEntity<ErrorInformation> handleMappingException(MappingException me, HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
 		errorInformation.setTitle("Daten entsprechen nicht denen der Profile-Klasse -> Konvertierungsfehler");
 		errorInformation.setException(me.getClass().getName());
@@ -133,7 +135,7 @@ public class ExeptionHandlingController {
 		errorInformation.setRequestedURI(request.getRequestURI());
 		errorInformation.setTimestamp(new Date());
 		errorInformation.setAdditionalInformation("");
-		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null,
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
 				HttpStatus.INTERNAL_SERVER_ERROR);
 		return responseEntity;
 	}
@@ -146,11 +148,12 @@ public class ExeptionHandlingController {
 	 * @param request
 	 *            Aufgerufene URI
 	 * @return Informationen zum Fehler.
-	 * @see MethodArgumentTypeMismatchException
+	 * @see <a href =
+	 *      "https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/messaging/handler/annotation/support/MethodArgumentTypeMismatchException.html">MethodArgumentTypeMismatchException</a>
 	 */
 	@ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
-	public ResponseEntity<?> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException matme,
-			HttpServletRequest request) {
+	public ResponseEntity<ErrorInformation> handleMethodArgumentTypeMismatchException(
+			MethodArgumentTypeMismatchException matme, HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
 		errorInformation.setTitle("Falscher Datentyp im Parameter");
 		errorInformation.setException(matme.getClass().getName());
@@ -159,7 +162,8 @@ public class ExeptionHandlingController {
 		errorInformation.setRequestedURI(request.getRequestURI());
 		errorInformation.setTimestamp(new Date());
 		errorInformation.setAdditionalInformation("");
-		ResponseEntity<?> responseEntity = new ResponseEntity<>(errorInformation, null, HttpStatus.BAD_REQUEST);
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.BAD_REQUEST);
 		return responseEntity;
 	}
 
