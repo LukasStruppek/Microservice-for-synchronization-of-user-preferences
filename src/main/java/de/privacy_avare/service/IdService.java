@@ -32,7 +32,7 @@ public class IdService {
 	 * 
 	 * @return generierte UserID
 	 */
-	public String generateID() {
+	public String generateId() {
 		Random random = new Random();
 		Calendar calendar = Calendar.getInstance(Locale.GERMANY);
 		calendar.setTime(new Date());

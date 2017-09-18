@@ -49,7 +49,7 @@ public class ProfileService {
 	 * 
 	 */
 	public Profile createNewProfile() throws ProfileAlreadyExistsException {
-		String id = idService.generateID();
+		String id = idService.generateId();
 		if (idService.isIdAlreadyTaken(id) == true) {
 			throw new ProfileAlreadyExistsException("UserID wird bereits in einem bestehenden Profil verwendet.");
 		}
@@ -136,12 +136,6 @@ public class ProfileService {
 	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChange)
 			throws ProfileNotFoundException, ProfileSetOnDeletionException, ServerProfileOutdatedException {
 		Profile dbProfile = getProfileById(id);
-		if (dbProfile == null) {
-			new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
-		}
-		if (dbProfile.isUnSync() == true) {
-			new ProfileSetOnDeletionException("Profil ist gelöscht.");
-		}
 		GregorianCalendar dbLastProfileChangeTimestamp = new GregorianCalendar();
 		dbLastProfileChangeTimestamp.setTime(dbProfile.getLastProfileChange());
 		dbLastProfileChangeTimestamp.set(Calendar.MINUTE, dbLastProfileChangeTimestamp.get(Calendar.MINUTE) - 5);
@@ -318,15 +312,9 @@ public class ProfileService {
 	 */
 	public void pushProfile(String id, Date clientLastProfileChange, Object clientPreferences, boolean overwrite)
 			throws ProfileNotFoundException, ProfileSetOnDeletionException, ClientProfileOutdatedException {
-		// Abrufen des entsprechenden Profils aus der Datenbank
-		Profile dbProfile = profileRepository.findOne(id);
-
-		// Falls kein Profil in der DB ist, wird das neue in die DB geschrieben.
-		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
-		} else if (dbProfile.isUnSync() == true) {
-			throw new ProfileSetOnDeletionException("Profil ist gelöscht.");
-		} else {
+		// Abrufen des entsprechenden Profils aus der Datenbank, wirft eventuell Exceptions
+		Profile dbProfile = getProfileById(id);
+		{
 			if (overwrite == true) {
 				dbProfile.setpreferences(clientPreferences);
 				dbProfile.setLastProfileChange(clientLastProfileChange);
