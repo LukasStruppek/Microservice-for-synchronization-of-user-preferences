@@ -51,7 +51,8 @@ public class ProfileService {
 	public Profile createNewProfile() throws ProfileAlreadyExistsException {
 		String id = idService.generateId();
 		if (idService.isIdAlreadyTaken(id) == true) {
-			throw new ProfileAlreadyExistsException("UserID wird bereits in einem bestehenden Profil verwendet.");
+			throw new ProfileAlreadyExistsException(
+					"ProfileId (" + id + ") wird bereits in einem bestehenden Profil verwendet.");
 		}
 		Profile profile = new Profile(id);
 		updateProfile(profile);
@@ -75,10 +76,11 @@ public class ProfileService {
 	 */
 	public Profile createNewProfile(String id) throws ProfileAlreadyExistsException, MalformedProfileIdException {
 		if (idService.validateId(id) == false) {
-			throw new MalformedProfileIdException("Ungültiges UserID-Format - keine 16-stellige ID.");
+			throw new MalformedProfileIdException("Ungültiges ProfileId-Format (" + id + ") - keine 16-stellige ID.");
 		}
 		if (idService.isIdAlreadyTaken(id) == true) {
-			throw new ProfileAlreadyExistsException("UserID wird bereits in einem bestehenden Profil verwendet.");
+			throw new ProfileAlreadyExistsException(
+					"ProfileId (" + id + ") wird bereits in einem bestehenden Profil verwendet.");
 		}
 		Profile profile = new Profile(id);
 		updateProfile(profile);
@@ -101,9 +103,9 @@ public class ProfileService {
 	public Profile getProfileById(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ProfileId (" + id + ") gefunden.");
 		} else if (dbProfile.isUnSync() == true) {
-			throw new ProfileSetOnDeletionException("Profil ist gelöscht.");
+			throw new ProfileSetOnDeletionException("Profil (" + id + ") ist zum löschen freigegeben.");
 		} else {
 			updateProfile(dbProfile);
 		}
@@ -142,7 +144,7 @@ public class ProfileService {
 		if (dbLastProfileChangeTimestamp.getTime().after(clientLastProfileChange)) {
 			return dbProfile;
 		} else {
-			throw new ServerProfileOutdatedException("Profil in DB älter als Clientprofil");
+			throw new ServerProfileOutdatedException("Profil (" + id + ") in DB älter als Clientprofil");
 		}
 	}
 
@@ -215,7 +217,7 @@ public class ProfileService {
 	public Date getLastProfileChange(String id) throws ProfileNotFoundException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ProfileId (" + id + ") gefunden.");
 		}
 		Date dbProfileLastProfileChange = dbProfile.getLastProfileChange();
 		return dbProfileLastProfileChange;
@@ -235,7 +237,7 @@ public class ProfileService {
 	public Date getLastProfileContact(String id) throws ProfileNotFoundException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ProfileId (" + id + ") gefunden.");
 		}
 		Date dbProfileLastProfileContact = dbProfile.getLastProfileContact();
 		return dbProfileLastProfileContact;
@@ -256,9 +258,9 @@ public class ProfileService {
 	public Object getPreferences(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ProfileId (" + id + ") gefunden.");
 		} else if (dbProfile.isUnSync() == true) {
-			throw new ProfileSetOnDeletionException("Profil ist gelöscht.");
+			throw new ProfileSetOnDeletionException("Profil (" + id + ") ist zum löschen freigegeben.");
 		}
 		Object dbProfilePreferences = dbProfile.getPreferences();
 		return dbProfilePreferences;
@@ -277,7 +279,7 @@ public class ProfileService {
 	public boolean isUnSync(String id) throws ProfileNotFoundException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ProfileId (" + id + ") gefunden.");
 		}
 		boolean dbProfileUnSync = dbProfile.isUnSync();
 		return dbProfileUnSync;
@@ -312,7 +314,8 @@ public class ProfileService {
 	 */
 	public void pushProfile(String id, Date clientLastProfileChange, Object clientPreferences, boolean overwrite)
 			throws ProfileNotFoundException, ProfileSetOnDeletionException, ClientProfileOutdatedException {
-		// Abrufen des entsprechenden Profils aus der Datenbank, wirft eventuell Exceptions
+		// Abrufen des entsprechenden Profils aus der Datenbank, wirft eventuell
+		// Exceptions
 		Profile dbProfile = getProfileById(id);
 		{
 			if (overwrite == true) {
@@ -329,7 +332,7 @@ public class ProfileService {
 					dbProfile.setLastProfileChange(clientLastProfileChange);
 					updateProfile(dbProfile);
 				} else {
-					new ClientProfileOutdatedException("Profil in DB aktueller als Clientprofile.");
+					new ClientProfileOutdatedException("Profil (" + id + ") in DB aktueller als Clientprofile.");
 				}
 			}
 		}
