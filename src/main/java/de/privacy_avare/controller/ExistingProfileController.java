@@ -232,7 +232,7 @@ public class ExistingProfileController {
 	 * 
 	 * @return Eigenschaft lastProfileChangeTimestamp des DB-Profils.
 	 */
-	@RequestMapping(value = "/{id}/lastProfileChange")
+	@RequestMapping(value = "/{id}/lastProfileChange", method = RequestMethod.GET)
 	public ResponseEntity<Date> getLastProfileChange(@PathVariable("id") String id) {
 		Date serverLastProfileChange = profileService.getLastProfileChange(id);
 		ResponseEntity<Date> response = new ResponseEntity<Date>(serverLastProfileChange, HttpStatus.OK);
@@ -252,7 +252,7 @@ public class ExistingProfileController {
 	 * 
 	 * @return Eigenschaft lastProfileContactTimestamp des DB-Profils.
 	 */
-	@RequestMapping(value = "/{id}/lastProfileContact")
+	@RequestMapping(value = "/{id}/lastProfileContact", method = RequestMethod.GET)
 	public ResponseEntity<Date> getLastProfileContact(@PathVariable("id") String id) {
 		Date serverLastProfileContact = profileService.getLastProfileContact(id);
 		ResponseEntity<Date> response = new ResponseEntity<Date>(serverLastProfileContact, HttpStatus.OK);
@@ -272,7 +272,7 @@ public class ExistingProfileController {
 	 * 
 	 * @return Eigenschaft unSync des DB-Profils.
 	 */
-	@RequestMapping(value = "/{id}/unSync")
+	@RequestMapping(value = "/{id}/unSync", method = RequestMethod.GET)
 	public ResponseEntity<Boolean> isProfileUnsync(@PathVariable("id") String id) {
 		boolean unSync = profileService.isUnSync(id);
 		ResponseEntity<Boolean> response = new ResponseEntity<Boolean>(unSync, HttpStatus.OK);
@@ -292,7 +292,7 @@ public class ExistingProfileController {
 	 * 
 	 * @return Eigenschaft preferences des DB-Profils.
 	 */
-	@RequestMapping(value = "/{id}/preferences")
+	@RequestMapping(value = "/{id}/preferences", method = RequestMethod.GET)
 	public ResponseEntity<Object> getPreferences(@PathVariable("id") String id) {
 		Object serverPreferences = profileService.getPreferences(id);
 		ResponseEntity<Object> response = new ResponseEntity<Object>(serverPreferences, HttpStatus.OK);

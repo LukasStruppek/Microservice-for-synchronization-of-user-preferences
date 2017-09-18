@@ -403,6 +403,12 @@ public class ProfileService {
 		// throws ProfileNotFoundException und ProfileSetOnDeletionException
 		Profile dbProfile = getProfileById(id);
 
+		// Falls Profil noch nicht benutzt, setze letzten Änderungszeitpunkt zunächst
+		// auf aktuellen Zeitpunkt.
+		if (dbProfile.getLastProfileChange().getTime() == 0L) {
+			dbProfile.setLastProfileChange(new Date());
+		}
+
 		// Bestimmung des aktuellen Zeitpunktes plus 100 Jahre.
 		Calendar lastProfileChange = GregorianCalendar.getInstance(Locale.GERMANY);
 		lastProfileChange.setTime(dbProfile.getLastProfileChange());
@@ -410,6 +416,9 @@ public class ProfileService {
 
 		// Setzen der Eigenschaften lastProfileChange + 100 Jahre und unSync = true;
 		// Löschen der Nutzerpräferenzen
+		if (dbProfile.getLastProfileChange().getTime() == 0L) {
+			dbProfile.setLastProfileChange(lastProfileChange.getTime());
+		}
 		dbProfile.setLastProfileChange(lastProfileChange.getTime());
 		dbProfile.setUnSync(true);
 		dbProfile.setpreferences(null);
