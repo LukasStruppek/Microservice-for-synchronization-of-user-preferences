@@ -34,12 +34,11 @@ public class ScheduledTasks {
 
 	/**
 	 * Löschen deaktivierte Profile aus der Datenbank. Aufruf jeden Montag, 03:00:00
-	 * Uhr.
+	 * Uhr. Es werden alle Profile in der Datenbank gesucht und gelöscht, deren
+	 * lastProfileContactTimestamp weiter als 18 Monate in der Vergangenheit liegen.
 	 * 
-	 * Datenbank wird nach Profilen mit gesetztem unSync-Flag durchsucht, welche
-	 * daraufhin gelöscht werden. Weiterhin werden alle Profile in der Datenbank
-	 * gesucht und gelöscht, deren lastProfileContactTimestamp weiter als 18 Monate
-	 * in der Vergangenheit liegen.
+	 * Eine Überprüfung der Profile auf unSync erfolgt nicht. Diese Profile werden
+	 * ebenso nach 18 Monaten ohne Kontakt gelöscht.
 	 */
 	@Scheduled(cron = "0 0 3 * * MON", zone = "Europe/Berlin")
 	public void cleanDataBase() {
