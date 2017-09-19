@@ -105,7 +105,7 @@ public class ExistingProfileController {
 	@RequestMapping(value = "/{id}/{clientProfileChangeTimestamp}", method = RequestMethod.PUT)
 	public ResponseEntity<Void> pushProfile(@PathVariable("id") String id,
 			@PathVariable("clientProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
-			@RequestBody Object preferences) throws RuntimeException {
+			@RequestBody String preferences) throws RuntimeException {
 		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, false);
 		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		return response;
@@ -149,7 +149,7 @@ public class ExistingProfileController {
 	@RequestMapping(value = "/{id}/{clientProfileChangeTimestamp}/{overwrite}", method = RequestMethod.PUT)
 	public ResponseEntity<Void> pushProfile(@PathVariable("id") String id,
 			@PathVariable("clientProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
-			@RequestBody Object preferences, @PathVariable("overwrite") boolean overwrite) throws RuntimeException {
+			@RequestBody String preferences, @PathVariable("overwrite") boolean overwrite) throws RuntimeException {
 		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, overwrite);
 		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		return response;
@@ -293,9 +293,9 @@ public class ExistingProfileController {
 	 * @return Eigenschaft preferences des DB-Profils.
 	 */
 	@RequestMapping(value = "/{id}/preferences", method = RequestMethod.GET)
-	public ResponseEntity<Object> getPreferences(@PathVariable("id") String id) {
-		Object serverPreferences = profileService.getPreferences(id);
-		ResponseEntity<Object> response = new ResponseEntity<Object>(serverPreferences, HttpStatus.OK);
+	public ResponseEntity<String> getPreferences(@PathVariable("id") String id) {
+		String serverPreferences = profileService.getPreferences(id);
+		ResponseEntity<String> response = new ResponseEntity<String>(serverPreferences, HttpStatus.OK);
 		return response;
 	}
 

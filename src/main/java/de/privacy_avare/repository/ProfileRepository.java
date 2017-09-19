@@ -102,6 +102,6 @@ public interface ProfileRepository extends CrudRepository<Profile, String> {
 	 *            ProfileId des gesuchten Profils.
 	 * @return Preferences eines Profils.
 	 */
-	Object findPreferencesById(String id);
+	String findPreferencesById(String id);
 
 }

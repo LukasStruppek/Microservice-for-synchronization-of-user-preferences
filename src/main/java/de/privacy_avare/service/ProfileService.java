@@ -255,14 +255,14 @@ public class ProfileService {
 	 * @throws ProfileSetOnDeletionException
 	 *             Profil zum Löschen auf unSync gesetzt.
 	 */
-	public Object getPreferences(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
+	public String getPreferences(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
 			throw new ProfileNotFoundException("Kein Profil mit entsprechender ProfileId (" + id + ") gefunden.");
 		} else if (dbProfile.isUnSync() == true) {
 			throw new ProfileSetOnDeletionException("Profil (" + id + ") ist zum löschen freigegeben.");
 		}
-		Object dbProfilePreferences = dbProfile.getPreferences();
+		String dbProfilePreferences = dbProfile.getPreferences();
 		return dbProfilePreferences;
 	}
 
@@ -312,7 +312,7 @@ public class ProfileService {
 	 * @throws ClientProfileOutdatedException
 	 *             Profil in DB aktueller als Clientprofile.
 	 */
-	public void pushProfile(String id, Date clientLastProfileChange, Object clientPreferences, boolean overwrite)
+	public void pushProfile(String id, Date clientLastProfileChange, String clientPreferences, boolean overwrite)
 			throws ProfileNotFoundException, ProfileSetOnDeletionException, ClientProfileOutdatedException {
 		// Abrufen des entsprechenden Profils aus der Datenbank, wirft eventuell
 		// Exceptions
