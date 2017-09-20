@@ -27,9 +27,6 @@ public class NewProfileController {
 
 	/**
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 	 * Service stellt Methode zur automatischen Generierung einer eindeutigen
 	 * ProfileId bereit. Instanz wird über Dependency Injection bereitgestellt.
 	 * 
@@ -50,7 +47,6 @@ public class NewProfileController {
 
 	/**
 <<<<<<< HEAD
-<<<<<<< HEAD
 	 * Erzeugung eines neuen Profils inkl. Generierung einer neuen UserID. Das
 =======
 	 * Default-Konstruktor.
@@ -62,9 +58,6 @@ public class NewProfileController {
 	/**
 	 * Erzeugung eines neuen Profils inklusive Generierung einer neuen UserID. Das
 >>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
-=======
-	 * Erzeugung eines neuen Profils inkl. Generierung einer neuen UserID. Das
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 	 * erzeugte Profil wird automatisch in der Datenbank mit default-Werten
 	 * hinterlegt. Entspricht UC1 ohne Parameter.
 	 * 
@@ -75,15 +68,11 @@ public class NewProfileController {
 	 */
 	@RequestMapping(value = "", method = RequestMethod.POST)
 <<<<<<< HEAD
-<<<<<<< HEAD
 	public ResponseEntity<String> createProfile() throws Exception {
 =======
 	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
 		System.out.println("Anfrage erhalten");
 >>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
-=======
-	public ResponseEntity<String> createProfile() throws Exception {
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 		Profile serverProfile = profileService.createNewProfile();
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getId(), HttpStatus.CREATED);
 		return response;

@@ -63,9 +63,6 @@ public class ProfileService {
 	 * Erzeugt ein neues Profil mit einer gegebenen ProfileId. Bei erfolgreicher
 	 * Erzeugung wird ein entsprechendes DB-Profil angelegt, wobei die Eigenschaft
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 	 * lastProfileChangeTimestamp auf 0 gesetzt wird. Das DB-Profil enthält noch
 	 * keine preferences.
 =======
@@ -123,9 +120,6 @@ public class ProfileService {
 	/**
 	 * Sucht in der Datenbank nach einem Profil mit einer bestimmten ProfileId. Wird
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChangeTimestamp mit
 	 * dem Parameter clientLastProfileChange verglichen. Ist das Profil aus der
 	 * Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
@@ -150,22 +144,16 @@ public class ProfileService {
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 	 * @throws ProfileSetOnDeletionException
 	 *             Profil zum Löschen auf unSync gesetzt.
 	 * @throws ServerProfileOutdatedException
 	 *             Profil in DB weist einen älteren Zeitpunkt
 	 *             lastProfileChangeTimestamp auf als der Parameter.
-<<<<<<< HEAD
 =======
 	 * @throws ServerPreferencesOutdatedException
 	 *             Profil in DB weist einen älteren Zeitpunkt lastProfileChange auf
 	 *             als der Parameter.
 >>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
-=======
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 	 */
 	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChange)
 			throws ProfileNotFoundException, ProfileSetOnDeletionException, ServerProfileOutdatedException {
@@ -188,13 +176,10 @@ public class ProfileService {
 <<<<<<< HEAD
 	 * Bei allen gefundenen Profilen wird die Eigenschaft
 	 * lastProfileContactTimestamp aktualisiert.
-<<<<<<< HEAD
 =======
 	 * Bei allen gefundenen Profilen wird die Eigenschaft lastProfileContact
 	 * aktualisiert.
 >>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
-=======
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 	 * 
 	 * @return Liste mit allen Profilen.
 	 * @throws NoProfilesInDatabaseException
@@ -386,9 +371,6 @@ public class ProfileService {
 	 * 
 	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 	 * um eine Aktualisierung der Eigenschaft lastProfileContactTimestamp
 	 * sicherzustellen.
 =======
@@ -410,9 +392,6 @@ public class ProfileService {
 	 * 
 	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 	 * um eine Aktualisierung der Eigenschaft lastProfileContactTimestamp
 	 * sicherzustellen.
 =======
@@ -435,9 +414,6 @@ public class ProfileService {
 	 * Zukunft gesetzt. Zusätzlich wird das unSync-Flag auf true gesetzt.
 	 * 
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 	 * Der Wert lastProfileContactTimestamp wird in der Datenbank in allen Fällen
 	 * angepasst.
 =======
@@ -481,9 +457,6 @@ public class ProfileService {
 
 	/**
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> parent of a9246b2... Revert "Anpassungen Exception-Nachrichten"
 	 * Sucht ein durch die ProfileId eindeutig festgelegtes Profile in der
 	 * Datenbank. Der Zeitpunkt des lastProfileChange wird auf 100 Jahre in die
 	 * Zukunft gesetzt. Zusätzlich wird das unSync-Flag auf true gesetzt.
