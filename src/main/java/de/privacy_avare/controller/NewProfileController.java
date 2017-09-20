@@ -26,6 +26,7 @@ import de.privacy_avare.service.ProfileService;
 public class NewProfileController {
 
 	/**
+<<<<<<< HEAD
 	 * Service stellt Methode zur automatischen Generierung einer eindeutigen
 	 * ProfileId bereit. Instanz wird über Dependency Injection bereitgestellt.
 	 * 
@@ -33,6 +34,8 @@ public class NewProfileController {
 	 */
 
 	/**
+=======
+>>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * Service stellt diverse Methoden zur Verarbeitung von Profilen sowie der
 	 * Ablage in der Datenbank bzw. dem Abruf von Profilen aus der Datenbank bereit.
 	 * Instanz wird über Dependency Injection bereitgestellt.
@@ -43,7 +46,18 @@ public class NewProfileController {
 	private ProfileService profileService;
 
 	/**
+<<<<<<< HEAD
 	 * Erzeugung eines neuen Profils inkl. Generierung einer neuen UserID. Das
+=======
+	 * Default-Konstruktor.
+	 */
+	public NewProfileController() {
+
+	}
+
+	/**
+	 * Erzeugung eines neuen Profils inklusive Generierung einer neuen UserID. Das
+>>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * erzeugte Profil wird automatisch in der Datenbank mit default-Werten
 	 * hinterlegt. Entspricht UC1 ohne Parameter.
 	 * 
@@ -53,7 +67,12 @@ public class NewProfileController {
 	 *             Profilerzeugung fehlgeschlagen
 	 */
 	@RequestMapping(value = "", method = RequestMethod.POST)
+<<<<<<< HEAD
 	public ResponseEntity<String> createProfile() throws Exception {
+=======
+	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
+		System.out.println("Anfrage erhalten");
+>>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 		Profile serverProfile = profileService.createNewProfile();
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getId(), HttpStatus.CREATED);
 		return response;

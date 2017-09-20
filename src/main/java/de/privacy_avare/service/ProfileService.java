@@ -16,7 +16,7 @@ import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileSetOnDeletionException;
 import de.privacy_avare.exeption.ServerProfileOutdatedException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
-import de.privacy_avare.repository.ProfileRepository;
+import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 
 /**
  * Klasse stellt verschiedene Services zur Interaktion mit Profilen in der
@@ -31,7 +31,7 @@ import de.privacy_avare.repository.ProfileRepository;
 @Service
 public class ProfileService {
 	@Autowired
-	private ProfileRepository profileRepository;
+	private ProfileRepositoryCouchDBImpl profileRepository;
 
 	@Autowired
 	private IdService idService;
@@ -62,8 +62,13 @@ public class ProfileService {
 	/**
 	 * Erzeugt ein neues Profil mit einer gegebenen ProfileId. Bei erfolgreicher
 	 * Erzeugung wird ein entsprechendes DB-Profil angelegt, wobei die Eigenschaft
+<<<<<<< HEAD
 	 * lastProfileChangeTimestamp auf 0 gesetzt wird. Das DB-Profil enthält noch
 	 * keine preferences.
+=======
+	 * lastProfileChange auf 0 gesetzt wird. Das DB-Profil enthält noch keine
+	 * preferences.
+>>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * 
 	 * 
 	 * @param id
@@ -114,6 +119,7 @@ public class ProfileService {
 
 	/**
 	 * Sucht in der Datenbank nach einem Profil mit einer bestimmten ProfileId. Wird
+<<<<<<< HEAD
 	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChangeTimestamp mit
 	 * dem Parameter clientLastProfileChange verglichen. Ist das Profil aus der
 	 * Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
@@ -121,6 +127,14 @@ public class ProfileService {
 	 * 
 	 * Der Wert lastProfileContactTimestamp wird in der Datenbank in allen Fällen
 	 * angepasst.
+=======
+	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChange mit dem
+	 * Parameter clientLastProfileChange verglichen. Ist das Profil aus der
+	 * Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
+	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
+	 * 
+	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
+>>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * 
 	 * @param id
 	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
@@ -129,11 +143,17 @@ public class ProfileService {
 	 * @return Gefundenes, aktuelleres Datenbankprofil.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
+<<<<<<< HEAD
 	 * @throws ProfileSetOnDeletionException
 	 *             Profil zum Löschen auf unSync gesetzt.
 	 * @throws ServerProfileOutdatedException
 	 *             Profil in DB weist einen älteren Zeitpunkt
 	 *             lastProfileChangeTimestamp auf als der Parameter.
+=======
+	 * @throws ServerPreferencesOutdatedException
+	 *             Profil in DB weist einen älteren Zeitpunkt lastProfileChange auf
+	 *             als der Parameter.
+>>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 */
 	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChange)
 			throws ProfileNotFoundException, ProfileSetOnDeletionException, ServerProfileOutdatedException {
@@ -153,8 +173,13 @@ public class ProfileService {
 	 * nach der ProfileId sortiert, zurück. Dabei werden die Profile unabhängig
 	 * ihrer gesetzten Eigenschaften zurückgeliefert.
 	 * 
+<<<<<<< HEAD
 	 * Bei allen gefundenen Profilen wird die Eigenschaft
 	 * lastProfileContactTimestamp aktualisiert.
+=======
+	 * Bei allen gefundenen Profilen wird die Eigenschaft lastProfileContact
+	 * aktualisiert.
+>>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * 
 	 * @return Liste mit allen Profilen.
 	 * @throws NoProfilesInDatabaseException
@@ -345,8 +370,12 @@ public class ProfileService {
 	 * Der Zeitpunkt lastProfileContact wird in allen Fällen aktualisiert.
 	 * 
 	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
+<<<<<<< HEAD
 	 * um eine Aktualisierung der Eigenschaft lastProfileContactTimestamp
 	 * sicherzustellen.
+=======
+	 * um eine Aktualisierung der Eigenschaft lastProfileContact sicherzustellen.
+>>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * 
 	 * @param profile
 	 *            Das in die Datenbank zu schreibende Profil.
@@ -362,8 +391,12 @@ public class ProfileService {
 	 * in jedem Profil der Zeitpunkt lastProfileContact aktualisiert.
 	 * 
 	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
+<<<<<<< HEAD
 	 * um eine Aktualisierung der Eigenschaft lastProfileContactTimestamp
 	 * sicherzustellen.
+=======
+	 * um eine Aktualisierung der Eigenschaft lastProfileContact sicherzustellen.
+>>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * 
 	 * @param profileList
 	 *            Liste der in die Datenbank zu schreibende Profile.
@@ -380,8 +413,12 @@ public class ProfileService {
 	 * Datenbank. Der Zeitpunkt des lastProfileChange wird auf 100 Jahre in die
 	 * Zukunft gesetzt. Zusätzlich wird das unSync-Flag auf true gesetzt.
 	 * 
+<<<<<<< HEAD
 	 * Der Wert lastProfileContactTimestamp wird in der Datenbank in allen Fällen
 	 * angepasst.
+=======
+	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
+>>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * 
 	 * @param id
 	 *            ProfileId des zu löschen Profiles.
@@ -419,6 +456,7 @@ public class ProfileService {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Sucht ein durch die ProfileId eindeutig festgelegtes Profile in der
 	 * Datenbank. Der Zeitpunkt des lastProfileChange wird auf 100 Jahre in die
 	 * Zukunft gesetzt. Zusätzlich wird das unSync-Flag auf true gesetzt.
@@ -441,6 +479,11 @@ public class ProfileService {
 	 * Speichern von Profilen ohne Anpassen des lastProfileContact Timestamps. Diese
 	 * Methode ist eher zu Testzwecken gedacht und sollte in der finalen Anwendung
 	 * nicht mehr genutzt werden.
+=======
+	 * Speichern von Profilen ohne Anpassen des lastProfileContact. Diese Methode
+	 * ist eher zu Testzwecken gedacht und sollte in der finalen Anwendung nicht
+	 * mehr genutzt werden.
+>>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * 
 	 * @param p
 	 *            Zu speicherndes Profil.
