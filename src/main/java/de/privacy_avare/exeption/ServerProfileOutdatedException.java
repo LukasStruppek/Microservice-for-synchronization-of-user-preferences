@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 
 @ResponseStatus(HttpStatus.CONFLICT)
-public class ServerPreferencesOutdatedException extends RuntimeException {
+public class ServerProfileOutdatedException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Default-Konstruktor, welcher den entsprechenden parameterlosen
 	 * Superkonstruktor von Runtime aufruft.
 	 */
-	public ServerPreferencesOutdatedException() {
+	public ServerProfileOutdatedException() {
 		super();
 	}
 
@@ -32,7 +32,7 @@ public class ServerPreferencesOutdatedException extends RuntimeException {
 	 * @param message
 	 *            Beschreibung des Fehlers.
 	 */
-	public ServerPreferencesOutdatedException(String message) {
+	public ServerProfileOutdatedException(String message) {
 		super(message);
 	}
 
@@ -44,7 +44,7 @@ public class ServerPreferencesOutdatedException extends RuntimeException {
 	 * @param cause
 	 *            Grund des Fehlerauftritts.
 	 */
-	public ServerPreferencesOutdatedException(String message, Throwable cause) {
+	public ServerProfileOutdatedException(String message, Throwable cause) {
 		super(message, cause);
 	}
 }

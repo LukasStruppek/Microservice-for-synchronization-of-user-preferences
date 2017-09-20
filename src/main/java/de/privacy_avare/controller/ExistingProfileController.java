@@ -16,10 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.privacy_avare.domain.Profile;
-import de.privacy_avare.exeption.ClientPreferencesOutdatedException;
-import de.privacy_avare.exeption.NoProfilesInDatabaseException;
-import de.privacy_avare.exeption.ProfileNotFoundException;
-import de.privacy_avare.exeption.ServerPreferencesOutdatedException;
 import de.privacy_avare.service.ProfileService;
 
 /**
@@ -32,12 +28,8 @@ import de.privacy_avare.service.ProfileService;
  * ResponseEntity-Objekten zurückgeliefert, welche neben dem eigentlichen Inhalt
  * verschiedene, zusätzliche Informationen bereitstellen.
  * 
- * Eine REST-Dokumentation wird über Swagger bereitgestellt.
- * 
  * @author Lukas Struppek
  * @version 1.0
- * @see de.privacy_avare.service.ProfileService
- * @see org.springframework.http.ResponseEntity
  */
 
 @RestController("existingProfileControllerV1")
@@ -50,57 +42,45 @@ public class ExistingProfileController {
 	 * Instanz wird über Dependency Injection bereitgestellt.
 	 * 
 	 * @see de.privacy_avare.service.ProfileService
+	 * @see org.springframework.http.ResponseEntity
 	 */
 	@Autowired
 	private ProfileService profileService;
 
 	/**
-	 * Default-Konstruktor
-	 */
-	public ExistingProfileController() {
-
-	}
-
-	/**
-	 * Dient dazu, ein Profil auf den Status unSync zu setzen. Hierzu wird vom
-	 * Client ein für diesen identifizierbares unSync-Preferences gesendet und in
-	 * der Datenbank gespeichert. Eine Überprüfung des Zeitstempels
-	 * lastProfileChange findet nicht statt. Eine Überprüfung, ob das Profil bereits
-	 * auf den Zustand unSync gesetzt wurde, findet nicht statt.
-	 * 
-	 * Das unSyncProfile wird im Body der Http-Nachricht erwartet.
-	 * 
-	 * In jedem Fall wird der Zeitpunkt lastContact angepasst.
+	 * Löscht ein Profil mit entsprechender ProfileId aus der Datenbank. Dabei wird
+	 * das unsync-Flag auf true, der Zeitpunkt lastProfileChange 100 Jahre in die
+	 * Zukunft und die preferences auf null gesetzt. In jedem Fall wird der
+	 * Zeitpunkt lastContactTimestamp angepasst.
 	 * 
 	 * Wird kein Profil mit der übergebenen ProfileId gefunden, so wird eine
 	 * ProfileNotFoundException zurückgegeben.
 	 * 
+	 * Ist das entsprechende Profil in der DB auf den Zustand unsync gesetzt, so
+	 * wird eine ProfileSetOnDeletionException zurückgegeben.
+	 * 
 	 * @param id
 	 *            ProfileId des zu löschenden Profils.
-	 * @param unSyncPreferences
-	 *            Vom Client empfangenes unSyncProfile.
 	 * @return Leere ResponseEntity mit Statuscode 204 No Content.
-	 * @throws ProfileNotFoundException
-	 *             Kein Profil mit entsprechender ID gefunden.
+	 * 
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<Void> deleteProfile(@PathVariable("id") String id, @RequestBody String unSyncPreferences) {
-		profileService.setProfileOnDeletion(id, unSyncPreferences);
+	public ResponseEntity<Void> deleteProfile(@PathVariable("id") String id) {
+		profileService.setProfileOnDeletion(id);
 		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		return response;
 	}
 
 	/**
-	 * Pushen eines aktuellen Profils. Ist der Zeitunkt lastProfileChange des zu
-	 * pushenden Profils mindestens 5 Minuten aktueller als der des in der Datenbank
-	 * bestehenden Profils, so wird dieses Überschrieben. Andernfalls findet keine
-	 * Überschreibung statt.
+	 * Pushen eines aktualisierten Profils. Ist der Zeitunkt lastProfileChange des
+	 * zu pushenden Profils mindestens 5 Minuten aktueller als der des in der
+	 * Datenbank bestehenden Profils, so wird dieses Überschrieben. Andernfalls
+	 * findet keine Überschreibung statt. In jedem Fall wird der Zeitpunkt
+	 * lastContactTimestamp angepasst.
 	 * 
-	 * In jedem Fall wird der Zeitpunkt lastProfileContact angepasst.
-	 * 
-	 * Das Format für die Übertragung des Zeitstempels clientLastProfileChange lässt
-	 * sich in Java-Anwendungen mithilfe eines SimpleDateFormat-Objekts und der
-	 * Konfiguration "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
+	 * * Das Format für die Übertragung des clientLastProfileChangeTimestamp lässt
+	 * sich mithilfe eines SimpleDateFormat-Objekts und der Konfiguration
+	 * "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
 	 * 
 	 * Ist das Profil in der DB aktueller hinsichtlich des Zeitpunktes
 	 * lastProfileChange als das zu pushende Profil, so wird eine
@@ -109,25 +89,24 @@ public class ExistingProfileController {
 	 * Wird kein Profil mit der übergebenen ProfileId gefunden, so wird eine
 	 * ProfileNotFoundException zurückgegeben.
 	 * 
+	 * Ist das entsprechende Profil in der DB auf den Zustand unsync gesetzt, so
+	 * wird eine ProfileSetOnDeletionException zurückgegeben.
+	 * 
+	 * 
 	 * @param id
 	 *            ProfileId des zu pushenden Profils.
-	 * @param clientLastProfileChange
+	 * @param clientLastProfileChangeTimestamp
 	 *            Letzter Änderungszeitpunkt der Nutzerpräferenzen.
 	 * @param preferences
 	 *            Zu pushende Nutzerpräferenzen.
 	 * @return Leere ResponseEntity mit Statuscode 204 No Content.
-	 * @see java.text.SimpleDateFormat
-	 * @throws ProfileNotFoundException
-	 *             Kein Profil mit entsprechender ID gefunden.
-	 * @throws ClientPreferencesOutdatedException
-	 *             Gesendeter Zeitstempel ist jünger als in DB gespeicherter
-	 *             Zeitstempel.
+	 * 
 	 */
-	@RequestMapping(value = "/{id}/{clientProfileChange}", method = RequestMethod.PUT)
-	public ResponseEntity<Void> pushProfilePreferences(@PathVariable("id") String id,
-			@PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange,
-			@RequestBody String preferences) throws ProfileNotFoundException, ClientPreferencesOutdatedException {
-		profileService.pushProfile(id, clientLastProfileChange, preferences, false);
+	@RequestMapping(value = "/{id}/{clientProfileChangeTimestamp}", method = RequestMethod.PUT)
+	public ResponseEntity<Void> pushProfile(@PathVariable("id") String id,
+			@PathVariable("clientProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
+			@RequestBody String preferences) throws RuntimeException {
+		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, false);
 		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		return response;
 	}
@@ -138,13 +117,11 @@ public class ExistingProfileController {
 	 * Datenbank bestehenden Profils, so wird dieses Überschrieben. Andernfalls wird
 	 * entsprechend dem Parameter overwrite das ursprüngliche Profil in der
 	 * Datenbank beibehalten (overwrite = false) oder überschrieben (overwrite =
-	 * true).
+	 * true). In jedem Fall wird der Zeitpunkt lastContactTimestamp angepasst.
 	 * 
-	 * In jedem Fall wird der Zeitpunkt lastProfileContact angepasst.
-	 * 
-	 * Das Format für die Übertragung des Zeitstempels clientLastProfileChange lässt
-	 * sich in Java-Anwendungen mithilfe eines SimpleDateFormat-Objekts und der
-	 * Konfiguration "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
+	 * Das Format für die Übertragung des clientLastProfileChangeTimestamp lässt
+	 * sich mithilfe eines SimpleDateFormat-Objekts und der Konfiguration
+	 * "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
 	 * 
 	 * Ist das Profil in der DB aktueller hinsichtlich des Zeitpunktes
 	 * lastProfileChange als das zu pushende Profil, so wird eine
@@ -154,47 +131,47 @@ public class ExistingProfileController {
 	 * Wird kein Profil mit der übergebenen ProfileId gefunden, so wird eine
 	 * ProfileNotFoundException zurückgegeben.
 	 * 
+	 * Ist das entsprechende Profil in der DB auf den Zustand unsync gesetzt, so
+	 * wird eine ProfileSetOnDeletionException zurückgegeben.
+	 * 
+	 * 
+	 * 
 	 * @param id
 	 *            ProfileId des zu pushenden Profils.
-	 * @param clientLastProfileChange
+	 * @param clientLastProfileChangeTimestamp
 	 *            Letzter Änderungszeitpunkt der Nutzerpräferenzen.
 	 * @param preferences
 	 *            Zu pushende Nutzerpräferenzen.
 	 * @param overwrite
 	 *            Legt fest, ob ein neueres Profil in DB überschrieben werden soll.
 	 * @return Leere ResponseEntity mit Statuscode 204 No Content.
-	 * @see java.text.SimpleDateFormat
-	 * @throws ProfileNotFoundException
-	 *             Kein Profil mit entsprechender ID gefunden.
-	 * @throws ClientPreferencesOutdatedException
-	 *             Gesendeter Zeitstempel ist jünger als in DB gespeicherter
-	 *             Zeitstempel (bei overwrite = false).
 	 */
-	@RequestMapping(value = "/{id}/{clientProfileChange}/{overwrite}", method = RequestMethod.PUT)
-	public ResponseEntity<Void> pushProfilePreferences(@PathVariable("id") String id,
-			@PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange,
-			@RequestBody String preferences, @PathVariable("overwrite") boolean overwrite)
-			throws ProfileNotFoundException, ClientPreferencesOutdatedException {
-		profileService.pushProfile(id, clientLastProfileChange, preferences, overwrite);
+	@RequestMapping(value = "/{id}/{clientProfileChangeTimestamp}/{overwrite}", method = RequestMethod.PUT)
+	public ResponseEntity<Void> pushProfile(@PathVariable("id") String id,
+			@PathVariable("clientProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp,
+			@RequestBody String preferences, @PathVariable("overwrite") boolean overwrite) throws RuntimeException {
+		profileService.pushProfile(id, clientLastProfileChangeTimestamp, preferences, overwrite);
 		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		return response;
 	}
 
 	/**
 	 * Sucht in der Datenbank nach der übergebenen ProfileId. Bei einem
-	 * entsprechenden gefundenen Profil wird der Zeitpunkt lastProfileChange des
-	 * Profils aus der Datenbank mit dem Zeitpunkt clientLastProfileChange
+	 * entsprechenden gefundenen Profil wird der lastProfileChangeTimestamp des
+	 * Profils aus der Datenbank mit dem clientLastProfileChangeTimestamp
 	 * verglichen. Ist das Profil aus der Datenbank nicht neuer als 5 Minuten, so
-	 * wird eine Fehlermeldung zurückgeliefert.
+	 * wird eine Fehlermeldung zurückgeliefert. In jedem Fall wird der Zeitpunkt
+	 * lastContactTimestamp angepasst.
 	 * 
-	 * In jedem Fall wird der Zeitpunkt lastProfileContact angepasst.
-	 * 
-	 * Das Format für die Übertragung des Zeitstempels clientLastProfileChange lässt
-	 * sich in Java-Anwendungen mithilfe eines SimpleDateFormat-Objekts und der
-	 * Konfiguration "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
+	 * Das Format für die Übertragung des clientLastProfileChangeTimestamp lässt
+	 * sich mithilfe eines SimpleDateFormat-Objekts und der Konfiguration
+	 * "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
 	 * 
 	 * Wird kein Profil mit der übergebenen ProfileId gefunden, so wird eine
 	 * ProfileNotFoundException zurückgegeben.
+	 * 
+	 * Ist das entsprechende Profil in der DB auf den Zustand unsync gesetzt, so
+	 * wird eine ProfileSetOnDeletionException zurückgegeben.
 	 * 
 	 * Ist das gefundene DB Profil hinsichtlich des Zeitpunktes lastProfileChange
 	 * älter als der Parameter der Anfrage, so wird eine
@@ -202,60 +179,58 @@ public class ExistingProfileController {
 	 * 
 	 * @param id
 	 *            ProfileId des gesuchten Profils.
-	 * @param clientLastProfileChange
+	 * @param clientLastProfileChangeTimestamp
 	 *            Zeitpunkt der letzten Profilaktualisierung auf Clientseite.
-	 * @return Preferences des Profils in der Datenbank.
+	 * @return HashMap mit allen Eigenschaften des Profils.
 	 * @see java.text.SimpleDateFormat
-	 * @throws ProfileNotFoundException
-	 *             Kein Profil mit entsprechender ID gefunden.
-	 * @throws ServerPreferencesOutdatedException
-	 *             Gesendeter Zeitstempel ist älter als in DB gespeicherter
-	 *             Zeitstempel (bei overwrite = false).
 	 */
-	@RequestMapping(value = "/{id}/{lastProfileChange}", method = RequestMethod.GET)
-	public ResponseEntity<String> pullProfilePreferences(@PathVariable("id") String id,
-			@PathVariable("lastProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange)
-			throws ProfileNotFoundException, ServerPreferencesOutdatedException {
-		Profile serverProfile = profileService.getProfileByIdComparingLastChange(id, clientLastProfileChange);
-		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getPreferences(), HttpStatus.OK);
+	@RequestMapping(value = "/{id}/{lastProfileChangeTimestamp}", method = RequestMethod.GET)
+	public ResponseEntity<HashMap<String, Object>> pullProfile(@PathVariable("id") String id,
+			@PathVariable("lastProfileChangeTimestamp") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss,SSS") Date clientLastProfileChangeTimestamp) {
+		Profile serverProfile = profileService.getProfileByIdComparingLastChange(id, clientLastProfileChangeTimestamp);
+		HashMap<String, Object> map = serverProfile.toHashMap();
+		ResponseEntity<HashMap<String, Object>> response = new ResponseEntity<HashMap<String, Object>>(map,
+				HttpStatus.OK);
 		return response;
 	}
 
 	/**
 	 * Sucht in der Datenbank nach der übergebenen ProfileId und liefert ein
-	 * gefundenes Profil unabhängig von dessen lastProfileChange zurück. In jedem
-	 * Fall wird der Zeitpunkt lastProfileContact angepasst.
+	 * gefundenes Profil unabhängig von dessen lastProfileChangeTimestamp zurück. In
+	 * jedem Fall wird der Zeitpunkt lastContactTimestamp angepasst.
 	 * 
 	 * Wird kein Profil mit der übergebenen ProfileId gefunden, so wird eine
 	 * ProfileNotFoundException zurückgegeben.
 	 * 
+	 * Ist das entsprechende Profil in der DB auf den Zustand unsync gesetzt, so
+	 * wird eine ProfileSetOnDeletionException zurückgegeben.
+	 * 
 	 * 
 	 * @param id
 	 *            ProfileId des gesuchten Profils.
-	 * @return Preferences des Profils in der Datenbank.
-	 * @throws ProfileNotFoundException
-	 *             Kein Profil mit entsprechender ID gefunden.
+	 * @return HashMap mit allen Eigenschaften des Profils.
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<String> pullProfilePreferencesIgnoringLastProfileChange(@PathVariable("id") String id) {
+	public ResponseEntity<HashMap<String, Object>> pullProfileIgnoringLastProfileChange(@PathVariable("id") String id) {
 		Profile serverProfile = profileService.getProfileById(id);
-		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getPreferences(), HttpStatus.OK);
+		HashMap<String, Object> map = serverProfile.toHashMap();
+		ResponseEntity<HashMap<String, Object>> response = new ResponseEntity<HashMap<String, Object>>(map,
+				HttpStatus.OK);
 		return response;
 	}
 
 	/**
 	 * Sucht in der Datenbank nach der übergebenen ProfileId und liefert die
-	 * Eigenschaft lastProfileChange des gefundenes Profil zurück. In jedem Fall
-	 * wird der Zeitpunkt lastContact angepasst.
+	 * Eigenschaft lastProfileChangeTimestamp des gefundenes Profil zurück. In jedem
+	 * Fall wird der Zeitpunkt lastContactTimestamp angepasst.
 	 * 
 	 * Wird kein Profil mit der übergebenen ProfileId gefunden, so wird eine
 	 * ProfileNotFoundException zurückgegeben.
 	 * 
 	 * @param id
 	 *            ProfileId des gesuchten Profils.
-	 * @return Eigenschaft lastProfileChange des DB-Profils.
-	 * @throws ProfileNotFoundException
-	 *             Kein Profil mit entsprechender ID gefunden.
+	 * 
+	 * @return Eigenschaft lastProfileChangeTimestamp des DB-Profils.
 	 */
 	@RequestMapping(value = "/{id}/lastProfileChange", method = RequestMethod.GET)
 	public ResponseEntity<Date> getLastProfileChange(@PathVariable("id") String id) {
@@ -266,18 +241,16 @@ public class ExistingProfileController {
 
 	/**
 	 * Sucht in der Datenbank nach der übergebenen ProfileId und liefert die
-	 * Eigenschaft lastProfileContact des gefundenes Profil zurück.
-	 * 
-	 * In jedem Fall wird der Zeitpunkt lastContact anschließend angepasst.
+	 * Eigenschaft lastProfileContactTimestamp des gefundenes Profil zurück. In
+	 * jedem Fall wird der Zeitpunkt lastContactTimestamp angepasst.
 	 * 
 	 * Wird kein Profil mit der übergebenen ProfileId gefunden, so wird eine
 	 * ProfileNotFoundException zurückgegeben.
 	 * 
 	 * @param id
 	 *            ProfileId des gesuchten Profils.
-	 * @return Eigenschaft lastProfileContact des DB-Profils.
-	 * @throws ProfileNotFoundException
-	 *             Kein Profil mit entsprechender ID gefunden.
+	 * 
+	 * @return Eigenschaft lastProfileContactTimestamp des DB-Profils.
 	 */
 	@RequestMapping(value = "/{id}/lastProfileContact", method = RequestMethod.GET)
 	public ResponseEntity<Date> getLastProfileContact(@PathVariable("id") String id) {
@@ -287,18 +260,54 @@ public class ExistingProfileController {
 	}
 
 	/**
+	 * Sucht in der Datenbank nach der übergebenen ProfileId und liefert die
+	 * Eigenschaft unSync des gefundenes Profil zurück. In jedem Fall wird der
+	 * Zeitpunkt lastContactTimestamp angepasst.
+	 * 
+	 * Wird kein Profil mit der übergebenen ProfileId gefunden, so wird eine
+	 * ProfileNotFoundException zurückgegeben.
+	 * 
+	 * @param id
+	 *            ProfileId des gesuchten Profils.
+	 * 
+	 * @return Eigenschaft unSync des DB-Profils.
+	 */
+	@RequestMapping(value = "/{id}/unSync", method = RequestMethod.GET)
+	public ResponseEntity<Boolean> isProfileUnsync(@PathVariable("id") String id) {
+		boolean unSync = profileService.isUnSync(id);
+		ResponseEntity<Boolean> response = new ResponseEntity<Boolean>(unSync, HttpStatus.OK);
+		return response;
+	}
+
+	/**
+	 * Sucht in der Datenbank nach der übergebenen ProfileId und liefert die
+	 * preferences des gefundenes Profil zurück. In jedem Fall wird der Zeitpunkt
+	 * lastContactTimestamp angepasst.
+	 * 
+	 * Wird kein Profil mit der übergebenen ProfileId gefunden, so wird eine
+	 * ProfileNotFoundException zurückgegeben.
+	 * 
+	 * @param id
+	 *            ProfileId des gesuchten Profils.
+	 * 
+	 * @return Eigenschaft preferences des DB-Profils.
+	 */
+	@RequestMapping(value = "/{id}/preferences", method = RequestMethod.GET)
+	public ResponseEntity<String> getPreferences(@PathVariable("id") String id) {
+		String serverPreferences = profileService.getPreferences(id);
+		ResponseEntity<String> response = new ResponseEntity<String>(serverPreferences, HttpStatus.OK);
+		return response;
+	}
+
+	/**
 	 * Sucht alle Profile in der Datenbank und liefert diese in Form einer Liste
 	 * zurück, unabhängig vom Status der einzelnen Profile. Werden in der DB keine
 	 * Profile gefunden, so wird eine ProfileNotFoundException zurückgeliefert.
 	 * 
-	 * Schnittstelle dient hauptsächlich zu Testzwecken in der Entwicklung.
-	 * 
-	 * @return Liste mit allen in der DB enthaltenen Profilen.
-	 * @throws NoProfilesInDatabaseException
-	 *             Keine Profile in DB vorhanden.
+	 * @return Liste mit allen enthaltenen Profilen.
 	 */
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
-	public ResponseEntity<List<HashMap<String, Object>>> getAllProfiles() throws NoProfilesInDatabaseException {
+	public ResponseEntity<List<HashMap<String, Object>>> getAllProfiles() {
 		Iterable<Profile> serverList = profileService.getAllProfiles();
 		List<HashMap<String, Object>> responseList = new LinkedList<HashMap<String, Object>>();
 		for (Profile p : serverList) {

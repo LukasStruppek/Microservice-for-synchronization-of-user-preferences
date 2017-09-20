@@ -10,14 +10,6 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-/**
- * Klasse dient der Aktivierung und Konfiguration von Swagger bzw. Swagger UI.
- * Swagger dient zur Dokumentation der bereitgestellten REST-Schnittstellen.
- * 
- * @author Lukas Struppek
- * @version 1.0
- */
-
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {

@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import de.privacy_avare.dto.ErrorInformation;
-import de.privacy_avare.exeption.ClientPreferencesOutdatedException;
+import de.privacy_avare.exeption.ClientProfileOutdatedException;
 import de.privacy_avare.exeption.MalformedProfileIdException;
 import de.privacy_avare.exeption.NoProfilesInDatabaseException;
 import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
 import de.privacy_avare.exeption.ProfileSetOnDeletionException;
-import de.privacy_avare.exeption.ServerPreferencesOutdatedException;
+import de.privacy_avare.exeption.ServerProfileOutdatedException;
 
 /**
  * Klasse fängt Programmweit auftretende Exception ab und liefert an den
@@ -43,10 +43,10 @@ public class ExeptionHandlingController {
 	 * @param request
 	 *            Aufgerufene URI.
 	 * @return Informationen zum Fehler.
-	 * @see ClientPreferencesOutdatedException
+	 * @see ClientProfileOutdatedException
 	 */
-	@ExceptionHandler(value = ClientPreferencesOutdatedException.class)
-	public ResponseEntity<ErrorInformation> handleClientPreferencesOutdatedException(ClientPreferencesOutdatedException cpoe,
+	@ExceptionHandler(value = ClientProfileOutdatedException.class)
+	public ResponseEntity<ErrorInformation> handleClientProfileOutdatedException(ClientProfileOutdatedException cpoe,
 			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
 		errorInformation.setTitle("Client Profil veraltet");
@@ -245,8 +245,7 @@ public class ExeptionHandlingController {
 	}
 
 	/**
-	 * Kümmert sich um das abfangen von ProfileSetOnDeletionException. In der
-	 * aktuellen Programmversion ohne Einsatz.
+	 * Kümmert sich um das abfangen von ProfileSetOnDeletionException.
 	 * 
 	 * @param psode
 	 *            Aufgetretene Exception.
@@ -279,10 +278,10 @@ public class ExeptionHandlingController {
 	 * @param request
 	 *            Aufgerufene URI
 	 * @return Informationen zum Fehler.
-	 * @see ServerPreferencesOutdatedException
+	 * @see ServerProfileOutdatedException
 	 */
-	@ExceptionHandler(value = ServerPreferencesOutdatedException.class)
-	public ResponseEntity<ErrorInformation> handleServerPreferencesOutdatedException(ServerPreferencesOutdatedException spoe,
+	@ExceptionHandler(value = ServerProfileOutdatedException.class)
+	public ResponseEntity<ErrorInformation> handleServerProfileOutdatedException(ServerProfileOutdatedException spoe,
 			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
 		errorInformation.setTitle("Server Profil veraltet");
