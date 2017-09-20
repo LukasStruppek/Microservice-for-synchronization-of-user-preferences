@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import de.privacy_avare.domain.Profile;
 import de.privacy_avare.repository.ProfileRepository;
-import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 
 /**
  * Der Service dient zum endgültigen Löschen von Profilen aus der Datenbank. Der
@@ -27,7 +26,7 @@ public class ClearanceService {
 	 * Service zum Abruf der Profile aus der Datenbank.
 	 */
 	@Autowired
-	ProfileRepositoryCouchDBImpl profileRepository;
+	ProfileRepository profileRepository;
 
 	/**
 	 * Löscht alle Profile in der Datenbank endgültig mit unSync-Flag auf true sowie

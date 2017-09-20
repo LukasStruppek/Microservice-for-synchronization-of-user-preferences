@@ -16,7 +16,7 @@ import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileSetOnDeletionException;
 import de.privacy_avare.exeption.ServerPreferencesOutdatedException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
-import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
+import de.privacy_avare.repository.ProfileRepository;
 
 /**
  * Klasse stellt verschiedene Services zur Interaktion mit Profilen in der
@@ -31,7 +31,7 @@ import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 @Service
 public class ProfileService {
 	@Autowired
-	private ProfileRepositoryCouchDBImpl profileRepository;
+	private ProfileRepository profileRepository;
 
 	@Autowired
 	private IdService idService;
@@ -61,8 +61,8 @@ public class ProfileService {
 	/**
 	 * Erzeugt ein neues Profil mit einer gegebenen ProfileId. Bei erfolgreicher
 	 * Erzeugung wird ein entsprechendes DB-Profil angelegt, wobei die Eigenschaft
-	 * lastProfileChange auf 0 gesetzt wird. Das DB-Profil enthält noch keine
-	 * preferences.
+	 * lastProfileChange auf 0 gesetzt wird. Das DB-Profil enthält noch
+	 * keine preferences.
 	 * 
 	 * 
 	 * @param id
@@ -108,12 +108,13 @@ public class ProfileService {
 
 	/**
 	 * Sucht in der Datenbank nach einem Profil mit einer bestimmten ProfileId. Wird
-	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChange mit dem
-	 * Parameter clientLastProfileChange verglichen. Ist das Profil aus der
+	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChange mit
+	 * dem Parameter clientLastProfileChange verglichen. Ist das Profil aus der
 	 * Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
 	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
 	 * 
-	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
+	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen
+	 * angepasst.
 	 * 
 	 * @param id
 	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
@@ -123,8 +124,8 @@ public class ProfileService {
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 * @throws ServerPreferencesOutdatedException
-	 *             Profil in DB weist einen älteren Zeitpunkt lastProfileChange auf
-	 *             als der Parameter.
+	 *             Profil in DB weist einen älteren Zeitpunkt
+	 *             lastProfileChange auf als der Parameter.
 	 */
 	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChange)
 			throws ProfileNotFoundException, ProfileSetOnDeletionException, ServerPreferencesOutdatedException {
@@ -144,8 +145,8 @@ public class ProfileService {
 	 * nach der ProfileId sortiert, zurück. Dabei werden die Profile unabhängig
 	 * ihrer gesetzten Eigenschaften zurückgeliefert.
 	 * 
-	 * Bei allen gefundenen Profilen wird die Eigenschaft lastProfileContact
-	 * aktualisiert.
+	 * Bei allen gefundenen Profilen wird die Eigenschaft
+	 * lastProfileContact aktualisiert.
 	 * 
 	 * @return Liste mit allen Profilen.
 	 * @throws NoProfilesInDatabaseException
@@ -277,7 +278,8 @@ public class ProfileService {
 	 * Der Zeitpunkt lastProfileContact wird in allen Fällen aktualisiert.
 	 * 
 	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
-	 * um eine Aktualisierung der Eigenschaft lastProfileContact sicherzustellen.
+	 * um eine Aktualisierung der Eigenschaft lastProfileContact
+	 * sicherzustellen.
 	 * 
 	 * @param profile
 	 *            Das in die Datenbank zu schreibende Profil.
@@ -293,7 +295,8 @@ public class ProfileService {
 	 * in jedem Profil der Zeitpunkt lastProfileContact aktualisiert.
 	 * 
 	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
-	 * um eine Aktualisierung der Eigenschaft lastProfileContact sicherzustellen.
+	 * um eine Aktualisierung der Eigenschaft lastProfileContact
+	 * sicherzustellen.
 	 * 
 	 * @param profileList
 	 *            Liste der in die Datenbank zu schreibende Profile.
@@ -310,7 +313,8 @@ public class ProfileService {
 	 * Datenbank. Der Zeitpunkt des lastProfileChange wird auf 100 Jahre in die
 	 * Zukunft gesetzt. Das bestehende Profil wird durch ein unSyncProfile ersetzt.
 	 * 
-	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
+	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen
+	 * angepasst.
 	 * 
 	 * @param id
 	 *            ProfileId des zu löschen Profiles.
@@ -347,9 +351,9 @@ public class ProfileService {
 	}
 
 	/**
-	 * Speichern von Profilen ohne Anpassen des lastProfileContact. Diese Methode
-	 * ist eher zu Testzwecken gedacht und sollte in der finalen Anwendung nicht
-	 * mehr genutzt werden.
+	 * Speichern von Profilen ohne Anpassen des lastProfileContact. Diese
+	 * Methode ist eher zu Testzwecken gedacht und sollte in der finalen Anwendung
+	 * nicht mehr genutzt werden.
 	 * 
 	 * @param p
 	 *            Zu speicherndes Profil.
