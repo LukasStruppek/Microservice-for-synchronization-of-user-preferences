@@ -35,13 +35,6 @@ import de.privacy_avare.service.ProfileService;
 public class NewProfileController {
 
 	/**
-	 * Default-Konstruktor.
-	 */
-	public NewProfileController() {
-
-	}
-
-	/**
 	 * Service stellt diverse Methoden zur Verarbeitung von Profilen sowie der
 	 * Ablage in der Datenbank bzw. dem Abruf von Profilen aus der Datenbank bereit.
 	 * Instanz wird über Dependency Injection bereitgestellt.
@@ -50,6 +43,13 @@ public class NewProfileController {
 	 */
 	@Autowired
 	private ProfileService profileService;
+
+	/**
+	 * Default-Konstruktor.
+	 */
+	public NewProfileController() {
+
+	}
 
 	/**
 	 * Erzeugung eines neuen Profils inklusive Generierung einer neuen UserID. Das
@@ -64,6 +64,7 @@ public class NewProfileController {
 	 */
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
+		System.out.println("Anfrage erhalten");
 		Profile serverProfile = profileService.createNewProfile();
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getId(), HttpStatus.CREATED);
 		return response;

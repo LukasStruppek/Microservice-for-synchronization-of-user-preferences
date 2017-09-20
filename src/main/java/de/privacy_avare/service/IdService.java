@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.privacy_avare.repository.ProfileRepository;
+import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 
 /**
  * Klasse stellt statische Methode zur Generierung und Überprüfung einer
@@ -22,7 +23,7 @@ import de.privacy_avare.repository.ProfileRepository;
 public class IdService {
 
 	@Autowired
-	ProfileRepository profileRepository;
+	ProfileRepositoryCouchDBImpl profileRepository;
 
 	/**
 	 * Erzeugt unter Verwendung des aktuellen Datum, der aktuellen Uhrzeit und
