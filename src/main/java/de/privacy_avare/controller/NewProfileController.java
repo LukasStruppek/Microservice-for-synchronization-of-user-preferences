@@ -9,16 +9,25 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.privacy_avare.domain.Profile;
+import de.privacy_avare.exeption.MalformedProfileIdException;
+import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.service.ProfileService;
 
 /**
  * Die Klasse stellt eine REST-API zur Verfügung, über welche externe Anfragen
  * zur Erzeugung neuer Profile gestellt werden können. Zur Verarbeitung der
- * Anfragen werden diese an entsprechende Services weitergeleitet.
+ * Anfragen werden diese an entsprechende interne Services weitergeleitet.
+ * 
+ * Die Antworten auf REST-Anfragen werden stets in Form von
+ * ResponseEntity-Objekten zurückgeliefert, welche neben dem eigentlichen Inhalt
+ * verschiedene, zusätzliche Informationen bereitstellen.
+ * 
+ * Eine REST-Dokumentation wird über Swagger bereitgestellt.
  * 
  * @author Lukas Struppek
  * @version 1.0
  * @see de.privacy_avare.service.ProfileService
+ * @see org.springframework.http.ResponseEntity
  */
 
 @RestController("newProfileControllerV1")
@@ -27,11 +36,18 @@ public class NewProfileController {
 
 	/**
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 * Service stellt Methode zur automatischen Generierung einer eindeutigen
 	 * ProfileId bereit. Instanz wird über Dependency Injection bereitgestellt.
 	 * 
 	 * @see de.privacy_avare.service.IdService
+=======
+	 * Default-Konstruktor.
+>>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 */
+	public NewProfileController() {
+
+	}
 
 	/**
 =======
@@ -47,6 +63,7 @@ public class NewProfileController {
 
 	/**
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 * Erzeugung eines neuen Profils inkl. Generierung einer neuen UserID. Das
 =======
 	 * Default-Konstruktor.
@@ -58,40 +75,52 @@ public class NewProfileController {
 	/**
 	 * Erzeugung eines neuen Profils inklusive Generierung einer neuen UserID. Das
 >>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
+=======
+	 * Erzeugung eines neuen Profils inklusive Generierung einer neuen UserID. Das
+>>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 * erzeugte Profil wird automatisch in der Datenbank mit default-Werten
-	 * hinterlegt. Entspricht UC1 ohne Parameter.
+	 * hinterlegt. Entspricht UC1 ohne vorhandene ProfileId.
 	 * 
-	 * @return ResponseEntity, welche im Body die ProfileId des generierten Profils
-	 *         enthält.
-	 * @throws Exception
-	 *             Profilerzeugung fehlgeschlagen
+	 * @return ProfileId des generierten Profils.
+	 * 
+	 * @throws ProfileAleadyExistsException
+	 *             Wird geworfen, falls bei der Id-Generierung eine bereits
+	 *             vorhandene ProfileId generiert wird.
 	 */
 	@RequestMapping(value = "", method = RequestMethod.POST)
+<<<<<<< HEAD
 <<<<<<< HEAD
 	public ResponseEntity<String> createProfile() throws Exception {
 =======
 	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
 		System.out.println("Anfrage erhalten");
 >>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
+=======
+	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
+>>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 		Profile serverProfile = profileService.createNewProfile();
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getId(), HttpStatus.CREATED);
 		return response;
 	}
 
 	/**
-	 * Erzeugung eines neuen Profils basierend auf gegebener UserID. Das erzeugte
+	 * Erzeugung eines neuen Profils basierend auf gegebener ProfileId. Das erzeugte
 	 * Profil wird automatisch in der Datenbank mit default-Werten hinterlegt.
-	 * Entspricht UC1 mit Parameter.
+	 * Entspricht UC1 mit vorhandener ProfileId.
 	 * 
 	 * @param id
 	 *            ProfileId, mit welcher ein neues Profil erzeugt werden soll.
-	 * @return id des generierten Zufalls, über welche das Objekt in der Datenbank
-	 *         angesprochen werden kann.
-	 * @throws Exception
-	 *             Profilerzeugung fehlgeschlagen
+	 * @return ProfileId des generierten Profils.
+	 * @throws ProfileAleadyExistsException
+	 *             Wird geworfen, falls bei der Id-Generierung eine bereits
+	 *             vorhandene ProfileId generiert wird.
+	 * @throws MalformedProfileIdException
+	 *             Wird geworfen, wenn die übergebene ProfileId nicht dem Aufbau
+	 *             einer gültigen ProfileId entspricht.
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
-	public ResponseEntity<String> createProfile(@PathVariable("id") String id) throws Exception {
+	public ResponseEntity<String> createProfile(@PathVariable("id") String id)
+			throws ProfileAlreadyExistsException, MalformedProfileIdException {
 		Profile serverProfile = profileService.createNewProfile(id);
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getId(), HttpStatus.CREATED);
 		return response;

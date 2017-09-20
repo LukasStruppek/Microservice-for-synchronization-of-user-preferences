@@ -7,7 +7,8 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 /**
  * Klasse dient zur Konfiguration von Data Validation. Hierzu zählt die Nutzung
- * von Annotations gemäß JSR303 Bean Validation.
+ * von Annotations gemäß JSR303 Bean Validation. Bisher noch nicht in
+ * Verwendung.
  * 
  * @author Lukas Struppek
  * @version 1.0

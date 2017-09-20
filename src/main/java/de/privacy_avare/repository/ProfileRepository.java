@@ -24,7 +24,7 @@ import de.privacy_avare.domain.Profile;
  * und zugehöriger Datenbank bereit. Methoden sind mithilfe von Spring Data
  * definiert und somit mit einer Vielzahl an Datenbanklösungen kompatibel. Ein
  * Austausch der Datenbank ist somit ohne Änderungen im Programmcode möglich.
- * Anpassung der Einstellungen in der Datei application.properties sind jedoch
+ * Anpassung der Einstellungen in der Datei application.properties sind dennoch
  * notwendig.
  * 
  * @author Lukas Struppek
@@ -41,22 +41,6 @@ public interface ProfileRepository extends CrudRepository<Profile, String> {
 	 * @return Liste aller vorhanden Profile.
 	 */
 	List<Profile> findAllByOrderByIdAsc();
-
-	/**
-	 * Liefert alle Profile aus der Datenbank, bei welchen die Eigenschaft unSync
-	 * den Wert 'true' aufweist.
-	 * 
-	 * @return Liste aller Profile mit unSync = 'true'
-	 */
-	List<Profile> findAllByUnSyncTrue();
-
-	/**
-	 * Liefert alle Profile aus der Datenbank, bei welchen die Eigenschaft unSync
-	 * den Wert 'false' aufweist.
-	 * 
-	 * @return Liste aller Profile mit unSync = 'false'
-	 */
-	List<Profile> findAllByUnSyncFalse();
 
 	/**
 	 * Liefert alle Profile aus der Datenbank, bei welchen der Zeitstempel
@@ -78,22 +62,13 @@ public interface ProfileRepository extends CrudRepository<Profile, String> {
 	Date findLastProfileContactById(String id);
 
 	/**
-	 * Liefert den Zeitpunkt lastPRofileChange eines einzelnen Profils zurück.
+	 * Liefert den Zeitpunkt lastProfileChange eines einzelnen Profils zurück.
 	 * 
 	 * @param id
 	 *            ProfileId des gesuchten Profils.
 	 * @return Zeitpunkt lastProfileChange.
 	 */
 	Date findLastProfileChangeById(String id);
-
-	/**
-	 * Liefert die Eigenschaft des Flags unSync eines einzelnen Profils zurück.
-	 * 
-	 * @param id
-	 *            ProfileId des gesuchten Profils.
-	 * @return Zustand des Flags unSync.
-	 */
-	boolean findUnSyncById(String id);
 
 	/**
 	 * Liefert die preferences eines Profils zurück.

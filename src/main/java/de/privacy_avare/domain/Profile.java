@@ -58,22 +58,12 @@ public class Profile {
 	 * zunächst auf false gesetzt. Bei Löschanfragen wird das Flag auf true gesetzt
 	 * und führt bei Datenbanksäuberungen zum löschen des Profils.
 	 */
-	@Field
-	private boolean unSync;
-
-	/**
-	 * Default-Konstruktor ohne Setzen der ID. Setzt lastProfileChange auf den 1.
-	 * Jan. 1970 und lastProfileContact auf den aktuellen Zeitpunkt. Restliche Werte
-	 * werden mit Default-Werten belegt.
-	 */
 	public Profile() {
 		// Setze lastProfileChange auf 1. Jan. 1970
 		this.lastProfileChange = new Date(0L);
 		// Setze lastProfileContact auf aktuellen Zeitpunkt
 		this.lastProfileContact = GregorianCalendar.getInstance(Locale.GERMANY).getTime();
-
 		this.preferences = "";
-		this.unSync = false;
 	}
 
 	/**
@@ -91,7 +81,6 @@ public class Profile {
 		// Setze lastProfileContact auf aktuellen Zeitpunkt
 		this.lastProfileContact = GregorianCalendar.getInstance(Locale.GERMANY).getTime();
 		this.preferences = "";
-		this.unSync = false;
 	}
 
 	/**
@@ -112,7 +101,6 @@ public class Profile {
 		this.lastProfileChange = lastProfileChange;
 		this.lastProfileContact = lastProfileContact;
 		this.preferences = preferences;
-		this.unSync = false;
 	}
 
 	/**
@@ -192,25 +180,6 @@ public class Profile {
 	}
 
 	/**
-	 * Ruft den Zustand des unSync-Flags im Profil ab.
-	 * 
-	 * @return Zustand des unSync-Flags.
-	 */
-	public boolean isUnSync() {
-		return unSync;
-	}
-
-	/**
-	 * Setzt das unSync-Flag im Profil.
-	 * 
-	 * @param unSync
-	 *            Zustand des unSync-Flags.
-	 */
-	public void setUnSync(boolean unSync) {
-		this.unSync = unSync;
-	}
-
-	/**
 	 * Liefert eine Stringrepräsentation des aktuellen Zustand des Objekts zurück.
 	 * 
 	 * @return Aktueller Zustand des Objekts
@@ -232,7 +201,7 @@ public class Profile {
 				+ ":" + localLastProfileContact.get(Calendar.SECOND) + "]";
 
 		String result = "{" + "Id: " + this.id + ", lastProfileChange: " + strLastProfileChange
-				+ ", lastProfileContact: " + strLastProfileContact + ", unSync: " + this.unSync + "}";
+				+ ", lastProfileContact: " + strLastProfileContact + "}";
 		return result;
 	}
 
@@ -248,7 +217,6 @@ public class Profile {
 		map.put("lastProfileChange", this.lastProfileChange);
 		map.put("lastProfileContact", this.lastProfileContact);
 		map.put("preferences", this.preferences);
-		map.put("unsync", this.unSync);
 
 		return map;
 	}

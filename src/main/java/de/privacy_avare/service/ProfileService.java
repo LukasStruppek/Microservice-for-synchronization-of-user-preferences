@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.privacy_avare.domain.Profile;
-import de.privacy_avare.exeption.ClientProfileOutdatedException;
+import de.privacy_avare.exeption.ClientPreferencesOutdatedException;
 import de.privacy_avare.exeption.MalformedProfileIdException;
 import de.privacy_avare.exeption.NoProfilesInDatabaseException;
 import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileSetOnDeletionException;
-import de.privacy_avare.exeption.ServerProfileOutdatedException;
+import de.privacy_avare.exeption.ServerPreferencesOutdatedException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
 import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 
@@ -39,8 +39,8 @@ public class ProfileService {
 	/**
 	 * Erzeugt ein neues Profil mit einer gegebenen ProfileId. Bei erfolgreicher
 	 * Erzeugung wird ein entsprechendes DB-Profil angelegt, wobei die Eigenschaft
-	 * lastProfileChangeTimestamp auf 0 gesetzt wird. Das DB-Profil enthält noch
-	 * keine preferences.
+	 * lastProfileChange auf 0 gesetzt wird. Das DB-Profil enthält noch keine
+	 * preferences.
 	 * 
 	 * 
 	 * @return Neu erzeugtes Profil.
@@ -51,8 +51,7 @@ public class ProfileService {
 	public Profile createNewProfile() throws ProfileAlreadyExistsException {
 		String id = idService.generateId();
 		if (idService.isIdAlreadyTaken(id) == true) {
-			throw new ProfileAlreadyExistsException(
-					"ProfileId (" + id + ") wird bereits in einem bestehenden Profil verwendet.");
+			throw new ProfileAlreadyExistsException("UserID wird bereits in einem bestehenden Profil verwendet.");
 		}
 		Profile profile = new Profile(id);
 		updateProfile(profile);
@@ -63,7 +62,11 @@ public class ProfileService {
 	 * Erzeugt ein neues Profil mit einer gegebenen ProfileId. Bei erfolgreicher
 	 * Erzeugung wird ein entsprechendes DB-Profil angelegt, wobei die Eigenschaft
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 * lastProfileChangeTimestamp auf 0 gesetzt wird. Das DB-Profil enthält noch
+=======
+	 * lastProfileChange auf 0 gesetzt wird. Das DB-Profil enthält noch
+>>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 * keine preferences.
 =======
 	 * lastProfileChange auf 0 gesetzt wird. Das DB-Profil enthält noch keine
@@ -81,11 +84,10 @@ public class ProfileService {
 	 */
 	public Profile createNewProfile(String id) throws ProfileAlreadyExistsException, MalformedProfileIdException {
 		if (idService.validateId(id) == false) {
-			throw new MalformedProfileIdException("Ungültiges ProfileId-Format (" + id + ") - keine 16-stellige ID.");
+			throw new MalformedProfileIdException("Ungültiges UserID-Format - keine 16-stellige ID.");
 		}
 		if (idService.isIdAlreadyTaken(id) == true) {
-			throw new ProfileAlreadyExistsException(
-					"ProfileId (" + id + ") wird bereits in einem bestehenden Profil verwendet.");
+			throw new ProfileAlreadyExistsException("UserID wird bereits in einem bestehenden Profil verwendet.");
 		}
 		Profile profile = new Profile(id);
 		updateProfile(profile);
@@ -102,15 +104,11 @@ public class ProfileService {
 	 * @return Vorhandenes Profil der Datenbank.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
-	 * @throws ProfileSetOnDeletionException
-	 *             Profil zum Löschen auf unSync gesetzt.
 	 */
 	public Profile getProfileById(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit entsprechender ProfileId (" + id + ") gefunden.");
-		} else if (dbProfile.isUnSync() == true) {
-			throw new ProfileSetOnDeletionException("Profil (" + id + ") ist zum löschen freigegeben.");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
 		} else {
 			updateProfile(dbProfile);
 		}
@@ -120,12 +118,16 @@ public class ProfileService {
 	/**
 	 * Sucht in der Datenbank nach einem Profil mit einer bestimmten ProfileId. Wird
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChangeTimestamp mit
+=======
+	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChange mit
+>>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 * dem Parameter clientLastProfileChange verglichen. Ist das Profil aus der
 	 * Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
 	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
 	 * 
-	 * Der Wert lastProfileContactTimestamp wird in der Datenbank in allen Fällen
+	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen
 	 * angepasst.
 =======
 	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChange mit dem
@@ -144,6 +146,7 @@ public class ProfileService {
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 * @throws ProfileSetOnDeletionException
 	 *             Profil zum Löschen auf unSync gesetzt.
 	 * @throws ServerProfileOutdatedException
@@ -154,17 +157,22 @@ public class ProfileService {
 	 *             Profil in DB weist einen älteren Zeitpunkt lastProfileChange auf
 	 *             als der Parameter.
 >>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
+=======
+	 * @throws ServerPreferencesOutdatedException
+	 *             Profil in DB weist einen älteren Zeitpunkt
+	 *             lastProfileChange auf als der Parameter.
+>>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 */
 	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChange)
-			throws ProfileNotFoundException, ProfileSetOnDeletionException, ServerProfileOutdatedException {
+			throws ProfileNotFoundException, ProfileSetOnDeletionException, ServerPreferencesOutdatedException {
 		Profile dbProfile = getProfileById(id);
-		GregorianCalendar dbLastProfileChangeTimestamp = new GregorianCalendar();
-		dbLastProfileChangeTimestamp.setTime(dbProfile.getLastProfileChange());
-		dbLastProfileChangeTimestamp.set(Calendar.MINUTE, dbLastProfileChangeTimestamp.get(Calendar.MINUTE) - 5);
-		if (dbLastProfileChangeTimestamp.getTime().after(clientLastProfileChange)) {
+		GregorianCalendar dbLastProfileChange = new GregorianCalendar();
+		dbLastProfileChange.setTime(dbProfile.getLastProfileChange());
+		dbLastProfileChange.set(Calendar.MINUTE, dbLastProfileChange.get(Calendar.MINUTE) - 5);
+		if (dbLastProfileChange.getTime().after(clientLastProfileChange)) {
 			return dbProfile;
 		} else {
-			throw new ServerProfileOutdatedException("Profil (" + id + ") in DB älter als Clientprofil");
+			throw new ServerPreferencesOutdatedException("Profil in DB älter als Clientprofil");
 		}
 	}
 
@@ -175,11 +183,15 @@ public class ProfileService {
 	 * 
 <<<<<<< HEAD
 	 * Bei allen gefundenen Profilen wird die Eigenschaft
+<<<<<<< HEAD
 	 * lastProfileContactTimestamp aktualisiert.
 =======
 	 * Bei allen gefundenen Profilen wird die Eigenschaft lastProfileContact
 	 * aktualisiert.
 >>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
+=======
+	 * lastProfileContact aktualisiert.
+>>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 * 
 	 * @return Liste mit allen Profilen.
 	 * @throws NoProfilesInDatabaseException
@@ -191,40 +203,6 @@ public class ProfileService {
 			throw new NoProfilesInDatabaseException("Keine Profile in der DB vorhanden.");
 		}
 		updateProfiles(list);
-		return list;
-	}
-
-	/**
-	 * Liefert eine Liste aller in der Datenbank vorhandenen Profilen mit auf true
-	 * gesetztem unSync-Flag zurück.
-	 * 
-	 * Bei allen gefundenen Profilen wird die Eigenschaft
-	 * lastProfileContactTimestamp aktualisiert.
-	 * 
-	 * @return Liste mit allen Profilen mit gesetztem unSync-Flag.
-	 */
-	public Iterable<Profile> getAllProfilesWithUnSync() {
-		Iterable<Profile> list = profileRepository.findAllByUnSyncTrue();
-		if (list != null) {
-			updateProfiles(list);
-		}
-		return list;
-	}
-
-	/**
-	 * Liefert eine Liste aller in der Datenbank vorhandenen Profilen mit auf false
-	 * gesetztem unSync-Flag zurück.
-	 * 
-	 * Bei allen gefundenen Profilen wird die Eigenschaft
-	 * lastProfileContactTimestamp aktualisiert.
-	 * 
-	 * @return Liste mit allen Profilen mit ungesetzem unSync-Flag.
-	 */
-	public Iterable<Profile> getAllProfilesWithoutUnSync() {
-		Iterable<Profile> list = profileRepository.findAllByUnSyncFalse();
-		if (list != null) {
-			updateProfiles(list);
-		}
 		return list;
 	}
 
@@ -242,7 +220,7 @@ public class ProfileService {
 	public Date getLastProfileChange(String id) throws ProfileNotFoundException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit entsprechender ProfileId (" + id + ") gefunden.");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
 		}
 		Date dbProfileLastProfileChange = dbProfile.getLastProfileChange();
 		return dbProfileLastProfileChange;
@@ -262,7 +240,7 @@ public class ProfileService {
 	public Date getLastProfileContact(String id) throws ProfileNotFoundException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit entsprechender ProfileId (" + id + ") gefunden.");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
 		}
 		Date dbProfileLastProfileContact = dbProfile.getLastProfileContact();
 		return dbProfileLastProfileContact;
@@ -277,37 +255,14 @@ public class ProfileService {
 	 * @return Preferences des entsprechenden Profils.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
-	 * @throws ProfileSetOnDeletionException
-	 *             Profil zum Löschen auf unSync gesetzt.
 	 */
 	public String getPreferences(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit entsprechender ProfileId (" + id + ") gefunden.");
-		} else if (dbProfile.isUnSync() == true) {
-			throw new ProfileSetOnDeletionException("Profil (" + id + ") ist zum löschen freigegeben.");
+			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
 		}
 		String dbProfilePreferences = dbProfile.getPreferences();
 		return dbProfilePreferences;
-	}
-
-	/**
-	 * Liefert den Status des unSync-Flags des entsprechenden Profils zurück. Die
-	 * Eigenschaft lastProfileContact wird bei diesem Zugriff nicht verändert.
-	 * 
-	 * @param id
-	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
-	 * @return lastProfileChange des entsprechenden Profils.
-	 * @throws ProfileNotFoundException
-	 *             Kein Profil mit entsprechender ID gefunden.
-	 */
-	public boolean isUnSync(String id) throws ProfileNotFoundException {
-		Profile dbProfile = profileRepository.findOne(id);
-		if (dbProfile == null) {
-			throw new ProfileNotFoundException("Kein Profil mit entsprechender ProfileId (" + id + ") gefunden.");
-		}
-		boolean dbProfileUnSync = dbProfile.isUnSync();
-		return dbProfileUnSync;
 	}
 
 	/**
@@ -332,13 +287,11 @@ public class ProfileService {
 	 *            Soll ein bestehendes, aktuelleres Profil überschrieben werden?
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
-	 * @throws ProfileSetOnDeletionException
-	 *             DB-Profil zum Löschen auf unSync gesetzt.
-	 * @throws ClientProfileOutdatedException
+	 * @throws ClientPreferencesOutdatedException
 	 *             Profil in DB aktueller als Clientprofile.
 	 */
 	public void pushProfile(String id, Date clientLastProfileChange, String clientPreferences, boolean overwrite)
-			throws ProfileNotFoundException, ProfileSetOnDeletionException, ClientProfileOutdatedException {
+			throws ProfileNotFoundException, ProfileSetOnDeletionException, ClientPreferencesOutdatedException {
 		// Abrufen des entsprechenden Profils aus der Datenbank, wirft eventuell
 		// Exceptions
 		Profile dbProfile = getProfileById(id);
@@ -357,7 +310,7 @@ public class ProfileService {
 					dbProfile.setLastProfileChange(clientLastProfileChange);
 					updateProfile(dbProfile);
 				} else {
-					new ClientProfileOutdatedException("Profil (" + id + ") in DB aktueller als Clientprofile.");
+					new ClientPreferencesOutdatedException("Profil in DB aktueller als Clientprofile.");
 				}
 			}
 		}
@@ -371,7 +324,11 @@ public class ProfileService {
 	 * 
 	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 * um eine Aktualisierung der Eigenschaft lastProfileContactTimestamp
+=======
+	 * um eine Aktualisierung der Eigenschaft lastProfileContact
+>>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 * sicherzustellen.
 =======
 	 * um eine Aktualisierung der Eigenschaft lastProfileContact sicherzustellen.
@@ -392,7 +349,11 @@ public class ProfileService {
 	 * 
 	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 * um eine Aktualisierung der Eigenschaft lastProfileContactTimestamp
+=======
+	 * um eine Aktualisierung der Eigenschaft lastProfileContact
+>>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 * sicherzustellen.
 =======
 	 * um eine Aktualisierung der Eigenschaft lastProfileContact sicherzustellen.
@@ -411,10 +372,14 @@ public class ProfileService {
 	/**
 	 * Sucht ein durch die ProfileId eindeutig festgelegtes Profile in der
 	 * Datenbank. Der Zeitpunkt des lastProfileChange wird auf 100 Jahre in die
-	 * Zukunft gesetzt. Zusätzlich wird das unSync-Flag auf true gesetzt.
+	 * Zukunft gesetzt. Das bestehende Profil wird durch ein unSyncProfile ersetzt.
 	 * 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 * Der Wert lastProfileContactTimestamp wird in der Datenbank in allen Fällen
+=======
+	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen
+>>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 * angepasst.
 =======
 	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
@@ -422,12 +387,14 @@ public class ProfileService {
 	 * 
 	 * @param id
 	 *            ProfileId des zu löschen Profiles.
+	 * @param unSyncProfile
+	 *            unSyncProfile des Clients
+	 * 
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
-	 * @throws ProfileSetOnDeletionException
-	 *             Profile bereits zum Löschen freigegeben.
 	 */
-	public void setProfileOnDeletion(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
+	public void setProfileOnDeletion(String id, String unSyncProfile)
+			throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		// throws ProfileNotFoundException und ProfileSetOnDeletionException
 		Profile dbProfile = getProfileById(id);
 
@@ -442,20 +409,18 @@ public class ProfileService {
 		lastProfileChange.setTime(dbProfile.getLastProfileChange());
 		lastProfileChange.set(Calendar.YEAR, lastProfileChange.get(Calendar.YEAR) + 100);
 
-		// Setzen der Eigenschaften lastProfileChange + 100 Jahre und unSync = true;
-		// Löschen der Nutzerpräferenzen
-		if (dbProfile.getLastProfileChange().getTime() == 0L) {
-			dbProfile.setLastProfileChange(lastProfileChange.getTime());
-		}
+		// Setzen der Eigenschaften lastProfileChange + 100 Jahre;
+		// Ersetzen der Nutzerpräferenzen durch unSyncProfile
+
 		dbProfile.setLastProfileChange(lastProfileChange.getTime());
-		dbProfile.setUnSync(true);
-		dbProfile.setpreferences(null);
+		dbProfile.setpreferences(unSyncProfile);
 
 		// Überschreiben des zu löschenden Profils in der Datenbank
 		updateProfile(dbProfile);
 	}
 
 	/**
+<<<<<<< HEAD
 <<<<<<< HEAD
 	 * Sucht ein durch die ProfileId eindeutig festgelegtes Profile in der
 	 * Datenbank. Der Zeitpunkt des lastProfileChange wird auf 100 Jahre in die
@@ -477,6 +442,9 @@ public class ProfileService {
 
 	/**
 	 * Speichern von Profilen ohne Anpassen des lastProfileContact Timestamps. Diese
+=======
+	 * Speichern von Profilen ohne Anpassen des lastProfileContact. Diese
+>>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 * Methode ist eher zu Testzwecken gedacht und sollte in der finalen Anwendung
 	 * nicht mehr genutzt werden.
 =======

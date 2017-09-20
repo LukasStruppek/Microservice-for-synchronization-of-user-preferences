@@ -34,10 +34,6 @@ public class ClearanceService {
 	 * Profile, auf welche länger als 18 Monate nicht zugegriffen wurde.
 	 */
 	public void cleanDatabase() {
-		// Suchen & Löschen aller Profile in der DB mit unSync = true
-		Iterable<Profile> delProfiles = profileRepository.findAllByUnSyncTrue();
-		profileRepository.delete(delProfiles);
-
 		// Berechnung Zeitpunkt vor 18 Monaten
 		Calendar cal = GregorianCalendar.getInstance(Locale.GERMANY);
 		cal.set(Calendar.DATE, cal.get(Calendar.DATE) - 540);
