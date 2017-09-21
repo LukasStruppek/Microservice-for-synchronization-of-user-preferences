@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 
 @SpringBootApplication
-@ComponentScan ({"de.privacy_Avare.repository"})
+//@ComponentScan ({"de.privacy_Avare.repository"})
 @EnableScheduling
 public class SyncServerMain {
     public static void main(String[] args) {

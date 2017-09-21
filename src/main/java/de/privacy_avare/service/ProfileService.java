@@ -30,8 +30,7 @@ import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 
 @Service
 public class ProfileService {
-	@Autowired
-	private ProfileRepositoryCouchDBImpl profileRepository;
+	private ProfileRepositoryCouchDBImpl profileRepository = new ProfileRepositoryCouchDBImpl();
 
 	@Autowired
 	private IdService idService;
@@ -61,18 +60,8 @@ public class ProfileService {
 	/**
 	 * Erzeugt ein neues Profil mit einer gegebenen ProfileId. Bei erfolgreicher
 	 * Erzeugung wird ein entsprechendes DB-Profil angelegt, wobei die Eigenschaft
-<<<<<<< HEAD
-<<<<<<< HEAD
 	 * lastProfileChangeTimestamp auf 0 gesetzt wird. Das DB-Profil enthält noch
-=======
-	 * lastProfileChange auf 0 gesetzt wird. Das DB-Profil enthält noch
->>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 * keine preferences.
-=======
-	 * lastProfileChange auf 0 gesetzt wird. Das DB-Profil enthält noch keine
-	 * preferences.
->>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
-	 * 
 	 * 
 	 * @param id
 	 *            Bestehende ProfileID.
@@ -105,7 +94,7 @@ public class ProfileService {
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
-	public Profile getProfileById(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
+	public Profile getProfileById(String id) throws ProfileNotFoundException {
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
 			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
@@ -117,26 +106,18 @@ public class ProfileService {
 
 	/**
 	 * Sucht in der Datenbank nach einem Profil mit einer bestimmten ProfileId. Wird
-<<<<<<< HEAD
-<<<<<<< HEAD
-	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChangeTimestamp mit
-=======
-	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChange mit
->>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
-	 * dem Parameter clientLastProfileChange verglichen. Ist das Profil aus der
+	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChangeTime mit dem
+	 * Parameter clientLastProfileChange verglichen. Ist das Profil aus der
 	 * Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
 	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
 	 * 
-	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen
-	 * angepasst.
-=======
+	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
 	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChange mit dem
 	 * Parameter clientLastProfileChange verglichen. Ist das Profil aus der
 	 * Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
 	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
 	 * 
 	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
->>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * 
 	 * @param id
 	 *            ProfileId, nach welcher in der Datenbank gesucht werden soll.
@@ -145,23 +126,11 @@ public class ProfileService {
 	 * @return Gefundenes, aktuelleres Datenbankprofil.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
-<<<<<<< HEAD
-<<<<<<< HEAD
 	 * @throws ProfileSetOnDeletionException
 	 *             Profil zum Löschen auf unSync gesetzt.
-	 * @throws ServerProfileOutdatedException
-	 *             Profil in DB weist einen älteren Zeitpunkt
-	 *             lastProfileChangeTimestamp auf als der Parameter.
-=======
 	 * @throws ServerPreferencesOutdatedException
 	 *             Profil in DB weist einen älteren Zeitpunkt lastProfileChange auf
 	 *             als der Parameter.
->>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
-=======
-	 * @throws ServerPreferencesOutdatedException
-	 *             Profil in DB weist einen älteren Zeitpunkt
-	 *             lastProfileChange auf als der Parameter.
->>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 */
 	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChange)
 			throws ProfileNotFoundException, ProfileSetOnDeletionException, ServerPreferencesOutdatedException {
@@ -179,19 +148,8 @@ public class ProfileService {
 	/**
 	 * Liefert eine Liste aller in der Datenbank vorhandenen Profilen, absteigend
 	 * nach der ProfileId sortiert, zurück. Dabei werden die Profile unabhängig
-	 * ihrer gesetzten Eigenschaften zurückgeliefert.
-	 * 
-<<<<<<< HEAD
-	 * Bei allen gefundenen Profilen wird die Eigenschaft
-<<<<<<< HEAD
-	 * lastProfileContactTimestamp aktualisiert.
-=======
-	 * Bei allen gefundenen Profilen wird die Eigenschaft lastProfileContact
-	 * aktualisiert.
->>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
-=======
-	 * lastProfileContact aktualisiert.
->>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
+	 * ihrer gesetzten Eigenschaften zurückgeliefert. Bei allen gefundenen Profilen
+	 * wird die Eigenschaft lastProfileContactTimestamp aktualisiert.
 	 * 
 	 * @return Liste mit allen Profilen.
 	 * @throws NoProfilesInDatabaseException
@@ -297,7 +255,7 @@ public class ProfileService {
 		Profile dbProfile = getProfileById(id);
 		{
 			if (overwrite == true) {
-				dbProfile.setpreferences(clientPreferences);
+				dbProfile.setPreferences(clientPreferences);
 				dbProfile.setLastProfileChange(clientLastProfileChange);
 				updateProfile(dbProfile);
 			} else {
@@ -306,11 +264,11 @@ public class ProfileService {
 				dbProfileLastProfileChange.set(Calendar.MINUTE, dbProfileLastProfileChange.get(Calendar.MINUTE) + 5);
 
 				if (dbProfileLastProfileChange.getTime().before(clientLastProfileChange) || overwrite == true) {
-					dbProfile.setpreferences(clientPreferences);
+					dbProfile.setPreferences(clientPreferences);
 					dbProfile.setLastProfileChange(clientLastProfileChange);
 					updateProfile(dbProfile);
 				} else {
-					new ClientPreferencesOutdatedException("Profil in DB aktueller als Clientprofile.");
+					throw new ClientPreferencesOutdatedException("Profil in DB aktueller als Clientprofile.");
 				}
 			}
 		}
@@ -323,16 +281,8 @@ public class ProfileService {
 	 * Der Zeitpunkt lastProfileContact wird in allen Fällen aktualisiert.
 	 * 
 	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
-<<<<<<< HEAD
-<<<<<<< HEAD
 	 * um eine Aktualisierung der Eigenschaft lastProfileContactTimestamp
-=======
-	 * um eine Aktualisierung der Eigenschaft lastProfileContact
->>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 * sicherzustellen.
-=======
-	 * um eine Aktualisierung der Eigenschaft lastProfileContact sicherzustellen.
->>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * 
 	 * @param profile
 	 *            Das in die Datenbank zu schreibende Profil.
@@ -348,16 +298,8 @@ public class ProfileService {
 	 * in jedem Profil der Zeitpunkt lastProfileContact aktualisiert.
 	 * 
 	 * Die Methode dient hauptsächlich zur Verwendung in anderen Service-Methoden,
-<<<<<<< HEAD
-<<<<<<< HEAD
 	 * um eine Aktualisierung der Eigenschaft lastProfileContactTimestamp
-=======
-	 * um eine Aktualisierung der Eigenschaft lastProfileContact
->>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 	 * sicherzustellen.
-=======
-	 * um eine Aktualisierung der Eigenschaft lastProfileContact sicherzustellen.
->>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * 
 	 * @param profileList
 	 *            Liste der in die Datenbank zu schreibende Profile.
@@ -374,16 +316,9 @@ public class ProfileService {
 	 * Datenbank. Der Zeitpunkt des lastProfileChange wird auf 100 Jahre in die
 	 * Zukunft gesetzt. Das bestehende Profil wird durch ein unSyncProfile ersetzt.
 	 * 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	 * Der Wert lastProfileContactTimestamp wird in der Datenbank in allen Fällen
-=======
-	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen
->>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
-	 * angepasst.
-=======
+	 * 
 	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
->>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
+	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
 	 * 
 	 * @param id
 	 *            ProfileId des zu löschen Profiles.
@@ -400,28 +335,22 @@ public class ProfileService {
 
 		// Falls Profil noch nicht benutzt, setze letzten Änderungszeitpunkt zunächst
 		// auf aktuellen Zeitpunkt.
-		if (dbProfile.getLastProfileChange().getTime() == 0L) {
-			dbProfile.setLastProfileChange(new Date());
-		}
 
 		// Bestimmung des aktuellen Zeitpunktes plus 100 Jahre.
 		Calendar lastProfileChange = GregorianCalendar.getInstance(Locale.GERMANY);
-		lastProfileChange.setTime(dbProfile.getLastProfileChange());
 		lastProfileChange.set(Calendar.YEAR, lastProfileChange.get(Calendar.YEAR) + 100);
 
 		// Setzen der Eigenschaften lastProfileChange + 100 Jahre;
 		// Ersetzen der Nutzerpräferenzen durch unSyncProfile
 
 		dbProfile.setLastProfileChange(lastProfileChange.getTime());
-		dbProfile.setpreferences(unSyncProfile);
+		dbProfile.setPreferences(unSyncProfile);
 
 		// Überschreiben des zu löschenden Profils in der Datenbank
 		updateProfile(dbProfile);
 	}
 
 	/**
-<<<<<<< HEAD
-<<<<<<< HEAD
 	 * Sucht ein durch die ProfileId eindeutig festgelegtes Profile in der
 	 * Datenbank. Der Zeitpunkt des lastProfileChange wird auf 100 Jahre in die
 	 * Zukunft gesetzt. Zusätzlich wird das unSync-Flag auf true gesetzt.
@@ -437,21 +366,16 @@ public class ProfileService {
 	 *             Profile bereits zum Löschen freigegeben.
 	 */
 	public void setProfileOnDeletion(Profile profile) throws ProfileNotFoundException, ProfileSetOnDeletionException {
-		setProfileOnDeletion(profile.getId());
+		setProfileOnDeletion(profile.get_id(), profile.getPreferences());
 	}
 
 	/**
 	 * Speichern von Profilen ohne Anpassen des lastProfileContact Timestamps. Diese
-=======
-	 * Speichern von Profilen ohne Anpassen des lastProfileContact. Diese
->>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
-	 * Methode ist eher zu Testzwecken gedacht und sollte in der finalen Anwendung
-	 * nicht mehr genutzt werden.
-=======
 	 * Speichern von Profilen ohne Anpassen des lastProfileContact. Diese Methode
 	 * ist eher zu Testzwecken gedacht und sollte in der finalen Anwendung nicht
-	 * mehr genutzt werden.
->>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
+	 * mehr genutzt werden. Speichern von Profilen ohne Anpassen des
+	 * lastProfileContact. Diese Methode ist eher zu Testzwecken gedacht und sollte
+	 * in der finalen Anwendung nicht mehr genutzt werden.
 	 * 
 	 * @param p
 	 *            Zu speicherndes Profil.

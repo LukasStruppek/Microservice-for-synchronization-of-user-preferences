@@ -35,23 +35,13 @@ import de.privacy_avare.service.ProfileService;
 public class NewProfileController {
 
 	/**
-<<<<<<< HEAD
-<<<<<<< HEAD
-	 * Service stellt Methode zur automatischen Generierung einer eindeutigen
-	 * ProfileId bereit. Instanz wird über Dependency Injection bereitgestellt.
-	 * 
-	 * @see de.privacy_avare.service.IdService
-=======
-	 * Default-Konstruktor.
->>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
+	 * Default Konstruktor
 	 */
 	public NewProfileController() {
 
 	}
 
 	/**
-=======
->>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
 	 * Service stellt diverse Methoden zur Verarbeitung von Profilen sowie der
 	 * Ablage in der Datenbank bzw. dem Abruf von Profilen aus der Datenbank bereit.
 	 * Instanz wird über Dependency Injection bereitgestellt.
@@ -61,45 +51,10 @@ public class NewProfileController {
 	@Autowired
 	private ProfileService profileService;
 
-	/**
-<<<<<<< HEAD
-<<<<<<< HEAD
-	 * Erzeugung eines neuen Profils inkl. Generierung einer neuen UserID. Das
-=======
-	 * Default-Konstruktor.
-	 */
-	public NewProfileController() {
-
-	}
-
-	/**
-	 * Erzeugung eines neuen Profils inklusive Generierung einer neuen UserID. Das
->>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
-=======
-	 * Erzeugung eines neuen Profils inklusive Generierung einer neuen UserID. Das
->>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
-	 * erzeugte Profil wird automatisch in der Datenbank mit default-Werten
-	 * hinterlegt. Entspricht UC1 ohne vorhandene ProfileId.
-	 * 
-	 * @return ProfileId des generierten Profils.
-	 * 
-	 * @throws ProfileAleadyExistsException
-	 *             Wird geworfen, falls bei der Id-Generierung eine bereits
-	 *             vorhandene ProfileId generiert wird.
-	 */
 	@RequestMapping(value = "", method = RequestMethod.POST)
-<<<<<<< HEAD
-<<<<<<< HEAD
-	public ResponseEntity<String> createProfile() throws Exception {
-=======
 	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
-		System.out.println("Anfrage erhalten");
->>>>>>> parent of 0cfadc7... Revert "Aktueller Stand vor Reverting"
-=======
-	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
->>>>>>> parent of 7d655ed... Revert "Revert "Anpassungen Exception-Nachrichten""
 		Profile serverProfile = profileService.createNewProfile();
-		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getId(), HttpStatus.CREATED);
+		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.get_id(), HttpStatus.CREATED);
 		return response;
 	}
 
@@ -122,7 +77,7 @@ public class NewProfileController {
 	public ResponseEntity<String> createProfile(@PathVariable("id") String id)
 			throws ProfileAlreadyExistsException, MalformedProfileIdException {
 		Profile serverProfile = profileService.createNewProfile(id);
-		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getId(), HttpStatus.CREATED);
+		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.get_id(), HttpStatus.CREATED);
 		return response;
 	}
 }

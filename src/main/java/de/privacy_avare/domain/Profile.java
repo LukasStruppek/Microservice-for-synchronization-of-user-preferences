@@ -13,8 +13,7 @@ import com.couchbase.client.java.repository.annotation.Id;
 
 /**
  * Die Klasse repräsentiert die Profildaten in der Datenbank. Diese beinhalten
- * die Eigenschaften id, lastProfileChange, lastProfileContact, preferences und
- * ein unSync-Flag.
+ * die Eigenschaften id, lastProfileChange, lastProfileContact und preferences.
  * 
  * @author Lukas Struppek
  * @version 1.0
@@ -29,7 +28,7 @@ public class Profile {
 	 */
 	@Id
 	@Field
-	private String id;
+	String _id;
 
 	/**
 	 * Beinhaltet den Zeitpunkt, zu welchem das Profil zuletzt geändert wurde. Eine
@@ -37,7 +36,7 @@ public class Profile {
 	 * Nutzerpräferenzen.
 	 */
 	@Field
-	private Date lastProfileChange;
+	Date lastProfileChange;
 
 	/**
 	 * Beinhaltet den Zeitpunkt, zu welchem das Profil zuletzt in der Datenbank
@@ -45,19 +44,14 @@ public class Profile {
 	 * Schreiben und Erzeugen eines Profils.
 	 */
 	@Field
-	private Date lastProfileContact;
+	Date lastProfileContact;
 
 	/**
-	 * Repräsentiert die Nutzerpräferenzen. !!!Zur Zeit noch als Platzhalter.!!!
+	 * Repräsentiert die Nutzerpräferenzen.
 	 */
 	@Field
-	private String preferences;
+	String preferences;
 
-	/**
-	 * Flag, das zum Löschen eines Profils auf true gesetzt wird. Ist bei Erzeugung
-	 * zunächst auf false gesetzt. Bei Löschanfragen wird das Flag auf true gesetzt
-	 * und führt bei Datenbanksäuberungen zum löschen des Profils.
-	 */
 	public Profile() {
 		// Setze lastProfileChange auf 1. Jan. 1970
 		this.lastProfileChange = new Date(0L);
@@ -75,7 +69,7 @@ public class Profile {
 	 *            ProfileID, mit welcher ein neues Profil erzeugt werden soll.
 	 */
 	public Profile(String id) {
-		this.id = id;
+		this._id = id;
 		// Setze lastProfileChange auf 1. Jan. 1970
 		this.lastProfileChange = new Date(0L);
 		// Setze lastProfileContact auf aktuellen Zeitpunkt
@@ -97,7 +91,7 @@ public class Profile {
 	 *            Die zu setzenden Preferences.
 	 */
 	public Profile(String id, Date lastProfileChange, Date lastProfileContact, String preferences) {
-		this.id = id;
+		this._id = id;
 		this.lastProfileChange = lastProfileChange;
 		this.lastProfileContact = lastProfileContact;
 		this.preferences = preferences;
@@ -108,8 +102,8 @@ public class Profile {
 	 * 
 	 * @return Die ProfileID.
 	 */
-	public String getId() {
-		return id;
+	public String get_id() {
+		return _id;
 	}
 
 	/**
@@ -118,8 +112,8 @@ public class Profile {
 	 * @param id
 	 *            Die zu setzende ProfileID.
 	 */
-	public void setId(String id) {
-		this.id = id;
+	public void set_id(String id) {
+		this._id = id;
 	}
 
 	/**
@@ -169,13 +163,7 @@ public class Profile {
 		return preferences;
 	}
 
-	/**
-	 * Setzt die Preferences im Profil.
-	 * 
-	 * @param preferences
-	 *            Die zu setzenden Preferences.
-	 */
-	public void setpreferences(String preferences) {
+	public void setPreferences(String preferences) {
 		this.preferences = preferences;
 	}
 
@@ -200,20 +188,20 @@ public class Profile {
 				+ localLastProfileContact.get(Calendar.HOUR_OF_DAY) + ":" + localLastProfileContact.get(Calendar.MINUTE)
 				+ ":" + localLastProfileContact.get(Calendar.SECOND) + "]";
 
-		String result = "{" + "Id: " + this.id + ", lastProfileChange: " + strLastProfileChange
+		String result = "{" + "id: " + this._id + ", lastProfileChange: " + strLastProfileChange
 				+ ", lastProfileContact: " + strLastProfileContact + "}";
 		return result;
 	}
 
 	/**
 	 * Generiert eine HashMap mit den Eigenschaften und ihren entsprechenden
-	 * Zuständen eines PRofile-Objekts zurück.
+	 * Zuständen eines Profile-Objekts zurück.
 	 * 
 	 * @return Generierte HashMap mit allen aktuellen Zuständen des Objekts.
 	 */
 	public HashMap<String, Object> toHashMap() {
 		HashMap<String, Object> map = new HashMap<String, Object>();
-		map.put("id", this.id);
+		map.put("id", this._id);
 		map.put("lastProfileChange", this.lastProfileChange);
 		map.put("lastProfileContact", this.lastProfileContact);
 		map.put("preferences", this.preferences);

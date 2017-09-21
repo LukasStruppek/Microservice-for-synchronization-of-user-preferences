@@ -22,8 +22,7 @@ import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 @Service
 public class IdService {
 
-	@Autowired
-	ProfileRepositoryCouchDBImpl profileRepository;
+	ProfileRepositoryCouchDBImpl profileRepository = new ProfileRepositoryCouchDBImpl();
 
 	/**
 	 * Erzeugt unter Verwendung des aktuellen Datum, der aktuellen Uhrzeit und

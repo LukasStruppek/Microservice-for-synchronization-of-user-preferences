@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import de.privacy_avare.dto.ErrorInformation;
@@ -60,6 +61,23 @@ public class ExeptionHandlingController {
 				HttpStatus.CONFLICT);
 		return responseEntity;
 	}
+	
+	@ExceptionHandler(value = HttpClientErrorException.class)
+	public ResponseEntity<ErrorInformation> handleHttpClientErrorException(
+			HttpClientErrorException hcee, HttpServletRequest request) {
+		ErrorInformation errorInformation = new ErrorInformation();
+		errorInformation.setTitle("Fehler bei HTTP-Aufruf");
+		errorInformation.setException(hcee.getClass().getName());
+		errorInformation.setStatus(hcee.getRawStatusCode());
+		errorInformation.setDetail(hcee.getMessage());
+		errorInformation.setRequestedURI(request.getRequestURI());
+		errorInformation.setTimestamp(new Date());
+		errorInformation.setAdditionalInformation("");
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.CONFLICT);
+		return responseEntity;
+	}
+
 
 	/**
 	 * Kümmert sich um das abfangen von HttpRequestMethodNotSupportedException.

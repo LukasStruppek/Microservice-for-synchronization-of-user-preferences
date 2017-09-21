@@ -26,8 +26,7 @@ public class ClearanceService {
 	/**
 	 * Service zum Abruf der Profile aus der Datenbank.
 	 */
-	@Autowired
-	ProfileRepositoryCouchDBImpl profileRepository;
+	ProfileRepositoryCouchDBImpl profileRepository = new ProfileRepositoryCouchDBImpl();
 
 	/**
 	 * Löscht alle Profile in der Datenbank endgültig mit unSync-Flag auf true sowie
