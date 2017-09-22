@@ -124,7 +124,6 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 
 	@Override
 	public Iterable<Profile> findAll(Iterable<String> ids) {
-		RestTemplate restTemplate = new RestTemplate();
 		ArrayList<Profile> list = new ArrayList<Profile>();
 		try {
 			for (String id : ids) {
@@ -169,7 +168,6 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 
 	@Override
 	public void delete(Iterable<? extends Profile> entities) {
-		RestTemplate restTemplate = new RestTemplate();
 		for (Profile profile : entities) {
 			this.delete(profile.get_id());
 		}

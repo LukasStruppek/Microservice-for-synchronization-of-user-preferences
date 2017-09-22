@@ -16,6 +16,7 @@ import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileSetOnDeletionException;
 import de.privacy_avare.exeption.ServerPreferencesOutdatedException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
+import de.privacy_avare.repository.ProfileRepository;
 import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 
 /**
@@ -30,9 +31,8 @@ import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 
 @Service
 public class ProfileService {
-	private ProfileRepositoryCouchDBImpl profileRepository = new ProfileRepositoryCouchDBImpl();
-
-	@Autowired
+	ProfileRepository profileRepository = new ProfileRepositoryCouchDBImpl();
+@Autowired
 	private IdService idService;
 
 	/**

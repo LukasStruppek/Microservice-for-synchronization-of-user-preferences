@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.privacy_avare.repository.ProfileRepository;
@@ -22,7 +21,7 @@ import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 @Service
 public class IdService {
 
-	ProfileRepositoryCouchDBImpl profileRepository = new ProfileRepositoryCouchDBImpl();
+	ProfileRepository profileRepository = new ProfileRepositoryCouchDBImpl();
 
 	/**
 	 * Erzeugt unter Verwendung des aktuellen Datum, der aktuellen Uhrzeit und

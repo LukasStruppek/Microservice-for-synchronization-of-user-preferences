@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.privacy_avare.domain.Profile;
@@ -26,7 +25,7 @@ public class ClearanceService {
 	/**
 	 * Service zum Abruf der Profile aus der Datenbank.
 	 */
-	ProfileRepositoryCouchDBImpl profileRepository = new ProfileRepositoryCouchDBImpl();
+	ProfileRepository profileRepository = new ProfileRepositoryCouchDBImpl();
 
 	/**
 	 * Löscht alle Profile in der Datenbank endgültig mit unSync-Flag auf true sowie

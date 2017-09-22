@@ -1,13 +1,6 @@
 package de.privacy_avare.domain;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Locale;
-
 import com.couchbase.client.java.repository.annotation.Field;
-import com.couchbase.client.java.repository.annotation.Id;
 
 public class ProfileCouchDB extends Profile {
 	@Field
