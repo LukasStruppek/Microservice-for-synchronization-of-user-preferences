@@ -16,11 +16,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.privacy_avare.domain.Profile;
+import de.privacy_avare.dto.ErrorInformation;
 import de.privacy_avare.exeption.ClientPreferencesOutdatedException;
 import de.privacy_avare.exeption.NoProfilesInDatabaseException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
 import de.privacy_avare.exeption.ServerPreferencesOutdatedException;
 import de.privacy_avare.service.ProfileService;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiResponse;
 
 /**
  * Die Klasse stellt eine REST-API zur Verfügung, über welche externe Anfragen
@@ -42,6 +49,7 @@ import de.privacy_avare.service.ProfileService;
 
 @RestController("existingProfileControllerV1")
 @RequestMapping(value = "/v1/profiles")
+@Api(value = "Bereits existierende Profile")
 public class ExistingProfileController {
 
 	/**
@@ -79,14 +87,20 @@ public class ExistingProfileController {
 	 *            ProfileId des zu löschenden Profils.
 	 * @param unSyncPreferences
 	 *            Vom Client empfangenes unSyncProfile.
-	 * @return Leere ResponseEntity mit Statuscode 204 No Content.
+	 * @return Leere ResponseEntity mit Statuscode 200 OK.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<Void> deleteProfile(@PathVariable("id") String id, @RequestBody String unSyncPreferences) {
+	@ApiOperation(value = "Ersetzt Preferences durch unSync-Profil", notes = "Die in der DB gespeicherten Preferences werden durch die im Parameter übergebenen unSync-Preferences ersetzt, eine <b>Prüfung des lastProfileChange wird nicht durchgeführt</b>. Weiterhin wird der Wert von lastProfileChange um 100 Jahre in die Zukunft gesetzt. Außer anhand des Zeitstempel lastProfileChange ist der Zustand der Preferences für den Server nicht ersichtlich. Daher wird das Profil weiterhin behandelt wie ein normales Profil. Die Auswertung der unSync-Preferences erfolgt auf Seite des Clients. \n \n Zeitstempel lastProfileContact wird aktualisiert.", response = Void.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Preferences erfolgreich durch unSync ersetzt", response = Void.class),
+			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class) })
+	public ResponseEntity<Void> deleteProfile(
+			@ApiParam(value = "ProfileId des zu löschenden Profils", required = true) @PathVariable("id") String id,
+			@ApiParam(value = "Zu speichernde unSync-Preferences", required = true) @RequestBody String unSyncPreferences) {
 		profileService.setProfileOnDeletion(id, unSyncPreferences);
-		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.OK);
 		return response;
 	}
 
@@ -115,7 +129,7 @@ public class ExistingProfileController {
 	 *            Letzter Änderungszeitpunkt der Nutzerpräferenzen.
 	 * @param preferences
 	 *            Zu pushende Nutzerpräferenzen.
-	 * @return Leere ResponseEntity mit Statuscode 204 No Content.
+	 * @return Leere ResponseEntity mit Statuscode 200 OK.
 	 * @see java.text.SimpleDateFormat
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
@@ -124,11 +138,18 @@ public class ExistingProfileController {
 	 *             Zeitstempel.
 	 */
 	@RequestMapping(value = "/{id}/{clientProfileChange}", method = RequestMethod.PUT)
-	public ResponseEntity<Void> pushProfilePreferences(@PathVariable("id") String id,
-			@PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange,
-			@RequestBody String preferences) throws ProfileNotFoundException, ClientPreferencesOutdatedException {
+	@ApiOperation(value = "Speichert Preferences in DB", notes = "Zunächst wird in der DB nach dem entsprechenden Profil gesucht und der lastProfileChange mit dem Parameter des Aufrufs verglichen. Liegt der im Parameter spezifizierten Zeitpunkt <b>mindestens 5 Minuten nach</b> dem lastProfileChange der DB, d.h. die Preferences des Clients sind aktueller, so wird das Profil überschrieben. Andernfalls wird eine Fehlermeldung zurückgeliefert. \n \n Zeitstempel lastProfileContact wird aktualisiert. \n \n Der Methodenaufruf entspricht dem Aufruf von /v1/profiles/{id}/{clientProfileChange}/<b>false</b>. \n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH:mm:ss,SSS</b> übergeben werden. Dies kann in Java leicht mithilfe von <a href=https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html>SimpleDateFormat</a> realisiert werden.", response = Void.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Preferences erfolgreich ersetzt"),
+			@ApiResponse(code = 400, message = "Ungültiger Parameter/ Falscher Datentyp \n \n Geworfene Exception: \n org.springframework.web.method.annotation. \n MethodArgumentTypeMismatchException", response = ErrorInformation.class),
+			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class),
+			@ApiResponse(code = 409, message = "ClientProfile veraltet \n \n Geworfene Exception: \n de.privacy_avare.exeption.ClientPreferencesOutdatedException", response = ErrorInformation.class) })
+	public ResponseEntity<Void> pushProfilePreferences(
+			@ApiParam(value = "ProfileId des zu pushenden Profils", required = true) @PathVariable("id") String id,
+			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange,
+			@ApiParam(value = "Client Preferences", required = true) @RequestBody String preferences)
+			throws ProfileNotFoundException, ClientPreferencesOutdatedException {
 		profileService.pushProfile(id, clientLastProfileChange, preferences, false);
-		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.OK);
 		return response;
 	}
 
@@ -171,12 +192,20 @@ public class ExistingProfileController {
 	 *             Zeitstempel (bei overwrite = false).
 	 */
 	@RequestMapping(value = "/{id}/{clientProfileChange}/{overwrite}", method = RequestMethod.PUT)
-	public ResponseEntity<Void> pushProfilePreferences(@PathVariable("id") String id,
-			@PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange,
-			@RequestBody String preferences, @PathVariable("overwrite") boolean overwrite)
+	@ApiOperation(value = "Speichert Preferences in DB", notes = "Zunächst wird in der DB nach dem entsprechenden Profil gesucht und der lastProfileChange mit dem Parameter des Aufrufs verglichen. Liegt der im Parameter spezifizierten Zeitpunkt <b>mindestens 5 Minuten nach</b> dem lastProfileChange der DB, d.h. die Preferences des Clients sind aktueller, so wird das Profil überschrieben. Andernfalls wird der Parameter overwrite überprüft. Ist dieser auf true gesetzt, so werden die bestehenden Preferences überschrieben. Andernfalls eine Fehlermeldung zurückgeliefert. \n \n Zeitstempel lastProfileContact wird aktualisiert. \n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH:mm:ss,SSS</b> übergeben werden. Dies kann in Java leicht mithilfe von <a href=https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html>SimpleDateFormat</a> realisiert werden.", response = Void.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Preferences erfolgreich ersetzt", response = Void.class),
+			@ApiResponse(code = 400, message = "Ungültiger Parameter/ Falscher Datentyp \n \n Geworfene Exception: \n org.springframework.web.method.annotation. \n MethodArgumentTypeMismatchException", response = ErrorInformation.class),
+			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class),
+			@ApiResponse(code = 409, message = "ClientProfile veraltet \n \n Geworfene Exception: \n de.privacy_avare.exeption.ClientPreferencesOutdatedException", response = ErrorInformation.class) })
+	public ResponseEntity<Void> pushProfilePreferences(
+			@ApiParam(value = "ProfileId des zu pushenden Profils", required = true) @PathVariable("id") String id,
+			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange,
+			@ApiParam(value = "Client Preferences", required = true) @RequestBody String preferences,
+			@ApiParam(value = "Bestehende, aktuellere Preferences überschreiben?", required = true) @PathVariable("overwrite") boolean overwrite)
 			throws ProfileNotFoundException, ClientPreferencesOutdatedException {
 		profileService.pushProfile(id, clientLastProfileChange, preferences, overwrite);
-		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.OK);
 		return response;
 	}
 
@@ -213,8 +242,15 @@ public class ExistingProfileController {
 	 *             Zeitstempel (bei overwrite = false).
 	 */
 	@RequestMapping(value = "/{id}/{lastProfileChange}", method = RequestMethod.GET)
-	public ResponseEntity<String> pullProfilePreferences(@PathVariable("id") String id,
-			@PathVariable("lastProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange)
+	@ApiOperation(value = "Liest Preferences aus DB mit Vergleich der Zeitstempel", notes = "Sucht in der DB nach vorhandenem Profil und vergleich den lastProfileChange mit dem Parameter des Aufrufs. Liegt der im Prameter spezifizierte Zeitpunkt <b> mindestens 5 Minuten vor</b> dem lastProfileChange der DB, d.h. die Preferences des Servers sind aktueller, so wird das Profil geladen. Andernfalls wird eine Fehlermeldung gesendet. \n \n Zeitstempel lastProfileContact wird aktualisiert. \n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH:mm:ss,SSS</b> übergeben werden. Dies kann in Java leicht mithilfe von <a href=https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html>SimpleDateFormat</a> realisiert werden.", response = String.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Preferences erfolgreich geladen", response = String.class),
+			@ApiResponse(code = 400, message = "Ungültiger Parameter/ Falscher Datentyp \n \n Geworfene Exception: \n org.springframework.web.method.annotation. \n MethodArgumentTypeMismatchException", response = ErrorInformation.class),
+			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class),
+			@ApiResponse(code = 409, message = "ServerProfile veraltet \n \n Geworfene Exception: \n de.privacy_avare.exeption.ServerPreferencesOutdatedException", response = ErrorInformation.class) })
+	public ResponseEntity<String> pullProfilePreferences(
+			@ApiParam(value = "ProfileId des zu pullenden Profils", required = true) @PathVariable("id") String id,
+			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("lastProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange)
 			throws ProfileNotFoundException, ServerPreferencesOutdatedException {
 		Profile serverProfile = profileService.getProfileByIdComparingLastChange(id, clientLastProfileChange);
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getPreferences(), HttpStatus.OK);
@@ -237,7 +273,12 @@ public class ExistingProfileController {
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<String> pullProfilePreferencesIgnoringLastProfileChange(@PathVariable("id") String id) {
+	@ApiOperation(value = "Liest Preferences aus DB ohne Vergleich der Zeitstempel", notes = "Sucht in der DB nach vorhandenem Profil. Wird ein Profil mit entsprechender ProfileId gefunden, so werden die gespeicherten Preferences <b>ohne Vergleich des lastProfileChange</b> zurückgeliefert. \n \n Zeitstempel lastProfileContact wird aktualisiert.", response = String.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Preferences erfolgreich geladen", response = String.class),
+			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class) })
+	public ResponseEntity<String> pullProfilePreferencesIgnoringLastProfileChange(
+			@ApiParam(value = "ProfileId des entsprechenden Profils", required = true) @PathVariable("id") String id) {
 		Profile serverProfile = profileService.getProfileById(id);
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getPreferences(), HttpStatus.OK);
 		return response;
@@ -258,7 +299,12 @@ public class ExistingProfileController {
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
 	@RequestMapping(value = "/{id}/lastProfileChange", method = RequestMethod.GET)
-	public ResponseEntity<Date> getLastProfileChange(@PathVariable("id") String id) {
+	@ApiOperation(value = "Liest lastProfileChange aus DB", notes = "Sucht in der DB nach vorhandenem Profil. Wird ein Profil mit entsprechender ProfileId gefunden, so wird der gespeicherte Zeitpunkt lastProfileChange zurückgeliefert. \n \n Zeitstempel lastProfileContact wird nicht aktualisiert.", response = Date.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "lastProfileChange erfolgreich geladen", response = Date.class),
+			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class) })
+	public ResponseEntity<Date> getLastProfileChange(
+			@ApiParam(value = "ProfileId des entsprechenden Profils", required = true) @PathVariable("id") String id) {
 		Date serverLastProfileChange = profileService.getLastProfileChange(id);
 		ResponseEntity<Date> response = new ResponseEntity<Date>(serverLastProfileChange, HttpStatus.OK);
 		return response;
@@ -280,7 +326,12 @@ public class ExistingProfileController {
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
 	@RequestMapping(value = "/{id}/lastProfileContact", method = RequestMethod.GET)
-	public ResponseEntity<Date> getLastProfileContact(@PathVariable("id") String id) {
+	@ApiOperation(value = "Liest lastProfileContact aus DB", notes = "Sucht in der DB nach vorhandenem Profil. Wird ein Profil mit entsprechender ProfileId gefunden, so wird der gespeicherte Zeitpunkt lastProfileContact zurückgeliefert. \n \n Zeitstempel lastProfileContact wird nicht aktualisiert.", response = Date.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "lastProfileContact erfolgreich geladen", response = Date.class),
+			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class) })
+	public ResponseEntity<Date> getLastProfileContact(
+			@ApiParam(value = "ProfileId des entsprechenden Profils", required = true) @PathVariable("id") String id) {
 		Date serverLastProfileContact = profileService.getLastProfileContact(id);
 		ResponseEntity<Date> response = new ResponseEntity<Date>(serverLastProfileContact, HttpStatus.OK);
 		return response;
@@ -298,6 +349,9 @@ public class ExistingProfileController {
 	 *             Keine Profile in DB vorhanden.
 	 */
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
+	@ApiOperation(value = "Liest alle Profile aus DB", notes = "Sucht in der DB nach allen vorhandenen Profilen. Vorhandene Profile werden in einer HashMap<String, Object> zurückgeliefert. Die Methode dient hauptsächlich zu Testzwecken in der Entwicklung. \n \n Zeitstempel lastProfileContact der einzelnen Profile werden aktualisiert.", response = HashMap.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Profile erfolgreich geladen", response = HashMap.class),
+			@ApiResponse(code = 409, message = "Keine Profile in DB gefunden \n \n Geworfene Exception: \n de.privacy_avare.exeption.NoProfilesInDatabaseException", response = ErrorInformation.class) })
 	public ResponseEntity<List<HashMap<String, Object>>> getAllProfiles() throws NoProfilesInDatabaseException {
 		Iterable<Profile> serverList = profileService.getAllProfiles();
 		List<HashMap<String, Object>> responseList = new LinkedList<HashMap<String, Object>>();

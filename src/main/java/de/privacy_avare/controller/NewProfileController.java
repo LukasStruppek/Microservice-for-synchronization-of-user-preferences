@@ -9,9 +9,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.privacy_avare.domain.Profile;
+import de.privacy_avare.dto.ErrorInformation;
 import de.privacy_avare.exeption.MalformedProfileIdException;
 import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.service.ProfileService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiResponse;
 
 /**
  * Die Klasse stellt eine REST-API zur Verfügung, über welche externe Anfragen
@@ -32,6 +38,7 @@ import de.privacy_avare.service.ProfileService;
 
 @RestController("newProfileControllerV1")
 @RequestMapping(value = "/v1/newProfiles")
+@Api(value = "Neues Profil")
 public class NewProfileController {
 
 	/**
@@ -52,6 +59,10 @@ public class NewProfileController {
 	private ProfileService profileService;
 
 	@RequestMapping(value = "", method = RequestMethod.POST)
+	@ApiOperation(value = "Generiert ein neues Profil", notes = "Es wird ein neues Profil mit einer neuen ProfileId generiert und in der Datenbank abgelegt. Der Wert von lastProfileChange wird auf den default-Wert gesetzt. Der Wert von lastProfileContact wird auf den Zeitpunkt des Aufrufes gesetzt. Preferences sind als leerer String gesetzt. Die neu generierte ProfileId wird im Response Body zurückgeliefert.", response = String.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Profil erfolgreich erzeugt und abgespeichert", response = String.class),
+			@ApiResponse(code = 409, message = "Generierte ProfileId bereits vergeben \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileAlreadyExistsException", response = ErrorInformation.class) })
 	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
 		Profile serverProfile = profileService.createNewProfile();
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.get_id(), HttpStatus.CREATED);
@@ -74,7 +85,13 @@ public class NewProfileController {
 	 *             einer gültigen ProfileId entspricht.
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
-	public ResponseEntity<String> createProfile(@PathVariable("id") String id)
+	@ApiOperation(value = "Generiert ein neues Profil basierend auf vorhandener Id", notes = "Es wird ein neues Profil mit der im Pfad definierten ProfileId erzeugt und in der Datenbank abgelegt. Der Wert von lastProfileChange wird auf den default-Wert gesetzt. Der Wert von lastProfileContact wird auf den Zeitpunkt des Aufrufes gesetzt. Preferences sind als leerer String gesetzt. Die ProfileId wird im Response Body zurückgeliefert.", response = String.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Profil erfolgreich erzeugt und abgespeichert", response = String.class),
+			@ApiResponse(code = 409, message = "ProfileId bereits vergeben \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileAlreadyExistsException", response = ErrorInformation.class),
+			@ApiResponse(code = 422, message = "Übergebene Id besitzt ungültiges Format \n \n Geworfene Exception: \n de.privacy_avare.exeption.MalformedProfileIdException", response = ErrorInformation.class) })
+	public ResponseEntity<String> createProfile(
+			@ApiParam(value = "ProfileId", required = true) @PathVariable("id") String id)
 			throws ProfileAlreadyExistsException, MalformedProfileIdException {
 		Profile serverProfile = profileService.createNewProfile(id);
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.get_id(), HttpStatus.CREATED);

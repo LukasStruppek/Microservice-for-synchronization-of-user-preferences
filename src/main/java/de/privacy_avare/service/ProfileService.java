@@ -73,7 +73,7 @@ public class ProfileService {
 	 */
 	public Profile createNewProfile(String id) throws ProfileAlreadyExistsException, MalformedProfileIdException {
 		if (idService.validateId(id) == false) {
-			throw new MalformedProfileIdException("Ungültiges UserID-Format - keine 16-stellige ID.");
+			throw new MalformedProfileIdException("Ungültiges ProfileID-Format - Entspricht nicht dem Aufbau einer üblichen Id.");
 		}
 		if (idService.isIdAlreadyTaken(id) == true) {
 			throw new ProfileAlreadyExistsException("UserID wird bereits in einem bestehenden Profil verwendet.");
@@ -329,7 +329,7 @@ public class ProfileService {
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
 	public void setProfileOnDeletion(String id, String unSyncProfile)
-			throws ProfileNotFoundException, ProfileSetOnDeletionException {
+			throws ProfileNotFoundException {
 		// throws ProfileNotFoundException und ProfileSetOnDeletionException
 		Profile dbProfile = getProfileById(id);
 

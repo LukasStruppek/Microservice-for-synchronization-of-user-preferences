@@ -247,6 +247,7 @@ public class ExeptionHandlingController {
 	 * @return Informationen zum Fehler.
 	 * @see ProfileNotFoundException
 	 */
+	@ExceptionHandler(value = ProfileNotFoundException.class)
 	public ResponseEntity<ErrorInformation> handleProfileNotFoundException(ProfileNotFoundException pnfe,
 			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();

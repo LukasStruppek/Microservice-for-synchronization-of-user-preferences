@@ -3,6 +3,9 @@ package de.privacy_avare.dto;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * Klasse dient der problembasierten Darstellung von auftretetenden Exceptions.
  * Der Aufbau der Klasse orientierte sich dabei an der Definition von HTTP
@@ -15,31 +18,36 @@ import java.util.Date;
  *          Details for HTTP APIs draft-nottingham-http-problem-07 </a>
  *
  */
-
+@ApiModel(value = "ErrorInformation Model", description = "Model für ErrorInformation")
 public class ErrorInformation {
 	/**
 	 * Titel der Fehlermeldung.
 	 */
+	@ApiModelProperty(value = "Titel der Fehlermeldung", required = true, position = 0, example = "Profil nicht gefunden")
 	private String title;
 
 	/**
 	 * Art des Fehlers.
 	 */
+	@ApiModelProperty(value = "Die geworfene Exception", required = true, position = 1, example = "de.privacy_avare.exeption.ProfileNotFoundException")
 	private String exception;
 
 	/**
 	 * HTTP Statuscode
 	 */
+	@ApiModelProperty(value = "Http Status Code", required = true, position = 2, example = "404")
 	private int status;
 
 	/**
 	 * Beschreibung der Art des Fehlers. In der Regel die Nachricht der Exception.
 	 */
+	@ApiModelProperty(value = "Nachricht der Exception", required = true, position = 3, example= "Kein Profil mit entsprechender ID gefunden")
 	private String detail;
 
 	/**
 	 * Aufruf des Clients, welcher den Fehler ausgelöst hast.
 	 */
+	@ApiModelProperty(value = "Aufgerufene URI, die den Fehler ausgelöst hat", required = true, position = 4, example = "/v1/profiles/3764p2481xfbi76")
 	private String requestedURI;
 
 	/**
@@ -47,12 +55,14 @@ public class ErrorInformation {
 	 * Übertragungsformat für Zeitpunkte, wie es auch in anderen Klassen der
 	 * Anwendung genutzt wird.
 	 */
+	@ApiModelProperty(value = "Zeitpunkt des Fehlerauftritts", required = true, position = 5, example = "2017-09-22T14:19:25,071")
 	private String timestamp;
 
 	/**
 	 * Bietet die Möglichkeit, zusätzliche Informationen zu liefern. Standard ist
 	 * ein leerer String.
 	 */
+	@ApiModelProperty(value = "Zusätzliche Informationen, falls verfügbar", required = false, position = 6, example = "")
 	private String additionalInformation;
 
 	/**
