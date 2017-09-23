@@ -13,13 +13,8 @@ import de.privacy_avare.domain.Profile;
 public class TestMain {
 
 	public static void main(String[] args) throws InterruptedException {
-		ProfileRepositoryCouchDBImpl rep = new ProfileRepositoryCouchDBImpl();
-		Profile p = new Profile("neues Dokument 2");
-		p.setPreferences("Meine Präferenzen 2");
-		p.setLastProfileChange(new Date());
-		Profile d = new Profile("Noch ein neues Dokument");
-		d.setPreferences("andere Präferenzen");
-		for(Profile e : rep.findAll(Arrays.asList(p.get_id(), d.get_id())))
-			System.out.println(e);
+		RestTemplate template = new RestTemplate();
+		String id = template.postForObject("https://localhost:8443/v1/newProfiles", null, String.class);
+		System.out.println(id);
 	}
 }
