@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * Einstiegspunkt für das Server-Programm. Startet automatisch einen
- * embedded Tomcat-Server. 
+ * Einstiegspunkt für das Server-Programm. Startet automatisch einen embedded
+ * Tomcat-Server.
  * 
  * In der main-Methode können weitere Konfigurationen vorgenommen werden.
  * 
@@ -17,11 +17,14 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 public class SyncServerMain {
-    public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(SyncServerMain.class);
-        /*
-         * Platzhalter für zusätzliche Konfigurationen
-         */
-        app.run(args);
-    }
+	/**
+	 * Methode dient als Einstiegspunkt des Server-Programms.
+	 * 
+	 * @param args
+	 *            Zusätzliche Parameter, die beim Programmstart übergeben werden.
+	 */
+	public static void main(String[] args) {
+		SpringApplication app = new SpringApplication(SyncServerMain.class);
+		app.run(args);
+	}
 }

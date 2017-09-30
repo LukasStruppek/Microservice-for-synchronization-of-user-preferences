@@ -28,8 +28,9 @@ public class ClearanceService {
 	ProfileRepository profileRepository = new ProfileRepositoryCouchDBImpl();
 
 	/**
-	 * Löscht alle Profile in der Datenbank endgültig mit unSync-Flag auf true sowie
-	 * Profile, auf welche länger als 18 Monate nicht zugegriffen wurde.
+	 * Löscht alle Profile in der Datenbank endgültig, auf welche länger als 18
+	 * Monate nicht zugegriffen wurde. Der Zugriffszeitpunkt wird anhand der
+	 * Eigenschaft lastProfileContact geprüft.
 	 */
 	public void cleanDatabase() {
 		// Berechnung Zeitpunkt vor 18 Monaten
@@ -37,7 +38,7 @@ public class ClearanceService {
 		cal.set(Calendar.DATE, cal.get(Calendar.DATE) - 540);
 
 		// Suchen und Löschen aller Profile mit lastProfileContact vor 18 Monaten oder
-		// früher
+		// länger
 		Iterable<Profile> unusedProfiles = profileRepository.findAllByLastProfileContactBefore(cal.getTime());
 		profileRepository.delete(unusedProfiles);
 	}

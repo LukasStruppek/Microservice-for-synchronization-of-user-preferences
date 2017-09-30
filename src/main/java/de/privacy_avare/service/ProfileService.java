@@ -370,7 +370,6 @@ public class ProfileService {
 	}
 
 	/**
-	 * Speichern von Profilen ohne Anpassen des lastProfileContact Timestamps. Diese
 	 * Speichern von Profilen ohne Anpassen des lastProfileContact. Diese Methode
 	 * ist eher zu Testzwecken gedacht und sollte in der finalen Anwendung nicht
 	 * mehr genutzt werden. Speichern von Profilen ohne Anpassen des

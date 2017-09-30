@@ -13,7 +13,10 @@ import com.couchbase.client.java.repository.annotation.Id;
 
 /**
  * Die Klasse repräsentiert die Profildaten in der Datenbank. Diese beinhalten
- * die Eigenschaften id, lastProfileChange, lastProfileContact und preferences.
+ * die Eigenschaften _id, lastProfileChange, lastProfileContact und preferences.
+ * Sie ist grundsätzlich mit verschiedenen Datenbanksystemen kompatibel. Für das
+ * Abspeichern von Abfragen aus einer CouchDB-Datenbank wird eine Instanz von
+ * ProfileCouchDB verwendet, welche eine Unterklasse von Profile darstellt.
  * 
  * @author Lukas Struppek
  * @version 1.0
@@ -28,6 +31,7 @@ public class Profile {
 	 */
 	@Id
 	@Field
+	protected
 	String _id;
 
 	/**
@@ -36,6 +40,7 @@ public class Profile {
 	 * Nutzerpräferenzen.
 	 */
 	@Field
+	protected
 	Date lastProfileChange;
 
 	/**
@@ -44,14 +49,27 @@ public class Profile {
 	 * Schreiben und Erzeugen eines Profils.
 	 */
 	@Field
+	protected
 	Date lastProfileContact;
 
 	/**
 	 * Repräsentiert die Nutzerpräferenzen.
 	 */
 	@Field
+	protected
 	String preferences;
 
+	/**
+	 * Default-Konstruktor, welcher die Eigenschaften der Klasse auf default-Werte
+	 * setzt. Der Zeitpunkt lastProfileChange wird auf den 1. Jan. 1970 gesetzt. Der
+	 * Zeitpunkt lastProfileContact auf den Zeitpunkt des Aufrufs. Die Preferences
+	 * werden als leerer String gesetzt. Die ProfileId wird noch nicht gesetzt. Um
+	 * Fehler zu vermeiden, sollte stets versucht werden, bei der Erzeugung eines
+	 * neuen Profils direkt über den Konstruktor eine ProfileId festzulegen.
+	 * 
+	 * Der Konstruktor muss außerdem für die automatische Konvertierung zwischen
+	 * JSON und POJOs vorhanden sein.
+	 */
 	public Profile() {
 		// Setze lastProfileChange auf 1. Jan. 1970
 		this.lastProfileChange = new Date(0L);
@@ -63,7 +81,9 @@ public class Profile {
 	/**
 	 * Erzeugt ein neues Profile-Objekt mit Id. Setzt lastProfileChange auf den 1.
 	 * Jan. 1970 und lastProfileContact auf den aktuellen Zeitpunkt. Restliche Werte
-	 * werden mit Default-Werten belegt.
+	 * werden mit Default-Werten belegt. Der Konstruktor ist dem default-Konstruktor
+	 * stets vorzuziehen, um Fehlerquellen bezüglich einer fehlender bzw. falscher
+	 * ProfileId zu vermeiden.
 	 * 
 	 * @param id
 	 *            ProfileID, mit welcher ein neues Profil erzeugt werden soll.
@@ -163,12 +183,19 @@ public class Profile {
 		return preferences;
 	}
 
+	/**
+	 * Setzt die Preferences im Profil.
+	 * 
+	 * @param preferences
+	 *            Die zu setzende Preferences.
+	 */
 	public void setPreferences(String preferences) {
 		this.preferences = preferences;
 	}
 
 	/**
-	 * Liefert eine Stringrepräsentation des aktuellen Zustand des Objekts zurück.
+	 * Liefert eine Repräsentation des aktuellen Zustand des Objekts zurück als
+	 * String zurück. Preferences sind im String nicht enthalten.
 	 * 
 	 * @return Aktueller Zustand des Objekts
 	 */
@@ -194,7 +221,7 @@ public class Profile {
 	}
 
 	/**
-	 * Generiert eine HashMap mit den Eigenschaften und ihren entsprechenden
+	 * Generiert eine HashMap mit allen Eigenschaften und ihren entsprechenden
 	 * Zuständen eines Profile-Objekts zurück.
 	 * 
 	 * @return Generierte HashMap mit allen aktuellen Zuständen des Objekts.

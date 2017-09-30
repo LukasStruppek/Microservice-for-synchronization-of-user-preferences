@@ -27,6 +27,14 @@ import de.privacy_avare.domain.Profile;
  * Anpassung der Einstellungen in der Datei application.properties sind dennoch
  * notwendig.
  * 
+ * Das Interface kann mit kompatiblen Datenbanksystemen mittels
+ * Dependency-Injection durch @Autowired verwendet werden.
+ * 
+ * Für die Verwendung von CouchDB wurde aufgrund der fehlenden Spring
+ * Data-Kompatibilität mit der Klasse ProfileRepositoryCouchDBImpl eine manuelle
+ * Implementierung erstellt.
+ * 
+ * 
  * @author Lukas Struppek
  * @version 1.0
  * @see CrudRepository

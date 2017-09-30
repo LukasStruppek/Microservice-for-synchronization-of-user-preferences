@@ -38,11 +38,11 @@ import io.swagger.annotations.ApiResponse;
 
 @RestController("newProfileControllerV1")
 @RequestMapping(value = "/v1/newProfiles")
-@Api(value = "Neues Profil")
+@Api(tags = "Neues Profil")
 public class NewProfileController {
 
 	/**
-	 * Default Konstruktor
+	 * Default-Konstruktor ohne erweiterte Funktionalität.
 	 */
 	public NewProfileController() {
 
@@ -58,8 +58,22 @@ public class NewProfileController {
 	@Autowired
 	private ProfileService profileService;
 
+	/**
+	 * Erzeugung eines neuen Profils inkl. Generierung einer neuen UserID. Das
+	 * erzeugte Profil wird automatisch in der Datenbank mit default-Werten
+	 * hinterlegt. Entspricht UC1 ohne Parameter.
+	 * 
+	 * @return ResponseEntity, welche im Body die ProfileId des generierten Profils
+	 *         enthält.
+	 * 
+	 * @throws ProfileAlreadyExistsException
+	 *             Generierte ProfileId bereits vergeben.
+	 */
 	@RequestMapping(value = "", method = RequestMethod.POST)
-	@ApiOperation(value = "Generiert ein neues Profil", notes = "Es wird ein neues Profil mit einer neuen ProfileId generiert und in der Datenbank abgelegt. Der Wert von lastProfileChange wird auf den default-Wert gesetzt. Der Wert von lastProfileContact wird auf den Zeitpunkt des Aufrufes gesetzt. Preferences sind als leerer String gesetzt. Die neu generierte ProfileId wird im Response Body zurückgeliefert.", response = String.class)
+	@ApiOperation(value = "Generiert ein neues Profil", notes = "Es wird ein neues Profil mit einer neuen ProfileId generiert und in der Datenbank abgelegt. "
+			+ "Der Wert von lastProfileChange wird auf den default-Wert gesetzt. Der Wert von lastProfileContact wird auf den Zeitpunkt des Aufrufes gesetzt. "
+			+ "Preferences sind als leerer String gesetzt. "
+			+ "\n \n Die neu generierte ProfileId wird im Response Body zurückgeliefert.", response = String.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Profil erfolgreich erzeugt und abgespeichert", response = String.class),
 			@ApiResponse(code = 409, message = "Generierte ProfileId bereits vergeben \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileAlreadyExistsException", response = ErrorInformation.class) })
@@ -77,15 +91,18 @@ public class NewProfileController {
 	 * @param id
 	 *            ProfileId, mit welcher ein neues Profil erzeugt werden soll.
 	 * @return ProfileId des generierten Profils.
-	 * @throws ProfileAleadyExistsException
-	 *             Wird geworfen, falls bei der Id-Generierung eine bereits
-	 *             vorhandene ProfileId generiert wird.
+	 * @throws ProfileAlreadyExistsException
+	 *             Wird geworfen, falls die übergebene ProfileId bereits verwendet
+	 *             wird.
 	 * @throws MalformedProfileIdException
 	 *             Wird geworfen, wenn die übergebene ProfileId nicht dem Aufbau
 	 *             einer gültigen ProfileId entspricht.
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
-	@ApiOperation(value = "Generiert ein neues Profil basierend auf vorhandener Id", notes = "Es wird ein neues Profil mit der im Pfad definierten ProfileId erzeugt und in der Datenbank abgelegt. Der Wert von lastProfileChange wird auf den default-Wert gesetzt. Der Wert von lastProfileContact wird auf den Zeitpunkt des Aufrufes gesetzt. Preferences sind als leerer String gesetzt. Die ProfileId wird im Response Body zurückgeliefert.", response = String.class)
+	@ApiOperation(value = "Generiert ein neues Profil basierend auf vorhandener Id", notes = "Es wird ein neues Profil mit der im Pfad definierten ProfileId erzeugt und in der Datenbank abgelegt. "
+			+ "Der Wert von lastProfileChange wird auf den default-Wert gesetzt. Der Wert von lastProfileContact wird auf den Zeitpunkt des Aufrufes gesetzt. "
+			+ "Preferences sind als leerer String gesetzt. "
+			+ "\n \n Die ProfileId wird im Response Body zurückgeliefert.", response = String.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Profil erfolgreich erzeugt und abgespeichert", response = String.class),
 			@ApiResponse(code = 409, message = "ProfileId bereits vergeben \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileAlreadyExistsException", response = ErrorInformation.class),

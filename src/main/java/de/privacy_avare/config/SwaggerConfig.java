@@ -15,7 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
  * Klasse dient der Aktivierung und Konfiguration von Swagger bzw. Swagger UI.
- * Swagger dient zur Dokumentation der bereitgestellten REST-Schnittstellen.
+ * Swagger wird zur Dokumentation der bereitgestellten REST-Schnittstellen verwendet.
  * 
  * @author Lukas Struppek
  * @version 1.0
@@ -24,6 +24,13 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
+	/**
+	 * Methode wird zur Konfiguration von Swagger genutzt. Weitere Methoden,
+	 * welche zur Konfiguration dienen, müssen ihre Einstellungen über diese Methode
+	 * in ein Docket übergeben.
+	 * 
+	 * @return Docket mit Konfigurationseinstellungen
+	 */
 	@Bean
 	public Docket api() {
 		return new Docket(DocumentationType.SWAGGER_2).useDefaultResponseMessages(false).apiInfo(setApiInfo()).select()
@@ -31,6 +38,10 @@ public class SwaggerConfig {
 				.build();
 	}
 
+	/**
+	 * Methode konfiguriert den Infobereich auf der Swagger UI-Seite mit entsprechenden Informationen.
+	 * @return Api Details
+	 */
 	private ApiInfo setApiInfo() {
 		return new ApiInfoBuilder().title("Avare SyncServer REST API")
 				.description("Dokumentation der REST API für die Nutzung des Avare SyncServers")

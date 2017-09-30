@@ -27,7 +27,8 @@ import de.privacy_avare.service.ClearanceService;
 public class ScheduledTasks {
 
 	/**
-	 * Instanz des Services, welcher die Aufräumarbeiten des Servers übernimmt.
+	 * Instanz des Services, welcher die Funktionalität der Aufräumarbeiten des
+	 * Servers übernimmt.
 	 */
 	@Autowired
 	ClearanceService clearanceService;

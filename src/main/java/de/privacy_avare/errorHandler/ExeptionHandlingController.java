@@ -47,8 +47,8 @@ public class ExeptionHandlingController {
 	 * @see ClientPreferencesOutdatedException
 	 */
 	@ExceptionHandler(value = ClientPreferencesOutdatedException.class)
-	public ResponseEntity<ErrorInformation> handleClientPreferencesOutdatedException(ClientPreferencesOutdatedException cpoe,
-			HttpServletRequest request) {
+	public ResponseEntity<ErrorInformation> handleClientPreferencesOutdatedException(
+			ClientPreferencesOutdatedException cpoe, HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
 		errorInformation.setTitle("Client Profil veraltet");
 		errorInformation.setException(cpoe.getClass().getName());
@@ -61,10 +61,21 @@ public class ExeptionHandlingController {
 				HttpStatus.CONFLICT);
 		return responseEntity;
 	}
-	
+
+	/**
+	 * Kümmert sich um das abfangen von HttpClientErrorException.
+	 * 
+	 * @param hcee
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI.
+	 * @return Informationen zum Fehler.
+	 * @see <a href =
+	 *      "https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/client/HttpClientErrorException.html">HttpClientErrorException</a>
+	 */
 	@ExceptionHandler(value = HttpClientErrorException.class)
-	public ResponseEntity<ErrorInformation> handleHttpClientErrorException(
-			HttpClientErrorException hcee, HttpServletRequest request) {
+	public ResponseEntity<ErrorInformation> handleHttpClientErrorException(HttpClientErrorException hcee,
+			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
 		errorInformation.setTitle("Fehler bei HTTP-Aufruf");
 		errorInformation.setException(hcee.getClass().getName());
@@ -78,14 +89,13 @@ public class ExeptionHandlingController {
 		return responseEntity;
 	}
 
-
 	/**
 	 * Kümmert sich um das abfangen von HttpRequestMethodNotSupportedException.
 	 * 
 	 * @param htmnse
 	 *            Aufgetretene Exception.
 	 * @param request
-	 *            Aufgerufene URI
+	 *            Aufgerufene URI.
 	 * @return Informationen zum Fehler.
 	 * @see <a href =
 	 *      "https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/HttpRequestMethodNotSupportedException.html">HttpRequestMethodNotSupportedException</a>
@@ -112,7 +122,7 @@ public class ExeptionHandlingController {
 	 * @param mpide
 	 *            Aufgetretene Exception.
 	 * @param request
-	 *            Aufgerufene URI
+	 *            Aufgerufene URI.
 	 * @return Informationen zum Fehler.
 	 * @see MalformedProfileIdException
 	 */
@@ -138,7 +148,7 @@ public class ExeptionHandlingController {
 	 * @param me
 	 *            Aufgetretene Exception.
 	 * @param request
-	 *            Aufgerufene URI
+	 *            Aufgerufene URI.
 	 * @return Informationen zum Fehler.
 	 * @see <a href =
 	 *      "https://docs.spring.io/spring-data/commons/docs/1.10.0.M1/api/org/springframework/data/mapping/model/MappingException.html">MappingException</a>
@@ -164,7 +174,7 @@ public class ExeptionHandlingController {
 	 * @param matme
 	 *            Aufgetretene Exception.
 	 * @param request
-	 *            Aufgerufene URI
+	 *            Aufgerufene URI.
 	 * @return Informationen zum Fehler.
 	 * @see <a href =
 	 *      "https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/messaging/handler/annotation/support/MethodArgumentTypeMismatchException.html">MethodArgumentTypeMismatchException</a>
@@ -217,7 +227,7 @@ public class ExeptionHandlingController {
 	 * @param paee
 	 *            Aufgetretene Exception.
 	 * @param request
-	 *            Aufgerufene URI
+	 *            Aufgerufene URI.
 	 * @return Informationen zum Fehler.
 	 * @see ProfileAlreadyExistsException
 	 */
@@ -270,7 +280,7 @@ public class ExeptionHandlingController {
 	 * @param psode
 	 *            Aufgetretene Exception.
 	 * @param request
-	 *            Aufgerufene URI
+	 *            Aufgerufene URI.
 	 * @return Informationen zum Fehler.
 	 * @see ProfileSetOnDeletionException
 	 */
@@ -296,13 +306,13 @@ public class ExeptionHandlingController {
 	 * @param spoe
 	 *            Aufgetretene Exception.
 	 * @param request
-	 *            Aufgerufene URI
+	 *            Aufgerufene URI.
 	 * @return Informationen zum Fehler.
 	 * @see ServerPreferencesOutdatedException
 	 */
 	@ExceptionHandler(value = ServerPreferencesOutdatedException.class)
-	public ResponseEntity<ErrorInformation> handleServerPreferencesOutdatedException(ServerPreferencesOutdatedException spoe,
-			HttpServletRequest request) {
+	public ResponseEntity<ErrorInformation> handleServerPreferencesOutdatedException(
+			ServerPreferencesOutdatedException spoe, HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
 		errorInformation.setTitle("Server Profil veraltet");
 		errorInformation.setException(spoe.getClass().getName());

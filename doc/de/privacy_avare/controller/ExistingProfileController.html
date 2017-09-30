@@ -285,10 +285,8 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>deleteProfile</h4>
-<pre>@RequestMapping(value="/{id}",
-                method=DELETE)
-public&nbsp;org.springframework.http.ResponseEntity&lt;java.lang.Void&gt;&nbsp;deleteProfile(@PathVariable(value="id")
-                                                                                                                                             java.lang.String&nbsp;id)</pre>
+<pre>@RequestMapping(value="/{id}", method=DELETE)
+public&nbsp;org.springframework.http.ResponseEntity&lt;java.lang.Void&gt;&nbsp;deleteProfile(@PathVariable(value="id") java.lang.String&nbsp;id)</pre>
 <div class="block">Löscht ein Profil mit entsprechender ProfileId aus der Datenbank. Dabei wird
  das unsync-Flag auf true, der Zeitpunkt lastProfileChange 100 Jahre in die
  Zukunft und die preferences auf null gesetzt. In jedem Fall wird der

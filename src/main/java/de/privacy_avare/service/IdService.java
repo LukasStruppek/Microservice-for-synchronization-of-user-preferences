@@ -26,7 +26,7 @@ public class IdService {
 	/**
 	 * Erzeugt unter Verwendung des aktuellen Datum, der aktuellen Uhrzeit und
 	 * zufälligen Buchstaben eine eindeutige ProfileId. Die ProfileID besteht dabei
-	 * aus 10 Zahlen, welche mit dem Erzeugungszeitpunkt zusammenhängen sowie 6
+	 * aus 10 Zahlen, welche mit dem Zeitpunkt der Erzeugung zusammenhängen sowie 6
 	 * zufällig gewählten Buchstaben.
 	 * 
 	 * @return generierte UserID
