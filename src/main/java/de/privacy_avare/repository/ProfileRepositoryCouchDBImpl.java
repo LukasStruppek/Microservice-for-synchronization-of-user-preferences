@@ -34,6 +34,7 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 	private int port;
 	private String database;
 	private String url;
+	private static boolean infoPrinted = false;
 
 	/**
 	 * default-Konstruktor, welcher versucht, sich aus der Datei
@@ -65,11 +66,16 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 			System.out.println("Verbindungseinstellungen mit CouchDB auf default-Werte gesetzt");
 		} finally {
 			this.url = this.address + ":" + this.port + "/" + this.database + "/";
-			System.out.println("Folgende Verbindungseinstellen wurden gesetzt:");
-			System.out.println("/t Serveradresse: " + this.address);
-			System.out.println("/t Port: " + this.port);
-			System.out.println("/t Database Name: " + this.database);
-			System.out.println("/t URL: " + this.url);
+
+			if (infoPrinted == false) {
+				System.out.println("Folgende Verbindungseinstellen wurden gesetzt:");
+				System.out.println("\t Serveradresse: " + this.address);
+				System.out.println("\t Port: " + this.port);
+				System.out.println("\t Database Name: " + this.database);
+				System.out.println("\t URL: " + this.url);
+				infoPrinted = true;
+			}
+
 			if (inputStream != null) {
 				try {
 					inputStream.close();
