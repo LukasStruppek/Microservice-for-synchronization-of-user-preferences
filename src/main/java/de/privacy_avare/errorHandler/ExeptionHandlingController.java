@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.data.mapping.model.MappingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -89,6 +90,33 @@ public class ExeptionHandlingController {
 		return responseEntity;
 	}
 
+	/**
+	 * Kümmert sich um das abfangen von HttpMessageNotReadableException.
+	 * 
+	 * @param hmnre
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI.
+	 * @return Informationen zum Fehler.
+	 * @see <a href =
+	 *      "org.springframework.http.converter.HttpMessageNotReadableException</a>
+	 */
+	@ExceptionHandler(value = HttpMessageNotReadableException.class)
+	public ResponseEntity<ErrorInformation> handleHttpMessageNotReadableException(
+			HttpMessageNotReadableException hmnre, HttpServletRequest request) {
+		ErrorInformation errorInformation = new ErrorInformation();
+		errorInformation.setTitle("HTTP-Methode nicht ausführbar");
+		errorInformation.setException(hmnre.getClass().getName());
+		errorInformation.setStatus(HttpStatus.BAD_REQUEST.value());
+		errorInformation.setDetail(hmnre.getMessage());
+		errorInformation.setRequestedURI(request.getRequestURI());
+		errorInformation.setTimestamp(new Date());
+		errorInformation.setAdditionalInformation("");
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.BAD_REQUEST);
+		return responseEntity;
+	}
+	
 	/**
 	 * Kümmert sich um das abfangen von HttpRequestMethodNotSupportedException.
 	 * 
