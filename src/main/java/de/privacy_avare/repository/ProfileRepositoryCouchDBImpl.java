@@ -68,11 +68,13 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 			this.url = this.address + ":" + this.port + "/" + this.database + "/";
 
 			if (infoPrinted == false) {
-				System.out.println("Folgende Verbindungseinstellen wurden gesetzt:");
+				System.out.println("************************************************");
+				System.out.println("Folgende Verbindungseinstellen für CouchDB wurden gesetzt:");
 				System.out.println("\t Serveradresse: " + this.address);
 				System.out.println("\t Port: " + this.port);
 				System.out.println("\t Database Name: " + this.database);
 				System.out.println("\t URL: " + this.url);
+				System.out.println("************************************************");
 				infoPrinted = true;
 			}
 
