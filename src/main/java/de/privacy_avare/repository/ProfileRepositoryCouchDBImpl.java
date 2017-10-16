@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -28,6 +29,7 @@ import de.privacy_avare.exeption.ProfileNotFoundException;
  * @see <a href="https://github.com/springfox/springfox">Springfox License</a>
  */
 
+@Service
 public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 
 	private String address;

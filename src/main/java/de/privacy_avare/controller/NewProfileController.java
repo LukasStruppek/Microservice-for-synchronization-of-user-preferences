@@ -42,13 +42,6 @@ import io.swagger.annotations.ApiResponse;
 public class NewProfileController {
 
 	/**
-	 * Default-Konstruktor ohne erweiterte Funktionalität.
-	 */
-	public NewProfileController() {
-
-	}
-
-	/**
 	 * Service stellt diverse Methoden zur Verarbeitung von Profilen sowie der
 	 * Ablage in der Datenbank bzw. dem Abruf von Profilen aus der Datenbank bereit.
 	 * Instanz wird über Dependency Injection bereitgestellt.
@@ -57,6 +50,13 @@ public class NewProfileController {
 	 */
 	@Autowired
 	private ProfileService profileService;
+
+	/**
+	 * Default-Konstruktor ohne erweiterte Funktionalität.
+	 */
+	public NewProfileController() {
+
+	}
 
 	/**
 	 * Erzeugung eines neuen Profils inkl. Generierung einer neuen UserID. Das

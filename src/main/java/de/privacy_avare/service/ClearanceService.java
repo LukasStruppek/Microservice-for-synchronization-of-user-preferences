@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.privacy_avare.domain.Profile;
@@ -25,7 +26,8 @@ public class ClearanceService {
 	/**
 	 * Service zum Abruf der Profile aus der Datenbank.
 	 */
-	ProfileRepository profileRepository = new ProfileRepositoryCouchDBImpl();
+	@Autowired
+	ProfileRepository profileRepository;
 
 	/**
 	 * Löscht alle Profile in der Datenbank endgültig, auf welche länger als 18

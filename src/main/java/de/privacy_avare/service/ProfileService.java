@@ -31,8 +31,9 @@ import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 
 @Service
 public class ProfileService {
-	ProfileRepository profileRepository = new ProfileRepositoryCouchDBImpl();
-@Autowired
+	@Autowired
+	ProfileRepository profileRepository;
+	@Autowired
 	private IdService idService;
 
 	/**
@@ -73,7 +74,8 @@ public class ProfileService {
 	 */
 	public Profile createNewProfile(String id) throws ProfileAlreadyExistsException, MalformedProfileIdException {
 		if (idService.validateId(id) == false) {
-			throw new MalformedProfileIdException("Ungültiges ProfileID-Format - Entspricht nicht dem Aufbau einer üblichen Id.");
+			throw new MalformedProfileIdException(
+					"Ungültiges ProfileID-Format - Entspricht nicht dem Aufbau einer üblichen Id.");
 		}
 		if (idService.isIdAlreadyTaken(id) == true) {
 			throw new ProfileAlreadyExistsException("UserID wird bereits in einem bestehenden Profil verwendet.");
@@ -328,8 +330,7 @@ public class ProfileService {
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
-	public void setProfileOnDeletion(String id, String unSyncProfile)
-			throws ProfileNotFoundException {
+	public void setProfileOnDeletion(String id, String unSyncProfile) throws ProfileNotFoundException {
 		// throws ProfileNotFoundException und ProfileSetOnDeletionException
 		Profile dbProfile = getProfileById(id);
 
