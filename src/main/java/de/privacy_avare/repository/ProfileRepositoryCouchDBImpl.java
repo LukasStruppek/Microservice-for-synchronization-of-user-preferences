@@ -73,7 +73,7 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 			properties.load(inputStream);
 
 			this.address = properties.getProperty("couchdb.adress");
-			this.port = Integer.valueOf(properties.get("couchdb.port").toString());
+			this.port = Integer.valueOf(properties.getProperty("couchdb.port"));
 			this.database = properties.getProperty("couchdb.databaseName");
 		} catch (Exception e) {
 			this.address = "http://localhost";

@@ -60,6 +60,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-				.antMatchers("/swagger-ui.html").authenticated().antMatchers("/v1/**").permitAll().and().httpBasic().and().csrf().disable();
+				.antMatchers("/swagger-ui.html").authenticated().antMatchers("/v1/**").permitAll()
+				.antMatchers("/v1/dev/**").authenticated().and().httpBasic().and().csrf().disable();
 	}
 }
