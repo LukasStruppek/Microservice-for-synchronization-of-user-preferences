@@ -22,5 +22,6 @@ C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\couch
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\exeption\ProfileAlreadyExistsException.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\exeption\NoProfilesInDatabaseException.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\domain\Profile.java
+C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\controller\DevController.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\repository\ProfileRepositoryCouchDBImpl.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\config\ValidationConfig.java
