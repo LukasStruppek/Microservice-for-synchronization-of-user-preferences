@@ -20,7 +20,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -126,8 +125,12 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 			ProfileCouchDB dbProfile = restTemplate.getForObject(url + entity.get_id(), ProfileCouchDB.class);
 			dbProfile.setDetails(entity);
 			restTemplate.put(url + entity.get_id(), dbProfile);
-		} catch (HttpClientErrorException e) {
-			restTemplate.put(url + entity.get_id(), entity);
+		} catch (HttpClientErrorException hcee) {
+			try {
+				restTemplate.put(url + entity.get_id(), entity);
+			} catch (Exception e) {
+				restTemplate.put(url + entity.get_id(), entity);
+			}
 		}
 		return entity;
 	}
@@ -275,8 +278,7 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 			System.out.println(response.getBody());
 		} catch (HttpClientErrorException e) {
 			throw new ProfileNotFoundException(e.getMessage());
-		}
-		catch(HttpServerErrorException e) {
+		} catch (HttpServerErrorException e) {
 		}
 	}
 

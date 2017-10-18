@@ -19,6 +19,7 @@ package de.privacy_avare.service;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Properties;
@@ -95,10 +96,19 @@ public class ClearanceService {
 		cal.set(Calendar.DATE, cal.get(Calendar.DATE) - (30 * monthsBeforeDeletion));
 
 		// Suchen und Löschen aller Profile mit lastProfileContact vor
-		// 'monthsBeforeDeletion' Monaten oder
-		// länger
+		// 'monthsBeforeDeletion' Monaten oder länger
+		System.out.println("************************************************");
+		System.out.println("\t Planmäßiges Aufräumen veralteter Profile gestartet um " + new Date());
+
 		Iterable<Profile> unusedProfiles = profileRepository.findAllByLastProfileContactBefore(cal.getTime());
+
+		System.out.println("\t Anzahl an gelöschter Profile: " + unusedProfiles.spliterator().getExactSizeIfKnown());
+
 		profileRepository.delete(unusedProfiles);
+		
+		System.out.println("\t Planmäßiges Aufräumen veralteter Profile beendet um " + new Date());
+		System.out.println("************************************************");
+
 	}
 
 }

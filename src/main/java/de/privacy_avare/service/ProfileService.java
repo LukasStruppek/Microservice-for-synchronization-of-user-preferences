@@ -59,6 +59,11 @@ public class ProfileService {
 
 	private static boolean infoPrinted = false;
 
+	/**
+	 * Konstruktor liest aus File application.properties die Einstellung
+	 * minTimeDifference, mithilfe welcher die Aktualität von Client- und
+	 * Serverprofilen verglichen wird.
+	 */
 	public ProfileService() {
 		Reader reader = null;
 		try {
@@ -161,14 +166,16 @@ public class ProfileService {
 	 * Sucht in der Datenbank nach einem Profil mit einer bestimmten ProfileId. Wird
 	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChangeTime mit dem
 	 * Parameter clientLastProfileChange verglichen. Ist das Profil aus der
-	 * Datenbank mindestens 'minTimeDifference' Minuten neuer als der im Parameter spezifizierte
-	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
+	 * Datenbank mindestens 'minTimeDifference' Minuten neuer als der im Parameter
+	 * spezifizierte Zeitstempel, so wird das Profil aus der Datenbank
+	 * zurückgeliefert.
 	 * 
 	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
 	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChange mit dem
 	 * Parameter clientLastProfileChange verglichen. Ist das Profil aus der
-	 * Datenbank mindestens 'minTimeDifference' Minuten neuer als der im Parameter spezifizierte
-	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
+	 * Datenbank mindestens 'minTimeDifference' Minuten neuer als der im Parameter
+	 * spezifizierte Zeitstempel, so wird das Profil aus der Datenbank
+	 * zurückgeliefert.
 	 * 
 	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
 	 * 
@@ -314,7 +321,8 @@ public class ProfileService {
 			} else {
 				GregorianCalendar dbProfileLastProfileChange = new GregorianCalendar();
 				dbProfileLastProfileChange.setTime(dbProfile.getLastProfileChange());
-				dbProfileLastProfileChange.set(Calendar.MINUTE, dbProfileLastProfileChange.get(Calendar.MINUTE) + this.minTimeDifference);
+				dbProfileLastProfileChange.set(Calendar.MINUTE,
+						dbProfileLastProfileChange.get(Calendar.MINUTE) + this.minTimeDifference);
 
 				if (dbProfileLastProfileChange.getTime().before(clientLastProfileChange) || overwrite == true) {
 					dbProfile.setPreferences(clientPreferences);
@@ -420,7 +428,5 @@ public class ProfileService {
 	public void setProfileOnDeletion(Profile profile) throws ProfileNotFoundException, ProfileSetOnDeletionException {
 		setProfileOnDeletion(profile.get_id(), profile.getPreferences());
 	}
-
-
 
 }

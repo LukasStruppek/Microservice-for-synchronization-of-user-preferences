@@ -115,11 +115,11 @@ public class ExeptionHandlingController {
 	 *            Aufgerufene URI.
 	 * @return Informationen zum Fehler.
 	 * @see <a href =
-	 *      "org.springframework.http.converter.HttpMessageNotReadableException</a>
+	 *      "https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/http/converter/HttpMessageNotReadableException.html">HttpMessageNotReadableException</a>
 	 */
 	@ExceptionHandler(value = HttpMessageNotReadableException.class)
-	public ResponseEntity<ErrorInformation> handleHttpMessageNotReadableException(
-			HttpMessageNotReadableException hmnre, HttpServletRequest request) {
+	public ResponseEntity<ErrorInformation> handleHttpMessageNotReadableException(HttpMessageNotReadableException hmnre,
+			HttpServletRequest request) {
 		ErrorInformation errorInformation = new ErrorInformation();
 		errorInformation.setTitle("HTTP-Methode nicht ausführbar");
 		errorInformation.setException(hmnre.getClass().getName());
@@ -132,7 +132,7 @@ public class ExeptionHandlingController {
 				HttpStatus.BAD_REQUEST);
 		return responseEntity;
 	}
-	
+
 	/**
 	 * Kümmert sich um das abfangen von HttpRequestMethodNotSupportedException.
 	 * 

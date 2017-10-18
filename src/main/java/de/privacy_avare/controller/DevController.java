@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import de.privacy_avare.domain.Profile;
 import de.privacy_avare.dto.ErrorInformation;
 import de.privacy_avare.exeption.NoProfilesInDatabaseException;
+import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
 import de.privacy_avare.repository.ProfileRepository;
+import de.privacy_avare.service.ClearanceService;
 import de.privacy_avare.service.ProfileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -70,6 +72,12 @@ public class DevController {
 	 */
 	@Autowired
 	private ProfileRepository profileRepository;
+
+	/**
+	 * Service zum Aufräumen veralteter Profile in der Datenbank.
+	 */
+	@Autowired
+	private ClearanceService clearanceService;
 
 	/**
 	 * Sucht alle Profile in der Datenbank und liefert diese in Form einer Liste
@@ -191,17 +199,38 @@ public class DevController {
 		System.exit(0);
 	}
 
+	/**
+	 * Ruft die Methode zum Löschen veralteter Profile auf. Die Methode entspricht
+	 * dem manuellen Aufruf des Aufräumprozesses, welcher in einem festgelegten
+	 * Zeitintervall automatisch durchgeführt wird.
+	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
 	@ApiOperation(value = "Löschen aller veralteten Profile in DB", notes = "Entspricht dem Methodenaufruf des automatisierten Löschens. ", response = Void.class)
 	public void cleanDatabase() {
-		// Berechnung Zeitpunkt vor 'monthsBeforeDeletion' Monaten
-		Calendar cal = GregorianCalendar.getInstance(Locale.GERMANY);
-		cal.set(Calendar.DATE, cal.get(Calendar.DATE) - (30 * 18));
+		clearanceService.cleanDatabase();
+	}
 
-		// Suchen und Löschen aller Profile mit lastProfileContact vor
-		// 'monthsBeforeDeletion' Monaten oder
-		// länger
-		Iterable<Profile> unusedProfiles = profileRepository.findAllByLastProfileContactBefore(cal.getTime());
-		profileRepository.delete(unusedProfiles);
+	/**
+	 * Generiert ein Profil mit veraltetem lastProfileContact und der Preference
+	 * "Veraltetes Profil". Die Methode wird verwendet, um den Aufräumprozess zu
+	 * testen.
+	 * 
+	 * @return ResponseEntity, welche im Body die ProfileId des generierten Profils
+	 *         enthält.
+	 * @throws ProfileAlreadyExistsException
+	 *             Generierte ProfileId bereits vergeben.
+	 */
+	@RequestMapping(value = "", method = RequestMethod.POST)
+	@ApiOperation(value = "Generiert ein neues, veraltetes Profil", notes = "Generiert ein neues Profil in der Datenbank mit lastProfileContact = 0 und preferences = 'Veraltetes PRofil'. Wird zum Testen des Aufräumprozesses genutzt", response = String.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Profil erfolgreich erzeugt und abgespeichert", response = String.class),
+			@ApiResponse(code = 409, message = "Generierte ProfileId bereits vergeben \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileAlreadyExistsException", response = ErrorInformation.class) })
+	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
+		Profile serverProfile = profileService.createNewProfile();
+		serverProfile.setLastProfileContact(new Date(0));
+		serverProfile.setPreferences("Veraltetes Profil");
+		profileRepository.save(serverProfile);
+		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.get_id(), HttpStatus.CREATED);
+		return response;
 	}
 }

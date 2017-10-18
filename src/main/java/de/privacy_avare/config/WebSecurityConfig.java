@@ -45,6 +45,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	private String username;
 	private String password;
 
+	/**
+	 * Konstruktor liest aus dem File application.properties die festgelegten
+	 * Zugangsdaten für den Admin-Zugang aus. Bei Fehlern werden die Zugangsdaten
+	 * auf default-Werte gesetzt.
+	 */
 	public WebSecurityConfig() {
 
 		Reader reader = null;
