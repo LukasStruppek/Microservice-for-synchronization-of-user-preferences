@@ -128,7 +128,7 @@ public class ExistingProfileController {
 	/**
 	 * Speichert preferences von einem Client in der Datenbank entsprechend der
 	 * Aktualität des Profils. Ist der Zeitpunkt lastProfileChange des zu pushenden
-	 * Profils mindestens 5 Minuten aktueller als der des in der Datenbank
+	 * Profils entsprechend den Einstellungen in der Datei application.properties aktueller als der des in der Datenbank
 	 * bestehenden Profils, so wird dieses Überschrieben. Andernfalls findet keine
 	 * Überschreibung statt. Soll trotzdem das Profil in der DB überschrieben
 	 * werden, so ist die Methode mit entsprechend gesetztem overwrite-Parameter zu
@@ -163,7 +163,7 @@ public class ExistingProfileController {
 	 */
 	@RequestMapping(value = "/{id}/{clientProfileChange}", method = RequestMethod.PUT)
 	@ApiOperation(value = "Speichert Preferences in DB", notes = "Zunächst wird in der DB nach dem entsprechenden Profil gesucht und der lastProfileChange mit dem Parameter des Aufrufs verglichen. "
-			+ "Liegt der im Parameter spezifizierten Zeitpunkt <b>mindestens 5 Minuten nach</b> dem lastProfileChange der DB, d.h. die Preferences des Clients sind aktueller, so werden die Preferences in der DB überschrieben. "
+			+ "Liegt der im Parameter spezifizierten Zeitpunkt <b>mindestens minTimeDifference Minuten nach</b> dem lastProfileChange der DB, d.h. die Preferences des Clients sind aktueller, so werden die Preferences in der DB überschrieben. "
 			+ "Andernfalls wird eine Fehlermeldung zurückgeliefert. Soll trotzdem das Profil in der DB überschrieben werden, so ist die Methode mit entsprechend gesetztem overwrite-Parameter zu nutzen. "
 			+ "\n \n Zeitstempel lastProfileContact wird aktualisiert. \n \n Der Methodenaufruf entspricht dem Aufruf von PUT /v1/profiles/{id}/{clientProfileChange}/<b>false</b>. "
 			+ "\n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH:mm:ss,SSS</b> übergeben werden. "
@@ -185,7 +185,7 @@ public class ExistingProfileController {
 	/**
 	 * Speichert preferences von einem Client in der Datenbank entsprechend der
 	 * Aktualität des Profils und des overwrite-Parameters. Ist der Zeitunkt
-	 * lastProfileChange des zu pushenden Profils mindestens 5 Minuten aktueller als
+	 * lastProfileChange des zu pushenden Profils entsprechend den Einstellungen in der Datei application.properties aktueller als
 	 * der des in der Datenbank bestehenden Profils, so wird dieses Überschrieben.
 	 * Andernfalls wird entsprechend dem Parameter overwrite das ursprüngliche
 	 * Profil in der Datenbank beibehalten (overwrite = false) oder überschrieben
@@ -223,7 +223,7 @@ public class ExistingProfileController {
 	 */
 	@RequestMapping(value = "/{id}/{clientProfileChange}/{overwrite}", method = RequestMethod.PUT)
 	@ApiOperation(value = "Speichert Preferences in DB", notes = "Zunächst wird in der DB nach dem entsprechenden Profil gesucht und der lastProfileChange mit dem Parameter des Aufrufs verglichen. "
-			+ "Liegt der im Parameter spezifizierten Zeitpunkt <b>mindestens 5 Minuten nach</b> dem lastProfileChange der DB, d.h. die Preferences des Clients sind aktueller, so wird das Profil überschrieben. "
+			+ "Liegt der im Parameter spezifizierten Zeitpunkt <b>mindestens minTimeDifference Minuten nach</b> dem lastProfileChange der DB, d.h. die Preferences des Clients sind aktueller, so wird das Profil überschrieben. "
 			+ "Andernfalls wird der Parameter overwrite überprüft. Ist dieser auf true gesetzt, so werden die bestehenden Preferences überschrieben. Andernfalls eine Fehlermeldung zurückgeliefert. "
 			+ "\n \n Zeitstempel lastProfileContact wird aktualisiert. "
 			+ "\n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH:mm:ss,SSS</b> übergeben werden. "
@@ -250,7 +250,7 @@ public class ExistingProfileController {
 	 * zurück. Bei einem entsprechenden gefundenen Profil wird der Zeitpunkt
 	 * lastProfileChange des Profils aus der Datenbank mit dem Zeitpunkt
 	 * clientLastProfileChange verglichen. Ist das Profil aus der Datenbank nicht
-	 * neuer als 5 Minuten, so wird eine Fehlermeldung zurückgeliefert.
+	 * neuer als in den application.properties festgelegte Anzahl an Minuten, so wird eine Fehlermeldung zurückgeliefert.
 	 * 
 	 * In jedem Fall wird der Zeitpunkt lastProfileContact angepasst.
 	 * 
@@ -279,7 +279,7 @@ public class ExistingProfileController {
 	 */
 	@RequestMapping(value = "/{id}/{lastProfileChange}", method = RequestMethod.GET)
 	@ApiOperation(value = "Liest Preferences aus DB mit Vergleich der Zeitstempel", notes = "Sucht in der DB nach vorhandenem Profil und vergleich den lastProfileChange mit dem Parameter des Aufrufs. "
-			+ "Liegt der im Prameter spezifizierte Zeitpunkt <b> mindestens 5 Minuten vor</b> dem lastProfileChange der DB, d.h. die Preferences des Servers sind aktueller, so wird das Profil geladen. "
+			+ "Liegt der im Prameter spezifizierte Zeitpunkt <b> mindestens minTimeDifference Minuten vor</b> dem lastProfileChange der DB, d.h. die Preferences des Servers sind aktueller, so wird das Profil geladen. "
 			+ "Sollen trotzdem die Preferences aus der DB geladen werden, so ist die Methode ohne entsprechenden Parameter lastProfileChange aufzurufen."
 			+ "Andernfalls wird eine Fehlermeldung gesendet. \n \n Zeitstempel lastProfileContact wird aktualisiert. \n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH:mm:ss,SSS</b> übergeben werden. "
 			+ "Dies kann in Java leicht mithilfe von <a href=https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html>SimpleDateFormat</a> realisiert werden.", response = String.class)

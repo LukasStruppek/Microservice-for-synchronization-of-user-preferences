@@ -16,18 +16,24 @@
 
 package de.privacy_avare.repository;
 
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import de.privacy_avare.config.DefaultProperties;
 import de.privacy_avare.couchDBDomain.AllProfiles;
 import de.privacy_avare.couchDBDomain.ProfileCouchDB;
 import de.privacy_avare.domain.Profile;
@@ -66,11 +72,11 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 	 * Konsole ausgegeben.
 	 */
 	public ProfileRepositoryCouchDBImpl() {
-		InputStream inputStream = null;
+		Reader reader = null;
 		try {
-			inputStream = getClass().getClassLoader().getResourceAsStream("application.properties");
-			Properties properties = new Properties();
-			properties.load(inputStream);
+			reader = new FileReader("src/main/resources/application.properties");
+			Properties properties = new Properties(new DefaultProperties());
+			properties.load(reader);
 
 			this.address = properties.getProperty("couchdb.adress");
 			this.port = Integer.valueOf(properties.getProperty("couchdb.port"));
@@ -94,11 +100,9 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 				System.out.println("\t URL: " + this.url);
 				System.out.println("************************************************");
 				infoPrinted = true;
-			}
 
-			if (inputStream != null) {
 				try {
-					inputStream.close();
+					reader.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -261,12 +265,18 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 	public void delete(String id) {
 		RestTemplate restTemplate = new RestTemplate();
 		try {
-			String rev = restTemplate.getForEntity(url, Profile.class).getHeaders().get("etag").get(0);
+			String rev = restTemplate.getForEntity(url + id, Profile.class).getHeaders().get("etag").get(0);
 			rev = rev.substring(1, rev.length() - 1);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + id).queryParam("rev", rev);
 			restTemplate.delete(builder.build().encode().toUri());
+			HashMap<String, String[]> hashMap = new HashMap<String, String[]>();
+			hashMap.put(id, new String[] { rev });
+			ResponseEntity<String> response = restTemplate.postForEntity(url + "_purge", hashMap, String.class);
+			System.out.println(response.getBody());
 		} catch (HttpClientErrorException e) {
 			throw new ProfileNotFoundException(e.getMessage());
+		}
+		catch(HttpServerErrorException e) {
 		}
 	}
 
@@ -338,15 +348,10 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 	@Override
 	public List<Profile> findAllByLastProfileContactBefore(Date date) {
 		List<Profile> list = new ArrayList<Profile>();
-		this.findAll().forEach(list::add);
-		if (list.isEmpty() == false) {
-			for (Profile profile : list) {
-				if (profile.getLastProfileContact().before(date) == false) {
-					list.remove(profile);
-				}
+		for (Profile profile : this.findAll()) {
+			if (profile.getLastProfileContact().before(date) == true) {
+				list.add(profile);
 			}
-		} else {
-			throw new NoProfilesInDatabaseException();
 		}
 		return list;
 	}
@@ -419,4 +424,5 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 
 		return preferences;
 	}
+
 }

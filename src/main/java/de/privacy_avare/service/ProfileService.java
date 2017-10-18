@@ -16,14 +16,18 @@
 
 package de.privacy_avare.service;
 
+import java.io.FileReader;
+import java.io.Reader;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.privacy_avare.config.DefaultProperties;
 import de.privacy_avare.domain.Profile;
 import de.privacy_avare.exeption.ClientPreferencesOutdatedException;
 import de.privacy_avare.exeption.MalformedProfileIdException;
@@ -33,7 +37,6 @@ import de.privacy_avare.exeption.ProfileSetOnDeletionException;
 import de.privacy_avare.exeption.ServerPreferencesOutdatedException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
 import de.privacy_avare.repository.ProfileRepository;
-import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 
 /**
  * Klasse stellt verschiedene Services zur Interaktion mit Profilen in der
@@ -51,6 +54,38 @@ public class ProfileService {
 	ProfileRepository profileRepository;
 	@Autowired
 	private IdService idService;
+
+	private int minTimeDifference;
+
+	private static boolean infoPrinted = false;
+
+	public ProfileService() {
+		Reader reader = null;
+		try {
+			reader = new FileReader("src/main/resources/application.properties");
+			Properties properties = new Properties(new DefaultProperties());
+			properties.load(reader);
+
+			this.minTimeDifference = Integer.valueOf(properties.getProperty("server.minTimeDifference"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			minTimeDifference = 5;
+		} finally {
+			try {
+				reader.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			if (infoPrinted == false) {
+				System.out.println("************************************************");
+				System.out.println(
+						"Folgender minimaler Zeitunterschied zwischen Server-Profil und Client-Profil beim TimeStamp-Vergleich wurde festgelegt:");
+				System.out.println("\t Minimaler Zeitunterschied in Minuten: " + this.minTimeDifference);
+				System.out.println("************************************************");
+				infoPrinted = true;
+			}
+		}
+	}
 
 	/**
 	 * Erzeugt ein neues Profil mit einer gegebenen ProfileId. Bei erfolgreicher
@@ -126,13 +161,13 @@ public class ProfileService {
 	 * Sucht in der Datenbank nach einem Profil mit einer bestimmten ProfileId. Wird
 	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChangeTime mit dem
 	 * Parameter clientLastProfileChange verglichen. Ist das Profil aus der
-	 * Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
+	 * Datenbank mindestens 'minTimeDifference' Minuten neuer als der im Parameter spezifizierte
 	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
 	 * 
 	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
 	 * ein Profil gefunden, so wird seine Eigenschaft lastProfileChange mit dem
 	 * Parameter clientLastProfileChange verglichen. Ist das Profil aus der
-	 * Datenbank mindestens 5 Minuten 'neuer' als der im Parameter spezifizierte
+	 * Datenbank mindestens 'minTimeDifference' Minuten neuer als der im Parameter spezifizierte
 	 * Zeitstempel, so wird das Profil aus der Datenbank zurückgeliefert.
 	 * 
 	 * Der Wert lastProfileContact wird in der Datenbank in allen Fällen angepasst.
@@ -155,7 +190,7 @@ public class ProfileService {
 		Profile dbProfile = getProfileById(id);
 		GregorianCalendar dbLastProfileChange = new GregorianCalendar();
 		dbLastProfileChange.setTime(dbProfile.getLastProfileChange());
-		dbLastProfileChange.set(Calendar.MINUTE, dbLastProfileChange.get(Calendar.MINUTE) - 5);
+		dbLastProfileChange.set(Calendar.MINUTE, dbLastProfileChange.get(Calendar.MINUTE) - this.minTimeDifference);
 		if (dbLastProfileChange.getTime().after(clientLastProfileChange)) {
 			return dbProfile;
 		} else {
@@ -279,7 +314,7 @@ public class ProfileService {
 			} else {
 				GregorianCalendar dbProfileLastProfileChange = new GregorianCalendar();
 				dbProfileLastProfileChange.setTime(dbProfile.getLastProfileChange());
-				dbProfileLastProfileChange.set(Calendar.MINUTE, dbProfileLastProfileChange.get(Calendar.MINUTE) + 5);
+				dbProfileLastProfileChange.set(Calendar.MINUTE, dbProfileLastProfileChange.get(Calendar.MINUTE) + this.minTimeDifference);
 
 				if (dbProfileLastProfileChange.getTime().before(clientLastProfileChange) || overwrite == true) {
 					dbProfile.setPreferences(clientPreferences);
@@ -386,20 +421,6 @@ public class ProfileService {
 		setProfileOnDeletion(profile.get_id(), profile.getPreferences());
 	}
 
-	/**
-	 * Speichern von Profilen ohne Anpassen des lastProfileContact. Diese Methode
-	 * ist eher zu Testzwecken gedacht und sollte in der finalen Anwendung nicht
-	 * mehr genutzt werden. Speichern von Profilen ohne Anpassen des
-	 * lastProfileContact. Diese Methode ist eher zu Testzwecken gedacht und sollte
-	 * in der finalen Anwendung nicht mehr genutzt werden.
-	 * 
-	 * @param p
-	 *            Zu speicherndes Profil.
-	 * 
-	 * @deprecated Nur für Testzwecke gedacht!
-	 */
-	public void save(Profile p) {
-		profileRepository.save(p);
-	}
+
 
 }

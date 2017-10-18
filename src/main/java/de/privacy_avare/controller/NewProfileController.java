@@ -71,7 +71,6 @@ public class NewProfileController {
 	 * Default-Konstruktor ohne erweiterte Funktionalität.
 	 */
 	public NewProfileController() {
-
 	}
 
 	/**

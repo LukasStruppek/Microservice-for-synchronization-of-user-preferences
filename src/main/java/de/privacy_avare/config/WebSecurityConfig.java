@@ -16,10 +16,13 @@
 
 package de.privacy_avare.config;
 
+import java.io.FileReader;
+import java.io.Reader;
+import java.util.Properties;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -39,6 +42,31 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+	private String username;
+	private String password;
+
+	public WebSecurityConfig() {
+
+		Reader reader = null;
+		try {
+			reader = new FileReader("src/main/resources/application.properties");
+			Properties properties = new Properties(new DefaultProperties());
+			properties.load(reader);
+
+			this.username = properties.getProperty("admin.username");
+			this.password = properties.getProperty("admin.password");
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				reader.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+	}
+
 	/**
 	 * Methode dient zur Konfiguration des UserManagers. Damit werden u.a.
 	 * bestehende Nutzer verwaltet.
@@ -48,7 +76,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public UserDetailsService userDetailsService() {
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-		manager.createUser(User.withUsername("admin").password("password").roles("Admin").build());
+		manager.createUser(User.withUsername(this.username).password(this.password).roles("Admin").build());
 		return manager;
 	}
 
@@ -60,7 +88,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-				.antMatchers("/swagger-ui.html").authenticated().antMatchers("/v1/**").permitAll()
-				.antMatchers("/v1/dev/**").authenticated().and().httpBasic().and().csrf().disable();
+				.antMatchers("/swagger-ui.html").authenticated().antMatchers("/v1/profiles/**").permitAll()
+				.antMatchers("/v1/dev/**").authenticated().antMatchers("/v1/newProfiles/**").permitAll().and()
+				.httpBasic().and().csrf().disable();
 	}
 }

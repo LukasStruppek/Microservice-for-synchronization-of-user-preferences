@@ -1,9 +1,12 @@
 package de.privacy_avare.controller;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import de.privacy_avare.domain.Profile;
 import de.privacy_avare.dto.ErrorInformation;
 import de.privacy_avare.exeption.NoProfilesInDatabaseException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
+import de.privacy_avare.repository.ProfileRepository;
 import de.privacy_avare.service.ProfileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,6 +28,28 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+/**
+ * Die Klasse stellt eine REST-API zur Erleichterung der Entwicklung zur
+ * Verfügung, über welche externe Anfragen bezüglich bereits existierender
+ * Profile gestellt werden können. Zur Verarbeitung der Anfragen werden diese an
+ * entsprechende Services weitergeleitet. Die Schnittstelle ist ausdrücklich
+ * nicht für die Verwendung in Endprodukten gedacht, sondern dient lediglich zu
+ * Testzwecken währen der Entwicklung.
+ * 
+ * Daher ist die Schnittstelle mit BasicAuth gesichert und kann nur von Anwender
+ * mit Admin-Rechten verwendet werden.
+ * 
+ * Die Antworten auf REST-Anfragen werden stets in Form von
+ * ResponseEntity-Objekten zurückgeliefert, welche neben dem eigentlichen Inhalt
+ * verschiedene, zusätzliche Informationen bereitstellen.
+ * 
+ * Eine REST-Dokumentation wird über Swagger bereitgestellt.
+ * 
+ * @author Lukas Struppek
+ * @version 1.0
+ * @see de.privacy_avare.service.ProfileService
+ * @see org.springframework.http.ResponseEntity
+ */
 @RestController("DevControllerV1")
 @RequestMapping(value = "/v1/dev")
 @Api(tags = "Entwickler Funktionen")
@@ -37,6 +63,13 @@ public class DevController {
 	 */
 	@Autowired
 	private ProfileService profileService;
+
+	/**
+	 * Service stellt Verbindung zur Datenbank bereit und wird dazu genutzt, Profile
+	 * ohne Überprüfung in der Datenbank zu speichern.
+	 */
+	@Autowired
+	private ProfileRepository profileRepository;
 
 	/**
 	 * Sucht alle Profile in der Datenbank und liefert diese in Form einer Liste
@@ -82,7 +115,6 @@ public class DevController {
 	@RequestMapping(value = "/{id}/lastProfileContact", method = RequestMethod.GET)
 	@ApiOperation(value = "Liest lastProfileContact aus DB", notes = "Sucht in der DB nach vorhandenem Profil. Wird ein Profil mit entsprechender ProfileId gefunden, so wird der gespeicherte Zeitpunkt lastProfileContact zurückgeliefert. "
 			+ "\n \n ZeitstempellastProfileContact wird <b>nicht aktualisiert</b>.", response = Date.class)
-
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "lastProfileContact erfolgreich geladen", response = Date.class),
 			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class) })
@@ -150,11 +182,26 @@ public class DevController {
 	}
 
 	/**
-	 * Beendet das Serverprogramm.
+	 * Beendet das Serverprogramm über System.exit(0). Die Methode soll eine
+	 * Erleichterung darstellen, da eine GUI für das Programm nicht vorhanden ist.
 	 */
 	@RequestMapping(value = "/exit", method = RequestMethod.PUT)
 	@ApiOperation(value = "Beendet das Serverprogramm", notes = "Beendet das Programm mithilfe eines Aufrufs von System.exit(0). ", response = Void.class)
 	public void exit() {
 		System.exit(0);
+	}
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
+	@ApiOperation(value = "Löschen aller veralteten Profile in DB", notes = "Entspricht dem Methodenaufruf des automatisierten Löschens. ", response = Void.class)
+	public void cleanDatabase() {
+		// Berechnung Zeitpunkt vor 'monthsBeforeDeletion' Monaten
+		Calendar cal = GregorianCalendar.getInstance(Locale.GERMANY);
+		cal.set(Calendar.DATE, cal.get(Calendar.DATE) - (30 * 18));
+
+		// Suchen und Löschen aller Profile mit lastProfileContact vor
+		// 'monthsBeforeDeletion' Monaten oder
+		// länger
+		Iterable<Profile> unusedProfiles = profileRepository.findAllByLastProfileContactBefore(cal.getTime());
+		profileRepository.delete(unusedProfiles);
 	}
 }
