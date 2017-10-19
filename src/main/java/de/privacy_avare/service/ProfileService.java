@@ -129,6 +129,7 @@ public class ProfileService {
 	 *             Ungültiges ProfileId-Format.
 	 */
 	public Profile createNewProfile(String id) throws ProfileAlreadyExistsException, MalformedProfileIdException {
+		id = id.toLowerCase();
 		if (idService.validateId(id) == false) {
 			throw new MalformedProfileIdException(
 					"Ungültiges ProfileID-Format - Entspricht nicht dem Aufbau einer üblichen Id.");
