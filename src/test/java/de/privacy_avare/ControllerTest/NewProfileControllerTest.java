@@ -18,6 +18,10 @@ package de.privacy_avare.ControllerTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.LinkedList;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,8 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import de.privacy_avare.repository.ProfileRepository;
 
 /**
  * Unit-Test für den REST-Controller NewProfileController, welcher
@@ -42,14 +48,50 @@ public class NewProfileControllerTest {
 	@Autowired
 	TestRestTemplate restTemplate;
 
+	@Autowired
+	ProfileRepository profileRepository;
+
+	private LinkedList<String> generatedIds = new LinkedList<String>();
+	private StringBuffer mockId;
+
 	/**
-	 * Unit-Test für REST-API /v1/newProfiles. Überprüft den Fall einer
+	 * Generiert eine zufällige ProfileId, um die Profilerzeugung basierend auf einer 
+	 */
+	@Before
+	public void generateMockId() {
+		// Generierung einer MockId nach dem Schema xxxxxx1234567890, wobei x für
+		// beliebige Kleinbuchstaben gilt.
+		StringBuffer mockId = new StringBuffer();
+		mockId.append("A");
+		char[] chars = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
+				'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+		for (int i = 0; i < 5; ++i) {
+			mockId.append(chars[(int) (Math.random() * 26)]);
+		}
+		mockId.append("1234567890");
+		this.mockId = mockId;
+	}
+
+	/**
+	 * Löscht die im Zuge des Tests erstellten Profile wieder aus der Datenbank.
+	 */
+	@After
+	public void deleteGeneratedProfils() {
+		for (String id : generatedIds) {
+			profileRepository.delete(id);
+		}
+		generatedIds.clear();
+	}
+
+	/**
+	 * Unit-Test für REST-API POST /v1/newProfiles. Überprüft den Fall einer
 	 * automatischen Erzeugung einer neuen ProfileId durch den Server und deren
 	 * formale Korrektheit (HttpStatus 201).
 	 */
 	@Test
 	public void testCreateProfile() {
 		ResponseEntity<String> responseEntity1 = restTemplate.postForEntity("/v1/newProfiles", null, String.class);
+		generatedIds.add(responseEntity1.getBody());
 		assertThat(responseEntity1.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		assertThat(responseEntity1.getBody().chars().filter(x -> Character.isDigit(x)).count()).isEqualTo(10);
 		assertThat(responseEntity1.getBody().chars().filter(x -> Character.isLowerCase(x)).count()).isEqualTo(6);
@@ -57,7 +99,7 @@ public class NewProfileControllerTest {
 	}
 
 	/**
-	 * Unit-Test für REST-API /v1/newProfiles/{id}. Überprüft die drei Fälle der
+	 * Unit-Test für REST-API POST /v1/newProfiles/{id}. Überprüft die drei Fälle der
 	 * korrekten Erzeugung eines Profils basierend auf einer gültigen ProfileId ,
 	 * wobei einmal mit Kleinbuchstaben und einmal mit Großbuchstaben gearbeitet
 	 * wird. Es wird die Erzeugung einer korrekten ProfileId mit Kleinbuchstaben
@@ -74,22 +116,13 @@ public class NewProfileControllerTest {
 	 * (HttpStatus 422);
 	 */
 	@Test
+	// Zeitpunkte noch zu prüfen!!!
 	public void testCreateProfileWithKnownId() {
-		// Generierung einer MockId nach dem Schema xxxxxx1234567890, wobei x für
-		// beliebige Kleinbuchstaben gilt.
-		StringBuffer mockId = new StringBuffer();
-		mockId.append("A");
-		char[] chars = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
-				'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
-		for (int i = 0; i < 5; ++i) {
-			mockId.append(chars[(int) (Math.random() * 26)]);
-		}
-		mockId.append("1234567890");
-
 		// Überprüfung der korrekten Erstellung eines Profils mit vorhandener ProfileId
 		// in Kleinbuchstaben
 		ResponseEntity<String> responseEntity1 = restTemplate.postForEntity("/v1/newProfiles/" + mockId, null,
 				String.class);
+		generatedIds.add(responseEntity1.getBody());
 		assertThat(responseEntity1.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		assertThat(responseEntity1.getBody().chars().filter(x -> Character.isDigit(x)).count()).isEqualTo(10);
 		assertThat(responseEntity1.getBody().chars().filter(x -> Character.isLowerCase(x)).count()).isEqualTo(6);
@@ -99,6 +132,7 @@ public class NewProfileControllerTest {
 		// in Großbuchstaben
 		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(
 				"/v1/newProfiles/" + mockId.toString().toUpperCase().replace('A', 'B'), null, String.class);
+		generatedIds.add(responseEntity2.getBody());
 		assertThat(responseEntity2.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		assertThat(responseEntity2.getBody().chars().filter(x -> Character.isDigit(x)).count()).isEqualTo(10);
 		assertThat(responseEntity2.getBody().chars().filter(x -> Character.isLowerCase(x)).count()).isEqualTo(6);

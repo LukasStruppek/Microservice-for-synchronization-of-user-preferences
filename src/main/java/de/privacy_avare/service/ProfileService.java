@@ -106,6 +106,7 @@ public class ProfileService {
 	 */
 	public Profile createNewProfile() throws ProfileAlreadyExistsException {
 		String id = idService.generateId();
+		id = id.toLowerCase();
 		if (idService.isIdAlreadyTaken(id) == true) {
 			throw new ProfileAlreadyExistsException("UserID wird bereits in einem bestehenden Profil verwendet.");
 		}
@@ -154,6 +155,7 @@ public class ProfileService {
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
 	public Profile getProfileById(String id) throws ProfileNotFoundException {
+		id = id.toLowerCase();
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
 			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
@@ -195,6 +197,7 @@ public class ProfileService {
 	 */
 	public Profile getProfileByIdComparingLastChange(String id, Date clientLastProfileChange)
 			throws ProfileNotFoundException, ProfileSetOnDeletionException, ServerPreferencesOutdatedException {
+		id = id.toLowerCase();
 		Profile dbProfile = getProfileById(id);
 		GregorianCalendar dbLastProfileChange = new GregorianCalendar();
 		dbLastProfileChange.setTime(dbProfile.getLastProfileChange());
@@ -237,6 +240,7 @@ public class ProfileService {
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
 	public Date getLastProfileChange(String id) throws ProfileNotFoundException {
+		id = id.toLowerCase();
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
 			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
@@ -257,6 +261,7 @@ public class ProfileService {
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
 	public Date getLastProfileContact(String id) throws ProfileNotFoundException {
+		id = id.toLowerCase();
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
 			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
@@ -276,6 +281,7 @@ public class ProfileService {
 	 *             Kein Profil mit entsprechender ID gefunden.
 	 */
 	public String getPreferences(String id) throws ProfileNotFoundException, ProfileSetOnDeletionException {
+		id = id.toLowerCase();
 		Profile dbProfile = profileRepository.findOne(id);
 		if (dbProfile == null) {
 			throw new ProfileNotFoundException("Kein Profil mit entsprechender ID gefunden.");
@@ -313,6 +319,7 @@ public class ProfileService {
 			throws ProfileNotFoundException, ProfileSetOnDeletionException, ClientPreferencesOutdatedException {
 		// Abrufen des entsprechenden Profils aus der Datenbank, wirft eventuell
 		// Exceptions
+		id = id.toLowerCase();
 		Profile dbProfile = getProfileById(id);
 		{
 			if (overwrite == true) {
@@ -350,6 +357,7 @@ public class ProfileService {
 	 *            Das in die Datenbank zu schreibende Profil.
 	 */
 	public void updateProfile(Profile profile) {
+		profile.set_id(profile.get_id().toLowerCase());
 		profile.setLastProfileContact(GregorianCalendar.getInstance(Locale.GERMANY).getTime());
 		profileRepository.save(profile);
 	}
@@ -392,6 +400,7 @@ public class ProfileService {
 	 */
 	public void setProfileOnDeletion(String id, String unSyncProfile) throws ProfileNotFoundException {
 		// throws ProfileNotFoundException und ProfileSetOnDeletionException
+		id = id.toLowerCase();
 		Profile dbProfile = getProfileById(id);
 
 		// Falls Profil noch nicht benutzt, setze letzten Änderungszeitpunkt zunächst

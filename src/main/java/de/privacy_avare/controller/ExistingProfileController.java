@@ -120,7 +120,7 @@ public class ExistingProfileController {
 	public ResponseEntity<Void> deleteProfile(
 			@ApiParam(value = "ProfileId des zu löschenden Profils", required = true) @PathVariable("id") String id,
 			@ApiParam(value = "Zu speichernde unSync-Preferences", required = true) @RequestBody String unSyncPreferences) {
-		profileService.setProfileOnDeletion(id, unSyncPreferences);
+		profileService.setProfileOnDeletion(id.toLowerCase(), unSyncPreferences);
 		ResponseEntity<Void> response = new ResponseEntity<Void>(HttpStatus.OK);
 		return response;
 	}
@@ -128,11 +128,11 @@ public class ExistingProfileController {
 	/**
 	 * Speichert preferences von einem Client in der Datenbank entsprechend der
 	 * Aktualität des Profils. Ist der Zeitpunkt lastProfileChange des zu pushenden
-	 * Profils entsprechend den Einstellungen in der Datei application.properties aktueller als der des in der Datenbank
-	 * bestehenden Profils, so wird dieses Überschrieben. Andernfalls findet keine
-	 * Überschreibung statt. Soll trotzdem das Profil in der DB überschrieben
-	 * werden, so ist die Methode mit entsprechend gesetztem overwrite-Parameter zu
-	 * nutzen.
+	 * Profils entsprechend den Einstellungen in der Datei application.properties
+	 * aktueller als der des in der Datenbank bestehenden Profils, so wird dieses
+	 * Überschrieben. Andernfalls findet keine Überschreibung statt. Soll trotzdem
+	 * das Profil in der DB überschrieben werden, so ist die Methode mit
+	 * entsprechend gesetztem overwrite-Parameter zu nutzen.
 	 * 
 	 * In jedem Fall wird der Zeitpunkt lastProfileContact angepasst.
 	 * 
@@ -171,7 +171,7 @@ public class ExistingProfileController {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Preferences erfolgreich ersetzt"),
 			@ApiResponse(code = 400, message = "Ungültiger Parameter/ Falscher Datentyp \n \n Geworfene Exception: \n org.springframework.web.method.annotation. \n MethodArgumentTypeMismatchException", response = ErrorInformation.class),
 			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class),
-			@ApiResponse(code = 409, message = "ClientProfile veraltet \n \n Geworfene Exception: \n de.privacy_avare.exeption.ClientPreferencesOutdatedException", response = ErrorInformation.class) })
+			@ApiResponse(code = 409, message = "ClientProfile veraltet \n \n Geworfene Exception: \n de.privacy_avare.exeption.ClientPreferencesOutdatedException und \n HttpMessageNotReadableException", response = ErrorInformation.class) })
 	public ResponseEntity<Void> pushProfilePreferences(
 			@ApiParam(value = "ProfileId des zu pushenden Profils", required = true) @PathVariable("id") String id,
 			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange,
@@ -185,11 +185,12 @@ public class ExistingProfileController {
 	/**
 	 * Speichert preferences von einem Client in der Datenbank entsprechend der
 	 * Aktualität des Profils und des overwrite-Parameters. Ist der Zeitunkt
-	 * lastProfileChange des zu pushenden Profils entsprechend den Einstellungen in der Datei application.properties aktueller als
-	 * der des in der Datenbank bestehenden Profils, so wird dieses Überschrieben.
-	 * Andernfalls wird entsprechend dem Parameter overwrite das ursprüngliche
-	 * Profil in der Datenbank beibehalten (overwrite = false) oder überschrieben
-	 * (overwrite = true).
+	 * lastProfileChange des zu pushenden Profils entsprechend den Einstellungen in
+	 * der Datei application.properties aktueller als der des in der Datenbank
+	 * bestehenden Profils, so wird dieses Überschrieben. Andernfalls wird
+	 * entsprechend dem Parameter overwrite das ursprüngliche Profil in der
+	 * Datenbank beibehalten (overwrite = false) oder überschrieben (overwrite =
+	 * true).
 	 * 
 	 * In jedem Fall wird der Zeitpunkt lastProfileContact angepasst.
 	 * 
@@ -250,7 +251,8 @@ public class ExistingProfileController {
 	 * zurück. Bei einem entsprechenden gefundenen Profil wird der Zeitpunkt
 	 * lastProfileChange des Profils aus der Datenbank mit dem Zeitpunkt
 	 * clientLastProfileChange verglichen. Ist das Profil aus der Datenbank nicht
-	 * neuer als in den application.properties festgelegte Anzahl an Minuten, so wird eine Fehlermeldung zurückgeliefert.
+	 * neuer als in den application.properties festgelegte Anzahl an Minuten, so
+	 * wird eine Fehlermeldung zurückgeliefert.
 	 * 
 	 * In jedem Fall wird der Zeitpunkt lastProfileContact angepasst.
 	 * 
