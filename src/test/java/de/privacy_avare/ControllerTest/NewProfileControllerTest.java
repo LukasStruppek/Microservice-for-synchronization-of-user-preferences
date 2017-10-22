@@ -18,6 +18,7 @@ package de.privacy_avare.ControllerTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Date;
 import java.util.LinkedList;
 
 import org.junit.After;
@@ -32,6 +33,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import de.privacy_avare.domain.Profile;
 import de.privacy_avare.repository.ProfileRepository;
 
 /**
@@ -45,17 +47,31 @@ import de.privacy_avare.repository.ProfileRepository;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class NewProfileControllerTest {
+	/**
+	 * Dient zum Aufruf der REST-API.
+	 */
 	@Autowired
 	TestRestTemplate restTemplate;
 
+	/**
+	 * Dient zum direkten Datenbankzugriff ohne Umwege über REST-API.
+	 */
 	@Autowired
 	ProfileRepository profileRepository;
 
+	/**
+	 * Speichert die erzeugten ProfileIds.
+	 */
 	private LinkedList<String> generatedIds = new LinkedList<String>();
+	/**
+	 * Speichert eine erzeugte ProfileId.
+	 */
 	private StringBuffer mockId;
 
 	/**
-	 * Generiert eine zufällige ProfileId, um die Profilerzeugung basierend auf einer 
+	 * Generiert eine zufällige ProfileId, um die Profilerzeugung basierend auf
+	 * einer bestehenden ProfileID zu simulieren. Die erzeugte ProfileID
+	 * unterscheidet sich auf alle Fälle von einer üblichen erzeugten ProfileID.
 	 */
 	@Before
 	public void generateMockId() {
@@ -90,20 +106,25 @@ public class NewProfileControllerTest {
 	 */
 	@Test
 	public void testCreateProfile() {
-		ResponseEntity<String> responseEntity1 = restTemplate.postForEntity("/v1/newProfiles", null, String.class);
-		generatedIds.add(responseEntity1.getBody());
-		assertThat(responseEntity1.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-		assertThat(responseEntity1.getBody().chars().filter(x -> Character.isDigit(x)).count()).isEqualTo(10);
-		assertThat(responseEntity1.getBody().chars().filter(x -> Character.isLowerCase(x)).count()).isEqualTo(6);
-		assertThat(responseEntity1.getBody().length()).isEqualTo(16);
+		ResponseEntity<String> responseEntity = restTemplate.postForEntity("/v1/newProfiles", null, String.class);
+		generatedIds.add(responseEntity.getBody());
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+		assertThat(responseEntity.getBody().chars().filter(x -> Character.isDigit(x)).count()).isEqualTo(10);
+		assertThat(responseEntity.getBody().chars().filter(x -> Character.isLowerCase(x)).count()).isEqualTo(6);
+		assertThat(responseEntity.getBody().length()).isEqualTo(16);
+		Profile dbProfile = profileRepository.findOne(responseEntity.getBody());
+		assertThat(dbProfile.getLastProfileChange()).isEqualTo(new Date(0));
+		assertThat(dbProfile.getLastProfileContact()).isCloseTo(new Date(), 1000);
 	}
 
 	/**
-	 * Unit-Test für REST-API POST /v1/newProfiles/{id}. Überprüft die drei Fälle der
-	 * korrekten Erzeugung eines Profils basierend auf einer gültigen ProfileId ,
-	 * wobei einmal mit Kleinbuchstaben und einmal mit Großbuchstaben gearbeitet
+	 * Unit-Test für REST-API POST /v1/newProfiles/{id}. Überprüft die drei Fälle
+	 * der korrekten Erzeugung eines Profils basierend auf einer gültigen ProfileId
+	 * , wobei einmal mit Kleinbuchstaben und einmal mit Großbuchstaben gearbeitet
 	 * wird. Es wird die Erzeugung einer korrekten ProfileId mit Kleinbuchstaben
-	 * überprüft (HttpStatus 201).
+	 * überprüft (HttpStatus 201). Dabei wird auch überprüft, ob die Eigenschaft
+	 * lastProfileContact auf den aktuellen Zeitpunkt und lastProfileChange auf den
+	 * Zeitpunkt 0 gesetzt wurde.
 	 * 
 	 * Zusätzlich wird die Erzeugung eines Profils mit einer bereits vorhandenen
 	 * ProfileId überprüft (HttpStatus 409).
@@ -116,62 +137,63 @@ public class NewProfileControllerTest {
 	 * (HttpStatus 422);
 	 */
 	@Test
-	// Zeitpunkte noch zu prüfen!!!
 	public void testCreateProfileWithKnownId() {
 		// Überprüfung der korrekten Erstellung eines Profils mit vorhandener ProfileId
 		// in Kleinbuchstaben
-		ResponseEntity<String> responseEntity1 = restTemplate.postForEntity("/v1/newProfiles/" + mockId, null,
+		ResponseEntity<String> responseEntity = restTemplate.postForEntity("/v1/newProfiles/" + mockId, null,
 				String.class);
-		generatedIds.add(responseEntity1.getBody());
-		assertThat(responseEntity1.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-		assertThat(responseEntity1.getBody().chars().filter(x -> Character.isDigit(x)).count()).isEqualTo(10);
-		assertThat(responseEntity1.getBody().chars().filter(x -> Character.isLowerCase(x)).count()).isEqualTo(6);
-		assertThat(responseEntity1.getBody().length()).isEqualTo(16);
+		generatedIds.add(responseEntity.getBody());
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+		assertThat(responseEntity.getBody().chars().filter(x -> Character.isDigit(x)).count()).isEqualTo(10);
+		assertThat(responseEntity.getBody().chars().filter(x -> Character.isLowerCase(x)).count()).isEqualTo(6);
+		assertThat(responseEntity.getBody().length()).isEqualTo(16);
+		Profile dbProfile = profileRepository.findOne(responseEntity.getBody());
+		assertThat(dbProfile.getLastProfileChange()).isEqualTo(new Date(0));
+		assertThat(dbProfile.getLastProfileContact()).isCloseTo(new Date(), 1000);
 
 		// Überprüfung der korrekten Erstellung eines Profils mit vorhandener ProfileId
 		// in Großbuchstaben
-		ResponseEntity<String> responseEntity2 = restTemplate.postForEntity(
+		responseEntity = restTemplate.postForEntity(
 				"/v1/newProfiles/" + mockId.toString().toUpperCase().replace('A', 'B'), null, String.class);
-		generatedIds.add(responseEntity2.getBody());
-		assertThat(responseEntity2.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-		assertThat(responseEntity2.getBody().chars().filter(x -> Character.isDigit(x)).count()).isEqualTo(10);
-		assertThat(responseEntity2.getBody().chars().filter(x -> Character.isLowerCase(x)).count()).isEqualTo(6);
-		assertThat(responseEntity2.getBody().length()).isEqualTo(16);
+		generatedIds.add(responseEntity.getBody());
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+		assertThat(responseEntity.getBody().chars().filter(x -> Character.isDigit(x)).count()).isEqualTo(10);
+		assertThat(responseEntity.getBody().chars().filter(x -> Character.isLowerCase(x)).count()).isEqualTo(6);
+		assertThat(responseEntity.getBody().length()).isEqualTo(16);
+		dbProfile = profileRepository.findOne(responseEntity.getBody());
+		assertThat(dbProfile.getLastProfileChange()).isEqualTo(new Date(0));
+		assertThat(dbProfile.getLastProfileContact()).isCloseTo(new Date(), 1000);
 
 		// Überprüfung der Erstellung eines bereits vorhandenen Profils mit gültigem
 		// ProfileId-Format
-		ResponseEntity<String> responseEntity3 = restTemplate.postForEntity("/v1/newProfiles/" + mockId, null,
-				String.class);
-		assertThat(responseEntity3.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-		assertThat(responseEntity3.getBody()).containsSequence("ProfileAlreadyExistsException");
+		responseEntity = restTemplate.postForEntity("/v1/newProfiles/" + mockId, null, String.class);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+		assertThat(responseEntity.getBody()).containsSequence("ProfileAlreadyExistsException");
 
 		// Überprüfung der Erstellung eines neuen vorhandenen Profils mit ungültigem
 		// ProfileId-Format (zu kurz)
-		ResponseEntity<String> responseEntity4 = restTemplate
-				.postForEntity("/v1/newProfiles/" + mockId.substring(0, mockId.length() - 1), null, String.class);
-		assertThat(responseEntity4.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
-		assertThat(responseEntity4.getBody()).containsSequence("MalformedProfileIdException");
+		responseEntity = restTemplate.postForEntity("/v1/newProfiles/" + mockId.substring(0, mockId.length() - 1), null,
+				String.class);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+		assertThat(responseEntity.getBody()).containsSequence("MalformedProfileIdException");
 
 		// Überprüfung der Erstellung eines neuen vorhandenen Profils mit ungültigem
 		// ProfileId-Format (zu lang)
-		ResponseEntity<String> responseEntity5 = restTemplate.postForEntity("/v1/newProfiles/" + mockId + "a", null,
-				String.class);
-		assertThat(responseEntity5.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
-		assertThat(responseEntity5.getBody()).containsSequence("MalformedProfileIdException");
+		responseEntity = restTemplate.postForEntity("/v1/newProfiles/" + mockId + "a", null, String.class);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+		assertThat(responseEntity.getBody()).containsSequence("MalformedProfileIdException");
 
 		// Überprüfung der Erstellung eines neuen vorhandenen Profils mit ungültigem
 		// ProfileId-Format (zu viele Zahlen)
-		ResponseEntity<String> responseEntity6 = restTemplate
-				.postForEntity("/v1/newProfiles/" + mockId.replace(0, 0, "1"), null, String.class);
-		assertThat(responseEntity6.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
-		assertThat(responseEntity6.getBody()).containsSequence("MalformedProfileIdException");
+		responseEntity = restTemplate.postForEntity("/v1/newProfiles/" + mockId.replace(0, 0, "1"), null, String.class);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+		assertThat(responseEntity.getBody()).containsSequence("MalformedProfileIdException");
 
 		// Überprüfung der Erstellung eines neuen vorhandenen Profils mit ungültigem
 		// ProfileId-Format (zu viele Buchstaben)
-		ResponseEntity<String> responseEntity7 = restTemplate
-				.postForEntity("/v1/newProfiles/" + mockId.replace(7, 7, "a"), null, String.class);
-		assertThat(responseEntity7.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
-		assertThat(responseEntity7.getBody()).containsSequence("MalformedProfileIdException");
+		responseEntity = restTemplate.postForEntity("/v1/newProfiles/" + mockId.replace(7, 7, "a"), null, String.class);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+		assertThat(responseEntity.getBody()).containsSequence("MalformedProfileIdException");
 	}
 
 }

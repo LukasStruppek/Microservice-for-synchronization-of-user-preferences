@@ -279,8 +279,8 @@ public class ExistingProfileController {
 	 *             Gesendeter Zeitstempel ist älter als in DB gespeicherter
 	 *             Zeitstempel (bei overwrite = false).
 	 */
-	@RequestMapping(value = "/{id}/{lastProfileChange}", method = RequestMethod.GET)
-	@ApiOperation(value = "Liest Preferences aus DB mit Vergleich der Zeitstempel", notes = "Sucht in der DB nach vorhandenem Profil und vergleich den lastProfileChange mit dem Parameter des Aufrufs. "
+	@RequestMapping(value = "/{id}/{clientProfileChange}", method = RequestMethod.GET)
+	@ApiOperation(value = "Liest Preferences aus DB mit Vergleich der Zeitstempel", notes = "Sucht in der DB nach vorhandenem Profil und vergleicht den lastProfileChange mit dem Parameter des Aufrufs. "
 			+ "Liegt der im Prameter spezifizierte Zeitpunkt <b> mindestens minTimeDifference Minuten vor</b> dem lastProfileChange der DB, d.h. die Preferences des Servers sind aktueller, so wird das Profil geladen. "
 			+ "Sollen trotzdem die Preferences aus der DB geladen werden, so ist die Methode ohne entsprechenden Parameter lastProfileChange aufzurufen."
 			+ "Andernfalls wird eine Fehlermeldung gesendet. \n \n Zeitstempel lastProfileContact wird aktualisiert. \n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH:mm:ss,SSS</b> übergeben werden. "
@@ -292,7 +292,7 @@ public class ExistingProfileController {
 			@ApiResponse(code = 409, message = "ServerProfile veraltet \n \n Geworfene Exception: \n de.privacy_avare.exeption.ServerPreferencesOutdatedException", response = ErrorInformation.class) })
 	public ResponseEntity<String> pullProfilePreferences(
 			@ApiParam(value = "ProfileId des zu pullenden Profils", required = true) @PathVariable("id") String id,
-			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("lastProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange)
+			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange)
 			throws ProfileNotFoundException, ServerPreferencesOutdatedException {
 		Profile serverProfile = profileService.getProfileByIdComparingLastChange(id, clientLastProfileChange);
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getPreferences(), HttpStatus.OK);

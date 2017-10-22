@@ -1,13 +1,32 @@
+/*
+ * Copyright 2017 Lukas Struppek.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.privacy_avare.ControllerTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.FileReader;
+import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Properties;
 
 import org.junit.After;
 import org.junit.Before;
@@ -23,22 +42,67 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import de.privacy_avare.config.DefaultProperties;
 import de.privacy_avare.domain.Profile;
 import de.privacy_avare.repository.ProfileRepository;
 
+/**
+ * Unit-Test für den REST-Controller ExistingProfileController, welcher
+ * Schnittstellen zur Interaktion mit existierenden Profilen in der Datenbank
+ * bereitstellt.
+ * 
+ * @author Lukas Struppek
+ * @version 1.0
+ *
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ExistingProfileControllerTest {
+	/**
+	 * Dient zum Aufruf der REST-API.
+	 */
 	@Autowired
 	TestRestTemplate restTemplate;
 
+	/**
+	 * Dient zum direkten Datenbankzugriff ohne Umwege über REST-API.
+	 */
 	@Autowired
 	ProfileRepository profileRepository;
 
+	/**
+	 * Speichert die im Zuge des Tests generierten ProfileIds.
+	 */
 	private LinkedList<String> generatedIds = new LinkedList<String>();
+
+	/**
+	 * Dient zum konvertieren von Zeitpunkten ins String-Format, um die REST-API
+	 * entsprechend zu nutzen.
+	 */
 	private SimpleDateFormat dateFormat = new SimpleDateFormat(" yyyy-MM-dd'T'HH:mm:ss,SSS");
+
+	/**
+	 * Speichert die zum Testen erzeugte ProfileId.
+	 */
 	private String mockId;
 
+	/**
+	 * Speichert die Einstellung minTimeDifference aus dem File
+	 * application.properties.
+	 */
+	private int minTimeDifference;
+
+	/**
+	 * Default-Konstruktor ohne erweiterte Funktionalität.
+	 */
+	public ExistingProfileControllerTest() {
+
+	}
+
+	/**
+	 * Generiert eine ProfileId, welche in der Datenbank noch nicht vorhanden sein
+	 * kann. Die ProfileId enthält nur Kleinbuchstaben.
+	 */
 	@Before
 	public void generateMockProfile() {
 		// Generierung einer MockId nach dem Schema xxxxxx1234567890, wobei x für
@@ -55,6 +119,26 @@ public class ExistingProfileControllerTest {
 		restTemplate.postForEntity("/v1/newProfiles/" + this.mockId, null, String.class);
 	}
 
+	/**
+	 * Lädt die Einstellungen aus dem application.properties-File.
+	 */
+	@Before
+	public void loadApplicationProperties() {
+		Reader reader = null;
+		try {
+			reader = new FileReader("src/main/resources/application.properties");
+			Properties properties = new Properties(new DefaultProperties());
+			properties.load(reader);
+
+			this.minTimeDifference = Integer.valueOf(properties.getProperty("server.minTimeDifference"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Löscht alle aus den Tests verbleibenden Profile aus der Datenbank.
+	 */
 	@After
 	public void deleteGeneratedProfils() {
 		for (String id : generatedIds) {
@@ -318,6 +402,18 @@ public class ExistingProfileControllerTest {
 	/**
 	 * Unit-Test für REST-API PUT /v1/profiles/{id}/{clientProfileChange}/true.
 	 * 
+	 * Zunächst wird geprüft, ob bei neu erzeugten Profilen und bereits bestehenden
+	 * Profilen die Preferences, lastProfileContact und lastProfileChange
+	 * entsprechend angepasst werden (HttpStatus 200).
+	 * 
+	 * Anschließend wird geprüft, ob bei falschem Format des Zeitstempels bzw. bei
+	 * Übergabe eines leeren Strings entsprechend eine Fehlermeldung gesendet wird
+	 * (HttpStatus 400).
+	 * 
+	 * Schließlich wird noch geprüft, ob bei ungültigen bzw. nicht in der Datenbank
+	 * vorhandenen Profile eine entsprechende Fehlermeldung zurückgeliefert wird
+	 * (HttpStatus 404).
+	 * 
 	 */
 	@Test
 	public void testPushProfilePreferencesWithOverwriting() {
@@ -347,8 +443,8 @@ public class ExistingProfileControllerTest {
 		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		dbProfile = profileRepository.findOne(this.mockId);
 		assertThat(dbProfile.getPreferences()).containsSequence(mockPreferences);
-		assertThat(dbProfile.getLastProfileChange()).isCloseTo(new Date(), 100);
-		assertThat(dbProfile.getLastProfileContact()).isCloseTo(new Date(), 100);
+		assertThat(dbProfile.getLastProfileChange()).isCloseTo(new Date(), 1000);
+		assertThat(dbProfile.getLastProfileContact()).isCloseTo(new Date(), 1000);
 
 		// Überprüfung, ob Überschreibung der Preferencen mit gültigen Preferences und
 		// falschem Format des Datums abgelehnt werden.
@@ -383,6 +479,66 @@ public class ExistingProfileControllerTest {
 				HttpMethod.PUT, new HttpEntity<String>(mockPreferences), String.class);
 		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 		assertThat(responseEntity.getBody()).containsSequence("ProfileNotFoundException");
+	}
+
+	/**
+	 * Unit-Test für REST-API GET /v1/profiles/{id}/{clientProfileChange}
+	 * 
+	 * Zunächst wird überprüft, ob bei zu geringem Zeitunterschied zwischen
+	 * ClientProfile und ServerProfile entsprechend eine Meldung zurückgeliefert
+	 * wird (HttpStatus 409).
+	 * 
+	 * Anschließend wird bei ausreichend Zeitunterschied geprüft, ob die Preferences
+	 * entsprechend zurückgeliefert werden (HttpStatus 200).
+	 * 
+	 * Schließlich wird die Reaktion auf ein ungültiges Format des Zeitstempels
+	 * (HttpStatus 400) und eine ungültige ProfileId (HttpStatus 404) überprüft.
+	 * 
+	 */
+	@Test
+	public void testPullProfilePreferences() {
+		Calendar profileChangeCalendar = GregorianCalendar.getInstance(Locale.GERMANY);
+		Calendar profileContactCalendar = GregorianCalendar.getInstance(Locale.GERMAN);
+		String mockPreferences = "Gesetzte Preferences";
+		Profile dbProfile = profileRepository.findOne(this.mockId);
+		dbProfile.setPreferences(mockPreferences);
+		dbProfile.setLastProfileChange(profileChangeCalendar.getTime());
+		dbProfile.setLastProfileContact(profileContactCalendar.getTime());
+		profileRepository.save(dbProfile);
+		generatedIds.add(dbProfile.get_id());
+
+		// Überprüfung des Abrufs bei zu geringem Zeitunterschied (innerhalb von
+		// MinTimeDifference).
+		profileChangeCalendar.set(Calendar.MINUTE, profileChangeCalendar.get(Calendar.MINUTE) - this.minTimeDifference);
+		ResponseEntity<String> responseEntity = restTemplate.getForEntity(
+				"/v1/profiles/" + this.mockId + "/" + dateFormat.format(profileChangeCalendar.getTime()), String.class);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+		assertThat(responseEntity.getBody()).contains("ServerPreferencesOutdatedException");
+		assertThat(profileRepository.findOne(this.mockId).getLastProfileContact())
+				.isCloseTo(profileContactCalendar.getTime(), 1000);
+
+		// Überprüfung des Abrufs bei ausreichendem Zeitunterschied.
+		profileChangeCalendar.set(Calendar.MINUTE, profileChangeCalendar.get(Calendar.MINUTE) - 1);
+		profileContactCalendar = GregorianCalendar.getInstance(Locale.GERMAN);
+		responseEntity = restTemplate.getForEntity(
+				"/v1/profiles/" + this.mockId + "/" + dateFormat.format(profileChangeCalendar.getTime()), String.class);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(responseEntity.getBody()).contains("Gesetzte Preferences");
+		assertThat(profileRepository.findOne(this.mockId).getLastProfileContact())
+				.isCloseTo(profileContactCalendar.getTime(), 1000);
+		assertThat(responseEntity.getBody()).contains(mockPreferences);
+
+		// Überprüfung eines falschen Formats des Zeitstempels und gültiger ProfileId
+		responseEntity = restTemplate.getForEntity("/v1/profiles/" + this.mockId + "/"
+				+ dateFormat.format(profileChangeCalendar.getTime()).replace('T', '_'), String.class);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+		assertThat(responseEntity.getBody()).contains("MethodArgumentTypeMismatchException");
+
+		// Überprüfung von ungültigem ProfileID-Format mit ausreichendem Zeitabstand
+		responseEntity = restTemplate.getForEntity("/v1/profiles/" + this.mockId.replace('a', 'b') + "/"
+				+ dateFormat.format(profileChangeCalendar.getTime()), String.class);
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+		assertThat(responseEntity.getBody()).contains("ProfileNotFoundException");
 	}
 
 }

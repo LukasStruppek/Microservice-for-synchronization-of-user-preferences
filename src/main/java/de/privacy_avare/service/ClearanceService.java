@@ -25,7 +25,12 @@ import java.util.Locale;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import de.privacy_avare.config.DefaultProperties;
 import de.privacy_avare.domain.Profile;
@@ -50,6 +55,9 @@ public class ClearanceService {
 	ProfileRepository profileRepository;
 
 	private int monthsBeforeDeletion;
+	private String adress;
+	private int port;
+	private String databaeName;
 
 	private static boolean infoPrinted = false;
 
@@ -66,9 +74,16 @@ public class ClearanceService {
 			properties.load(reader);
 
 			this.monthsBeforeDeletion = Integer.valueOf(properties.getProperty("server.monthsBeforeDeletion"));
+			this.adress = properties.getProperty("couchdb.adress");
+			this.port = Integer.valueOf(properties.getProperty("couchdb.port"));
+			this.databaeName = properties.getProperty("couchdb.databaseName");
 		} catch (Exception e) {
 			e.printStackTrace();
 			this.monthsBeforeDeletion = 18;
+			this.adress = "http://localhost";
+			this.port = 5984;
+			this.databaeName = "profiles";
+
 		} finally {
 			try {
 				reader.close();
@@ -105,7 +120,22 @@ public class ClearanceService {
 		System.out.println("\t Anzahl an gelöschter Profile: " + unusedProfiles.spliterator().getExactSizeIfKnown());
 
 		profileRepository.delete(unusedProfiles);
-		
+
+		// Aufruf des _compact-Befehls von CouchDB
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+			String url = this.adress + ":" + this.port + "/" + this.databaeName + "/" + "_compact";
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			HttpEntity<String> entity = new HttpEntity<String>("", headers);
+			restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+
+			System.out.println("\t Compact-Befehl durchgeführt");
+		} catch (Exception e) {
+			System.out.println("\t Compact-Befehl nicht durchgeführt!");
+			e.printStackTrace();
+		}
+
 		System.out.println("\t Planmäßiges Aufräumen veralteter Profile beendet um " + new Date());
 		System.out.println("************************************************");
 
