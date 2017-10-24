@@ -16,7 +16,9 @@
 
 package de.privacy_avare.service;
 
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.Calendar;
 import java.util.Date;
@@ -65,22 +67,17 @@ public class ProfileService {
 	 * Serverprofilen verglichen wird.
 	 */
 	public ProfileService() {
-		Reader reader = null;
+		InputStream inputStream = null;
 		try {
-			reader = new FileReader("src/main/resources/application.properties");
+			inputStream = getClass().getResourceAsStream("/application.properties");
 			Properties properties = new Properties(new DefaultProperties());
-			properties.load(reader);
-
+			properties.load(inputStream);
 			this.minTimeDifference = Integer.valueOf(properties.getProperty("server.minTimeDifference"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			minTimeDifference = 5;
 		} finally {
-			try {
-				reader.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+
 			if (infoPrinted == false) {
 				System.out.println("************************************************");
 				System.out.println(

@@ -17,6 +17,7 @@
 package de.privacy_avare.config;
 
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.Properties;
 
@@ -52,11 +53,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	 */
 	public WebSecurityConfig() {
 
-		Reader reader = null;
+		InputStream inputStream = null;
 		try {
-			reader = new FileReader("src/main/resources/application.properties");
+			inputStream = getClass().getResourceAsStream("/application.properties");
 			Properties properties = new Properties(new DefaultProperties());
-			properties.load(reader);
+			properties.load(inputStream);
 
 			this.username = properties.getProperty("admin.username");
 			this.password = properties.getProperty("admin.password");
@@ -64,7 +65,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			e.printStackTrace();
 		} finally {
 			try {
-				reader.close();
+				inputStream.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -18,6 +18,7 @@ package de.privacy_avare.repository;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,11 +72,11 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 	 * Konsole ausgegeben.
 	 */
 	public ProfileRepositoryCouchDBImpl() {
-		Reader reader = null;
+		InputStream inputStream = null;
 		try {
-			reader = new FileReader("src/main/resources/application.properties");
+			inputStream = getClass().getResourceAsStream("/application.properties");
 			Properties properties = new Properties(new DefaultProperties());
-			properties.load(reader);
+			properties.load(inputStream);
 
 			this.address = properties.getProperty("couchdb.adress");
 			this.port = Integer.valueOf(properties.getProperty("couchdb.port"));
@@ -101,7 +102,7 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 				infoPrinted = true;
 
 				try {
-					reader.close();
+					inputStream.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

@@ -15,6 +15,7 @@ C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\confi
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\SyncServerMain.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\config\SSLConfig.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\exeption\MalformedProfileIdException.java
+C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\config\DefaultProperties.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\service\IdService.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\controller\NewProfileController.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\service\ProfileService.java
@@ -24,4 +25,3 @@ C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\exept
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\domain\Profile.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\controller\DevController.java
 C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\repository\ProfileRepositoryCouchDBImpl.java
-C:\Users\Admin\eclipse-workspace\SyncServer\src\main\java\de\privacy_avare\config\ValidationConfig.java

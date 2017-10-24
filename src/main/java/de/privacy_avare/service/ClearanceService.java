@@ -17,6 +17,7 @@
 package de.privacy_avare.service;
 
 import java.io.FileReader;
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.Calendar;
 import java.util.Date;
@@ -67,11 +68,11 @@ public class ClearanceService {
 	 * Default-Wert sind 18 Monate.
 	 */
 	public ClearanceService() {
-		Reader reader = null;
+		InputStream inputStream = null;
 		try {
-			reader = new FileReader("src/main/resources/application.properties");
+			inputStream = getClass().getResourceAsStream("/application.properties");
 			Properties properties = new Properties(new DefaultProperties());
-			properties.load(reader);
+			properties.load(inputStream);
 
 			this.monthsBeforeDeletion = Integer.valueOf(properties.getProperty("server.monthsBeforeDeletion"));
 			this.adress = properties.getProperty("couchdb.adress");
@@ -86,7 +87,7 @@ public class ClearanceService {
 
 		} finally {
 			try {
-				reader.close();
+				inputStream.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
