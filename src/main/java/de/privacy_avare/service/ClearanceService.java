@@ -16,9 +16,7 @@
 
 package de.privacy_avare.service;
 
-import java.io.FileReader;
 import java.io.InputStream;
-import java.io.Reader;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;

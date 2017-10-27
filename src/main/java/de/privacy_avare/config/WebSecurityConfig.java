@@ -16,9 +16,7 @@
 
 package de.privacy_avare.config;
 
-import java.io.FileReader;
 import java.io.InputStream;
-import java.io.Reader;
 import java.util.Properties;
 
 import org.springframework.context.annotation.Bean;
