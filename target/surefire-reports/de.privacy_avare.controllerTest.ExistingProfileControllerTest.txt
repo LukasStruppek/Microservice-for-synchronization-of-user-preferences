@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: de.privacy_avare.controllerTest.ExistingProfileControllerTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.89 sec - in de.privacy_avare.controllerTest.ExistingProfileControllerTest

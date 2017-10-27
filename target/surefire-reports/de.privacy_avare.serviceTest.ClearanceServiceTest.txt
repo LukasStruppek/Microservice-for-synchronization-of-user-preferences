@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: de.privacy_avare.serviceTest.ClearanceServiceTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.947 sec - in de.privacy_avare.serviceTest.ClearanceServiceTest
