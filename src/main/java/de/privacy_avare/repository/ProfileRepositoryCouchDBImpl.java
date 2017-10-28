@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -87,16 +89,65 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 			e.printStackTrace();
 			System.out.println("Verbindungseinstellungen mit CouchDB auf default-Werte gesetzt");
 		} finally {
+
 			this.url = this.address + ":" + this.port + "/" + this.database + "/";
 
+			// Testen, ob Verbindung zu CouchDB möglich ist und Datenbank vorhanden ist
+			RestTemplate restTemplate = new RestTemplate();
+			boolean isCouchDbRunning = false;
+			boolean isDatabaseExisting = false;
+			try {
+				ResponseEntity<String> response = restTemplate.getForEntity(this.address + ":" + this.port,
+						String.class);
+				if (response.getStatusCode().equals(HttpStatus.OK)) {
+					isCouchDbRunning = true;
+
+					try {
+						response = restTemplate.getForEntity(this.url, String.class);
+						if (response.getStatusCodeValue() == HttpStatus.OK.value()) {
+							isDatabaseExisting = true;
+						}
+					} catch (Exception e) {
+						isDatabaseExisting = false;
+					}
+				}
+			} catch (Exception e) {
+				isCouchDbRunning = false;
+				isDatabaseExisting = false;
+			}
+
 			if (infoPrinted == false) {
-				System.out.println("************************************************");
 				System.out.println("Folgende Verbindungseinstellen für CouchDB wurden gesetzt:");
 				System.out.println("\t Serveradresse: " + this.address);
 				System.out.println("\t Port: " + this.port);
 				System.out.println("\t Database Name: " + this.database);
 				System.out.println("\t URL: " + this.url);
+
+				// Wird für schöne Ausgabe benötigt
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e1) {
+				}
+
+				if (isCouchDbRunning == true) {
+					System.out.println("\t CouchDB running and connected: " + isCouchDbRunning);
+				} else {
+					System.err.println("\t CouchDB running and connected: " + isCouchDbRunning);
+				}
+				if (isDatabaseExisting == true) {
+					System.out.println("\t Database Exists: " + isDatabaseExisting);
+				} else {
+					System.err.println("\t Database Exists: " + isDatabaseExisting);
+				}
+
+				// Wird für schöne Ausgabe benötigt
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e1) {
+				}
+
 				System.out.println("************************************************");
+
 				infoPrinted = true;
 
 				try {
@@ -106,6 +157,7 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 				}
 			}
 		}
+
 	}
 
 	/**
@@ -424,6 +476,35 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 		String preferences = profile.getPreferences();
 
 		return preferences;
+	}
+
+	public boolean existsDatabase(String databaseName) {
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> responseEntity = restTemplate
+				.getForEntity(this.address + ":" + this.port + "/" + "_all_dbs", String.class);
+		boolean isExisting = false;
+		System.out.println(responseEntity.getBody());
+		String[] databases = responseEntity.getBody().split(",");
+		for (int i = 0; i < databases.length; ++i) {
+			databases[i] = databases[i].replaceAll("[^a-zA-Z]", "");
+			if (databases[i].equalsIgnoreCase(databaseName)) {
+				isExisting = true;
+			}
+		}
+		return isExisting;
+
+	}
+
+	public String createDatabase(String databaseName) throws Exception {
+		RestTemplate restTemplate = new RestTemplate();
+		String url = this.address + ":" + this.port + "/" + databaseName;
+		ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.PUT, null, String.class);
+		// if(responseEntity.getStatusCodeValue() ==
+		// HttpStatus.PRECONDITION_FAILED.value())
+		// {
+		// throw new ProfileAlreadyExistsException();
+		// }
+		return responseEntity.getBody();
 	}
 
 }

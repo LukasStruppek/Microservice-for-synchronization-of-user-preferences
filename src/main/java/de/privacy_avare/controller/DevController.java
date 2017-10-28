@@ -19,6 +19,7 @@ import de.privacy_avare.exeption.NoProfilesInDatabaseException;
 import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
 import de.privacy_avare.repository.ProfileRepository;
+import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 import de.privacy_avare.service.ClearanceService;
 import de.privacy_avare.service.ProfileService;
 import io.swagger.annotations.Api;
@@ -68,7 +69,7 @@ public class DevController {
 	 * ohne Überprüfung in der Datenbank zu speichern.
 	 */
 	@Autowired
-	private ProfileRepository profileRepository;
+	private ProfileRepositoryCouchDBImpl profileRepository;
 
 	/**
 	 * Service zum Aufräumen veralteter Profile in der Datenbank.
@@ -228,6 +229,30 @@ public class DevController {
 		serverProfile.setPreferences("Veraltetes Profil");
 		profileRepository.save(serverProfile);
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.get_id(), HttpStatus.CREATED);
+		return response;
+	}
+
+	/**
+	 * @param databaseName
+	 * @return
+	 */
+	@RequestMapping(value = "/database/{databaseName}", method = RequestMethod.GET)
+	@ApiOperation(value = "Prüft, ob in CouchDB eine bestimmte Database vorhanden ist", notes = "Es wird überprüft, ob der Datenbankserver eine Database mit dem im Parameter spezifizierten Namen besitzt.")
+	public ResponseEntity<Boolean> checkDatabase(@PathVariable("databaseName") String databaseName) {
+		ResponseEntity<Boolean> response = new ResponseEntity<Boolean>(profileRepository.existsDatabase(databaseName),
+				HttpStatus.OK);
+		return response;
+	}
+
+	/**
+	 * @param databaseName
+	 * @return
+	 */
+	@RequestMapping(value = "/database/{databaseName}", method = RequestMethod.PUT)
+	@ApiOperation(value = "Erstellt eine neue CouchDB-Database", notes = "Gemäß dem Parameter wird eine neue Database in der verknüpften CouchDB-Datenbank erstellt, falls noch nicht vorhanden.")
+	public ResponseEntity<String> createDatabase(@PathVariable("databaseName") String databaseName) throws Exception {
+		ResponseEntity<String> response = new ResponseEntity<String>(profileRepository.createDatabase(databaseName),
+				HttpStatus.CREATED);
 		return response;
 	}
 }

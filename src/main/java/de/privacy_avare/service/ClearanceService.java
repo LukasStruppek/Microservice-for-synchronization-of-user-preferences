@@ -90,7 +90,6 @@ public class ClearanceService {
 				e.printStackTrace();
 			}
 			if (infoPrinted == false) {
-				System.out.println("************************************************");
 				System.out.println("Folgender Zeitraum ohne Profilkontakt vor dem Löschen wurde festgelegt:");
 				System.out.println("\t Zeitraum in Monaten: " + this.monthsBeforeDeletion);
 				System.out.println("************************************************");
