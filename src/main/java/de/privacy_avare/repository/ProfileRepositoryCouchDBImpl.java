@@ -54,56 +54,54 @@ import de.privacy_avare.exeption.ProfileNotFoundException;
 @Service
 public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 
-	private String address;
-	private int port;
-	private String database;
-	private String url;
-	private static boolean infoPrinted = false;
+	private static String address;
+	private static int port;
+	private static String database;
+	private static String url;
 
 	/**
-	 * default-Konstruktor, welcher versucht, sich aus der Datei
-	 * application.properties die Verbindungsdetails 'couchdb.adress',
-	 * 'couchdb.port' und 'couchdb.databaseName' für einen Zugriff auf eine
-	 * CouchDB-Datenbank zu besorgen.
+	 * Static-Block, welcher versucht, sich aus der Datei application.properties die
+	 * Verbindungsdetails 'couchdb.adress', 'couchdb.port' und
+	 * 'couchdb.databaseName' für einen Zugriff auf eine CouchDB-Datenbank zu
+	 * besorgen.
 	 * 
 	 * Schlägt der Versuch fehl, so werden folgende default-Werte genutzt:
 	 * 'couchdb.adress = http://localhost', 'couchdb.port = 5984' und
 	 * 'couchdb.databaseName = profiles'. Eine entsprechende Mitteilung wird auf der
 	 * Konsole ausgegeben.
 	 */
-	public ProfileRepositoryCouchDBImpl() {
+	static {
 		InputStream inputStream = null;
 		try {
-			inputStream = getClass().getResourceAsStream("/application.properties");
+			inputStream = ProfileRepositoryCouchDBImpl.class.getResourceAsStream("/application.properties");
 			Properties properties = new Properties(new DefaultProperties());
 			properties.load(inputStream);
 
-			this.address = properties.getProperty("couchdb.adress");
-			this.port = Integer.valueOf(properties.getProperty("couchdb.port"));
-			this.database = properties.getProperty("couchdb.databaseName");
+			address = properties.getProperty("couchdb.adress");
+			port = Integer.valueOf(properties.getProperty("couchdb.port"));
+			database = properties.getProperty("couchdb.databaseName");
 		} catch (Exception e) {
-			this.address = "http://localhost";
-			this.port = 5984;
-			this.database = "profiles";
+			address = "http://localhost";
+			port = 5984;
+			database = "profiles";
 
 			e.printStackTrace();
 			System.out.println("Verbindungseinstellungen mit CouchDB auf default-Werte gesetzt");
 		} finally {
 
-			this.url = this.address + ":" + this.port + "/" + this.database + "/";
+			url = address + ":" + port + "/" + database + "/";
 
 			// Testen, ob Verbindung zu CouchDB möglich ist und Datenbank vorhanden ist
 			RestTemplate restTemplate = new RestTemplate();
 			boolean isCouchDbRunning = false;
 			boolean isDatabaseExisting = false;
 			try {
-				ResponseEntity<String> response = restTemplate.getForEntity(this.address + ":" + this.port,
-						String.class);
+				ResponseEntity<String> response = restTemplate.getForEntity(address + ":" + port, String.class);
 				if (response.getStatusCode().equals(HttpStatus.OK)) {
 					isCouchDbRunning = true;
 
 					try {
-						response = restTemplate.getForEntity(this.url, String.class);
+						response = restTemplate.getForEntity(url, String.class);
 						if (response.getStatusCodeValue() == HttpStatus.OK.value()) {
 							isDatabaseExisting = true;
 						}
@@ -116,47 +114,49 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 				isDatabaseExisting = false;
 			}
 
-			if (infoPrinted == false) {
-				System.out.println("Folgende Verbindungseinstellen für CouchDB wurden gesetzt:");
-				System.out.println("\t Serveradresse: " + this.address);
-				System.out.println("\t Port: " + this.port);
-				System.out.println("\t Database Name: " + this.database);
-				System.out.println("\t URL: " + this.url);
+			System.out.println("Folgende Verbindungseinstellen für CouchDB wurden gesetzt:");
+			System.out.println("\t Serveradresse: " + address);
+			System.out.println("\t Port: " + port);
+			System.out.println("\t Database Name: " + database);
+			System.out.println("\t URL: " + url);
 
-				// Wird für schöne Ausgabe benötigt
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e1) {
-				}
+			// Wird für schöne Ausgabe benötigt
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e1) {
+			}
 
-				if (isCouchDbRunning == true) {
-					System.out.println("\t CouchDB running and connected: " + isCouchDbRunning);
-				} else {
-					System.err.println("\t CouchDB running and connected: " + isCouchDbRunning);
-				}
-				if (isDatabaseExisting == true) {
-					System.out.println("\t Database Exists: " + isDatabaseExisting);
-				} else {
-					System.err.println("\t Database Exists: " + isDatabaseExisting);
-				}
+			if (isCouchDbRunning == true) {
+				System.out.println("\t CouchDB running and connected: " + isCouchDbRunning);
+			} else {
+				System.err.println("\t CouchDB running and connected: " + isCouchDbRunning);
+			}
+			if (isDatabaseExisting == true) {
+				System.out.println("\t Database Exists: " + isDatabaseExisting);
+			} else {
+				System.err.println("\t Database Exists: " + isDatabaseExisting);
+			}
 
-				// Wird für schöne Ausgabe benötigt
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e1) {
-				}
+			// Wird für schöne Ausgabe benötigt
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e1) {
+			}
 
-				System.out.println("************************************************");
+			System.out.println("************************************************");
 
-				infoPrinted = true;
-
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			try {
+				inputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
+	}
+
+	/**
+	 * default-Konstruktor ohne erweiterte Funktionalität.
+	 */
+	public ProfileRepositoryCouchDBImpl() {
 
 	}
 
@@ -480,8 +480,8 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 
 	public boolean existsDatabase(String databaseName) {
 		RestTemplate restTemplate = new RestTemplate();
-		ResponseEntity<String> responseEntity = restTemplate
-				.getForEntity(this.address + ":" + this.port + "/" + "_all_dbs", String.class);
+		ResponseEntity<String> responseEntity = restTemplate.getForEntity(address + ":" + port + "/" + "_all_dbs",
+				String.class);
 		boolean isExisting = false;
 		System.out.println(responseEntity.getBody());
 		String[] databases = responseEntity.getBody().split(",");
@@ -497,13 +497,8 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 
 	public String createDatabase(String databaseName) throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
-		String url = this.address + ":" + this.port + "/" + databaseName;
+		String url = address + ":" + port + "/" + databaseName;
 		ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.PUT, null, String.class);
-		// if(responseEntity.getStatusCodeValue() ==
-		// HttpStatus.PRECONDITION_FAILED.value())
-		// {
-		// throw new ProfileAlreadyExistsException();
-		// }
 		return responseEntity.getBody();
 	}
 

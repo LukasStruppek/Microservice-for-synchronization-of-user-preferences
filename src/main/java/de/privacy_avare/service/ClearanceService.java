@@ -53,35 +53,28 @@ public class ClearanceService {
 	@Autowired
 	ProfileRepository profileRepository;
 
-	private int monthsBeforeDeletion;
-	private String adress;
-	private int port;
-	private String databaeName;
+	private static int monthsBeforeDeletion;
+	private static String adress;
+	private static int port;
+	private static String databaeName;
 
-	private static boolean infoPrinted = false;
-
-	/**
-	 * Konstruktor zum Festlegen des Zeitraums, nach dem ein Profil ohne Kontakt
-	 * gelöscht wird. Zeitraum wird in application.properties festgelegt.
-	 * Default-Wert sind 18 Monate.
-	 */
-	public ClearanceService() {
+	static {
 		InputStream inputStream = null;
 		try {
-			inputStream = getClass().getResourceAsStream("/application.properties");
+			inputStream = ClearanceService.class.getResourceAsStream("/application.properties");
 			Properties properties = new Properties(new DefaultProperties());
 			properties.load(inputStream);
 
-			this.monthsBeforeDeletion = Integer.valueOf(properties.getProperty("server.monthsBeforeDeletion"));
-			this.adress = properties.getProperty("couchdb.adress");
-			this.port = Integer.valueOf(properties.getProperty("couchdb.port"));
-			this.databaeName = properties.getProperty("couchdb.databaseName");
+			monthsBeforeDeletion = Integer.valueOf(properties.getProperty("server.monthsBeforeDeletion"));
+			adress = properties.getProperty("couchdb.adress");
+			port = Integer.valueOf(properties.getProperty("couchdb.port"));
+			databaeName = properties.getProperty("couchdb.databaseName");
 		} catch (Exception e) {
 			e.printStackTrace();
-			this.monthsBeforeDeletion = 18;
-			this.adress = "http://localhost";
-			this.port = 5984;
-			this.databaeName = "profiles";
+			monthsBeforeDeletion = 18;
+			adress = "http://localhost";
+			port = 5984;
+			databaeName = "profiles";
 
 		} finally {
 			try {
@@ -89,13 +82,19 @@ public class ClearanceService {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			if (infoPrinted == false) {
-				System.out.println("Folgender Zeitraum ohne Profilkontakt vor dem Löschen wurde festgelegt:");
-				System.out.println("\t Zeitraum in Monaten: " + this.monthsBeforeDeletion);
-				System.out.println("************************************************");
-				infoPrinted = true;
-			}
+			System.out.println("Folgender Zeitraum ohne Profilkontakt vor dem Löschen wurde festgelegt:");
+			System.out.println("\t Zeitraum in Monaten: " + monthsBeforeDeletion);
+			System.out.println("************************************************");
 		}
+	}
+
+	/**
+	 * Konstruktor zum Festlegen des Zeitraums, nach dem ein Profil ohne Kontakt
+	 * gelöscht wird. Zeitraum wird in application.properties festgelegt.
+	 * Default-Wert sind 18 Monate.
+	 */
+	public ClearanceService() {
+
 	}
 
 	/**
@@ -122,7 +121,7 @@ public class ClearanceService {
 		// Aufruf des _compact-Befehls von CouchDB
 		try {
 			RestTemplate restTemplate = new RestTemplate();
-			String url = this.adress + ":" + this.port + "/" + this.databaeName + "/" + "_compact";
+			String url = adress + ":" + port + "/" + databaeName + "/" + "_compact";
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			HttpEntity<String> entity = new HttpEntity<String>("", headers);

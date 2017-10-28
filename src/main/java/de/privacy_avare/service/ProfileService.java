@@ -54,36 +54,37 @@ public class ProfileService {
 	@Autowired
 	private IdService idService;
 
-	private int minTimeDifference;
-
-	private static boolean infoPrinted = false;
+	private static int minTimeDifference;
 
 	/**
-	 * Konstruktor liest aus File application.properties die Einstellung
-	 * minTimeDifference, mithilfe welcher die Aktualität von Client- und
+	 * Static-Block, welcher aus application.properties die Einstellung
+	 * minTimeDifference ausliest, mithilfe welcher die Aktualität von Client- und
 	 * Serverprofilen verglichen wird.
 	 */
-	public ProfileService() {
+	static {
 		InputStream inputStream = null;
 		try {
-			inputStream = getClass().getResourceAsStream("/application.properties");
+			inputStream = ProfileService.class.getResourceAsStream("/application.properties");
 			Properties properties = new Properties(new DefaultProperties());
 			properties.load(inputStream);
-			this.minTimeDifference = Integer.valueOf(properties.getProperty("server.minTimeDifference"));
+			minTimeDifference = Integer.valueOf(properties.getProperty("server.minTimeDifference"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			minTimeDifference = 5;
 		} finally {
-
-			if (infoPrinted == false) {
-				System.out.println("************************************************");
-				System.out.println(
-						"Folgender minimaler Zeitunterschied zwischen Server-Profil und Client-Profil beim TimeStamp-Vergleich wurde festgelegt:");
-				System.out.println("\t Minimaler Zeitunterschied in Minuten: " + this.minTimeDifference);
-				System.out.println("************************************************");
-				infoPrinted = true;
-			}
+			System.out.println("************************************************");
+			System.out.println(
+					"Folgender minimaler Zeitunterschied zwischen Server-Profil und Client-Profil beim TimeStamp-Vergleich wurde festgelegt:");
+			System.out.println("\t Minimaler Zeitunterschied in Minuten: " + minTimeDifference);
+			System.out.println("************************************************");
 		}
+	}
+
+	/**
+	 * default-Konstruktor ohne erweiterte Funktionalität.
+	 */
+	public ProfileService() {
+
 	}
 
 	/**
