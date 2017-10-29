@@ -1,5 +1,6 @@
 package de.privacy_avare.controller;
 
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import de.privacy_avare.domain.Profile;
 import de.privacy_avare.dto.ErrorInformation;
@@ -253,6 +255,21 @@ public class DevController {
 	public ResponseEntity<String> createDatabase(@PathVariable("databaseName") String databaseName) throws Exception {
 		ResponseEntity<String> response = new ResponseEntity<String>(profileRepository.createDatabase(databaseName),
 				HttpStatus.CREATED);
+		return response;
+	}
+
+	/**
+	 * @param address
+	 * @return
+	 */
+	@RequestMapping(value = "/couchdb/{address}", method = RequestMethod.GET)
+	@ApiOperation(value = "Sucht nach einer Instanz von CouchDB", notes = "Sucht bei der übergebenen Adresse, ob eine laufende CouchDB-Instanz vorhanden ist.")
+	public ResponseEntity<String> checkCouchDb(@PathVariable("address") String address) {
+		System.out.println(address);
+		RestTemplate restTemplate = new RestTemplate();
+		String url = "http://" + address + ":5984";
+		System.out.println(url);
+		ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 		return response;
 	}
 }

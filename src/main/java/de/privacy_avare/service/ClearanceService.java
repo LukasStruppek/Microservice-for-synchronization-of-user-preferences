@@ -82,7 +82,7 @@ public class ClearanceService {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println("Folgender Zeitraum ohne Profilkontakt vor dem Löschen wurde festgelegt:");
+			System.out.println("Folgender Zeitraum ohne Profilkontakt vor dem Loeschen wurde festgelegt:");
 			System.out.println("\t Zeitraum in Monaten: " + monthsBeforeDeletion);
 			System.out.println("************************************************");
 		}
@@ -110,11 +110,11 @@ public class ClearanceService {
 		// Suchen und Löschen aller Profile mit lastProfileContact vor
 		// 'monthsBeforeDeletion' Monaten oder länger
 		System.out.println("************************************************");
-		System.out.println("\t Planmäßiges Aufräumen veralteter Profile gestartet um " + new Date());
+		System.out.println("\t Planmaeßiges Aufraeumen veralteter Profile gestartet um " + GregorianCalendar.getInstance(Locale.GERMANY).getTime());
 
 		Iterable<Profile> unusedProfiles = profileRepository.findAllByLastProfileContactBefore(cal.getTime());
 
-		System.out.println("\t Anzahl an gelöschter Profile: " + unusedProfiles.spliterator().getExactSizeIfKnown());
+		System.out.println("\t Anzahl an geloeschter Profile: " + unusedProfiles.spliterator().getExactSizeIfKnown());
 
 		profileRepository.delete(unusedProfiles);
 
@@ -133,7 +133,7 @@ public class ClearanceService {
 			e.printStackTrace();
 		}
 
-		System.out.println("\t Planmäßiges Aufräumen veralteter Profile beendet um " + new Date());
+		System.out.println("\t Planmaeßiges Aufraeumen veralteter Profile beendet um " + GregorianCalendar.getInstance(Locale.GERMANY).getTime());
 		System.out.println("************************************************");
 
 	}

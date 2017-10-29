@@ -114,7 +114,7 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 				isDatabaseExisting = false;
 			}
 
-			System.out.println("Folgende Verbindungseinstellen für CouchDB wurden gesetzt:");
+			System.out.println("Folgende Verbindungseinstellungen für CouchDB wurden gesetzt:");
 			System.out.println("\t Serveradresse: " + address);
 			System.out.println("\t Port: " + port);
 			System.out.println("\t Database Name: " + database);
