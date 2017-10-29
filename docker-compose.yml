@@ -4,13 +4,13 @@ services:
   couchdb:
     image: apache/couchdb
     volumes: 
-      - couchdb_data:/opt/couchdb/data apache/couchdb
+      - couchdb_data:/opt/couchdb/data
     restart: always
 
   syncserver:
     image: lukasstruppek/syncserver
     command: >
-      bash -c " sleep 10; "
+      bash -c " sleep 10; echo "Halloooooooooooo" "
     depends_on: 
       - couchdb
     ports:
