@@ -5,6 +5,8 @@ services:
     image: apache/couchdb
     volumes: 
       - couchdb_data:/opt/couchdb/data
+    ports:
+      - "8443:8443"
     restart: always
 
   syncserver:

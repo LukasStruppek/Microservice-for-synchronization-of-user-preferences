@@ -80,6 +80,30 @@ public class DevController {
 	private ClearanceService clearanceService;
 
 	/**
+	 * Generiert ein Profil mit veraltetem lastProfileContact und der Preference
+	 * "Veraltetes Profil". Die Methode wird verwendet, um den Aufräumprozess zu
+	 * testen.
+	 * 
+	 * @return ResponseEntity, welche im Body die ProfileId des generierten Profils
+	 *         enthält.
+	 * @throws ProfileAlreadyExistsException
+	 *             Generierte ProfileId bereits vergeben.
+	 */
+	@RequestMapping(value = "", method = RequestMethod.POST)
+	@ApiOperation(value = "Generiert ein neues, veraltetes Profil", notes = "Generiert ein neues Profil in der Datenbank mit lastProfileContact = 0 und preferences = 'Veraltetes PRofil'. Wird zum Testen des Aufräumprozesses genutzt", response = String.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Profil erfolgreich erzeugt und abgespeichert", response = String.class),
+			@ApiResponse(code = 409, message = "Generierte ProfileId bereits vergeben \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileAlreadyExistsException", response = ErrorInformation.class) })
+	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
+		Profile serverProfile = profileService.createNewProfile();
+		serverProfile.setLastProfileContact(new Date(0));
+		serverProfile.setPreferences("Veraltetes Profil");
+		profileRepository.save(serverProfile);
+		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.get_id(), HttpStatus.CREATED);
+		return response;
+	}
+
+	/**
 	 * Sucht alle Profile in der Datenbank und liefert diese in Form einer Liste
 	 * zurück, unabhängig vom Status der einzelnen Profile. Werden in der DB keine
 	 * Profile gefunden, so wird eine ProfileNotFoundException zurückgeliefert.
@@ -204,33 +228,24 @@ public class DevController {
 	 * dem manuellen Aufruf des Aufräumprozesses, welcher in einem festgelegten
 	 * Zeitintervall automatisch durchgeführt wird.
 	 */
-	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
+	@RequestMapping(value = "/clean", method = RequestMethod.POST)
 	@ApiOperation(value = "Löschen aller veralteten Profile in DB", notes = "Entspricht dem Methodenaufruf des automatisierten Löschens. ", response = Void.class)
 	public void cleanDatabase() {
 		clearanceService.cleanDatabase();
 	}
 
 	/**
-	 * Generiert ein Profil mit veraltetem lastProfileContact und der Preference
-	 * "Veraltetes Profil". Die Methode wird verwendet, um den Aufräumprozess zu
-	 * testen.
-	 * 
-	 * @return ResponseEntity, welche im Body die ProfileId des generierten Profils
-	 *         enthält.
-	 * @throws ProfileAlreadyExistsException
-	 *             Generierte ProfileId bereits vergeben.
+	 * @param address
+	 * @return
 	 */
-	@RequestMapping(value = "", method = RequestMethod.POST)
-	@ApiOperation(value = "Generiert ein neues, veraltetes Profil", notes = "Generiert ein neues Profil in der Datenbank mit lastProfileContact = 0 und preferences = 'Veraltetes PRofil'. Wird zum Testen des Aufräumprozesses genutzt", response = String.class)
-	@ApiResponses(value = {
-			@ApiResponse(code = 201, message = "Profil erfolgreich erzeugt und abgespeichert", response = String.class),
-			@ApiResponse(code = 409, message = "Generierte ProfileId bereits vergeben \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileAlreadyExistsException", response = ErrorInformation.class) })
-	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
-		Profile serverProfile = profileService.createNewProfile();
-		serverProfile.setLastProfileContact(new Date(0));
-		serverProfile.setPreferences("Veraltetes Profil");
-		profileRepository.save(serverProfile);
-		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.get_id(), HttpStatus.CREATED);
+	@RequestMapping(value = "/couchdb/{address}", method = RequestMethod.GET)
+	@ApiOperation(value = "Sucht nach einer Instanz von CouchDB", notes = "Sucht bei der übergebenen Adresse, ob eine laufende CouchDB-Instanz vorhanden ist.")
+	public ResponseEntity<String> checkCouchDb(@PathVariable("address") String address) {
+		System.out.println(address);
+		RestTemplate restTemplate = new RestTemplate();
+		String url = "http://" + address + ":5984";
+		System.out.println(url);
+		ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 		return response;
 	}
 
@@ -255,21 +270,6 @@ public class DevController {
 	public ResponseEntity<String> createDatabase(@PathVariable("databaseName") String databaseName) throws Exception {
 		ResponseEntity<String> response = new ResponseEntity<String>(profileRepository.createDatabase(databaseName),
 				HttpStatus.CREATED);
-		return response;
-	}
-
-	/**
-	 * @param address
-	 * @return
-	 */
-	@RequestMapping(value = "/couchdb/{address}", method = RequestMethod.GET)
-	@ApiOperation(value = "Sucht nach einer Instanz von CouchDB", notes = "Sucht bei der übergebenen Adresse, ob eine laufende CouchDB-Instanz vorhanden ist.")
-	public ResponseEntity<String> checkCouchDb(@PathVariable("address") String address) {
-		System.out.println(address);
-		RestTemplate restTemplate = new RestTemplate();
-		String url = "http://" + address + ":5984";
-		System.out.println(url);
-		ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 		return response;
 	}
 }
