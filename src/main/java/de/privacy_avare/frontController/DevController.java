@@ -1,4 +1,4 @@
-package de.privacy_avare.controller;
+package de.privacy_avare.frontController;
 
 import java.net.URL;
 import java.util.Date;
