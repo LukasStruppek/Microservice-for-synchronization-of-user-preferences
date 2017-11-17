@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.privacy_avare.controller;
+package de.privacy_avare.frontController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,7 +54,7 @@ import io.swagger.annotations.ApiResponse;
 
 @RestController("newProfileControllerV1")
 @RequestMapping(value = "/v1/newProfiles")
-@Api(tags = "Neues Profil")
+@Api(tags = "Neue Profile")
 public class NewProfileController {
 
 	/**
@@ -105,13 +105,13 @@ public class NewProfileController {
 	 * 
 	 * @param id
 	 *            ProfileId, mit welcher ein neues Profil erzeugt werden soll.
-	 * @return ProfileId des generierten Profils.
+	 * @return ResponseEntity, welche im Body die ProfileId des generierten Profils
+	 *         enthält.
 	 * @throws ProfileAlreadyExistsException
-	 *             Wird geworfen, falls die übergebene ProfileId bereits verwendet
-	 *             wird.
+	 *             Übergebene ProfileId bereits vergeben.
 	 * @throws MalformedProfileIdException
-	 *             Wird geworfen, wenn die übergebene ProfileId nicht dem Aufbau
-	 *             einer gültigen ProfileId entspricht.
+	 *             Übergebene ProfileId entspricht nicht dem Aufbau einer gültigen
+	 *             ProfileID.
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
 	@ApiOperation(value = "Generiert ein neues Profil basierend auf vorhandener Id", notes = "Es wird ein neues Profil mit der im Pfad definierten ProfileId erzeugt und in der Datenbank abgelegt. "

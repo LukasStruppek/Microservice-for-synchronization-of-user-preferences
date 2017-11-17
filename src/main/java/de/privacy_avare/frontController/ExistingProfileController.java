@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.privacy_avare.controller;
+package de.privacy_avare.frontController;
 
 import java.util.Date;
 
@@ -44,7 +44,7 @@ import io.swagger.annotations.ApiResponse;
 /**
  * Die Klasse stellt eine REST-API zur Verfügung, über welche externe Anfragen
  * bezüglich bereits existierender Profile gestellt werden können. Zur
- * Verarbeitung der Anfragen werden diese an entsprechende Services
+ * Verarbeitung der Anfragen werden diese an entsprechende interne Services
  * weitergeleitet.
  * 
  * Die Antworten auf REST-Anfragen werden stets in Form von
@@ -61,7 +61,7 @@ import io.swagger.annotations.ApiResponse;
 
 @RestController("existingProfileControllerV1")
 @RequestMapping(value = "/v1/profiles")
-@Api(tags = "Existierendes Profile")
+@Api(tags = "Existierende Profile")
 public class ExistingProfileController {
 	/**
 	 * Service stellt diverse Methoden zur Verarbeitung von Profilen sowie der
@@ -85,16 +85,15 @@ public class ExistingProfileController {
 	 * Client ein für diesen identifizierbares unSync-Preferences gesendet und in
 	 * der Datenbank gespeichert. Eine Überprüfung des Zeitstempels
 	 * lastProfileChange findet nicht statt. Eine Überprüfung, ob das Profil bereits
-	 * auf den Zustand unSync gesetzt wurde, findet ebenfalls nicht statt. Für den
-	 * Server ist nicht ersichtlich, ob es sich um unSync-Preferences handelt oder
-	 * nicht. Die Methode sollte jedoch nicht zum ungeprüften Überschreiben der
-	 * Preferences verwendet werden, hierfür eignet sich die Methode
-	 * pushProfile(String, Date, String, boolean).
+	 * auf den Zustand unSync gesetzt wurde, findet ebenfalls nicht statt. Die
+	 * Methode sollte jedoch nicht zum ungeprüften Überschreiben der Preferences
+	 * verwendet werden, hierfür eignet sich die Methode pushProfile(String, Date,
+	 * String, boolean).
 	 * 
-	 * Das unSyncProfile wird im Body der Http-Nachricht als einfacher Text
+	 * Das unSyncProfile wird im Body der Http-Nachricht als einfacher String
 	 * erwartet.
 	 * 
-	 * In jedem Fall wird der Zeitpunkt lastContact angepasst.
+	 * In jedem Fall wird der Zeitpunkt lastProfileContact angepasst.
 	 * 
 	 * Wird kein Profil mit der übergebenen ProfileId gefunden, so wird eine
 	 * ProfileNotFoundException zurückgegeben.

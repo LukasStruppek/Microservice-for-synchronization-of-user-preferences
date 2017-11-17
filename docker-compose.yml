@@ -2,18 +2,17 @@ version: '3'
 
 services:
   couchdb:
-    image: apache/couchdb
-    volumes: 
+    image: couchdb:latest
+    volumes:
       - couchdb_data:/opt/couchdb/data
     ports:
-      - "8443:8443"
+      - "5984:5984"
     restart: always
 
   syncserver:
-    image: lukasstruppek/syncserver
+    image: lukasstruppek/syncserver:latest
     command: >
-      bash -c " sleep 10; echo "Halloooooooooooo" "
-    depends_on: 
+    depends_on:
       - couchdb
     ports:
       - "8443:8443"
