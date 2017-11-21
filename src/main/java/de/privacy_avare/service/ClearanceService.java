@@ -56,7 +56,7 @@ public class ClearanceService {
 	private static int monthsBeforeDeletion;
 	private static String adress;
 	private static int port;
-	private static String databaeName;
+	private static String databaseName;
 
 	static {
 		InputStream inputStream = null;
@@ -68,13 +68,13 @@ public class ClearanceService {
 			monthsBeforeDeletion = Integer.valueOf(properties.getProperty("server.monthsBeforeDeletion"));
 			adress = properties.getProperty("couchdb.adress");
 			port = Integer.valueOf(properties.getProperty("couchdb.port"));
-			databaeName = properties.getProperty("couchdb.databaseName");
+			databaseName = properties.getProperty("couchdb.databaseName");
 		} catch (Exception e) {
 			e.printStackTrace();
 			monthsBeforeDeletion = 18;
 			adress = "http://localhost";
 			port = 5984;
-			databaeName = "profiles";
+			databaseName = "profiles";
 
 		} finally {
 			try {
@@ -121,7 +121,7 @@ public class ClearanceService {
 		// Aufruf des _compact-Befehls von CouchDB
 		try {
 			RestTemplate restTemplate = new RestTemplate();
-			String url = adress + ":" + port + "/" + databaeName + "/" + "_compact";
+			String url = adress + ":" + port + "/" + databaseName + "/" + "_compact";
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			HttpEntity<String> entity = new HttpEntity<String>("", headers);
