@@ -102,7 +102,7 @@ public class ExeptionHandlingController {
 		errorInformation.setTimestamp(new Date());
 		errorInformation.setAdditionalInformation("");
 		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
-				HttpStatus.CONFLICT);
+				hcee.getStatusCode());
 		return responseEntity;
 	}
 
@@ -367,6 +367,31 @@ public class ExeptionHandlingController {
 		errorInformation.setAdditionalInformation("");
 		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
 				HttpStatus.CONFLICT);
+		return responseEntity;
+	}
+	
+	/**
+	 * Kümmert sich um das abfangen von allen restlichen Fehlern, die nicht explizit von anderen Exception Handlers abgefangen werden.
+	 * 
+	 * @param e
+	 *            Aufgetretene Exception.
+	 * @param request
+	 *            Aufgerufene URI.
+	 * @return Informationen zum Fehler.
+	 */
+	@ExceptionHandler(value = Exception.class)
+	public ResponseEntity<ErrorInformation> handleDefaultException(
+			Exception e, HttpServletRequest request) {
+		ErrorInformation errorInformation = new ErrorInformation();
+		errorInformation.setTitle("Sonstige Fehler");
+		errorInformation.setException(e.getClass().getName());
+		errorInformation.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		errorInformation.setDetail(e.getMessage());
+		errorInformation.setRequestedURI(request.getRequestURI());
+		errorInformation.setTimestamp(new Date());
+		errorInformation.setAdditionalInformation("Aufgetretener Fehler wird nicht separat von einem Exception Handler behandelt.");
+		ResponseEntity<ErrorInformation> responseEntity = new ResponseEntity<ErrorInformation>(errorInformation, null,
+				HttpStatus.INTERNAL_SERVER_ERROR);
 		return responseEntity;
 	}
 }

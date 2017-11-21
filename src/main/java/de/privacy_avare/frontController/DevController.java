@@ -1,6 +1,5 @@
 package de.privacy_avare.frontController;
 
-import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import de.privacy_avare.domain.Profile;
@@ -20,7 +21,6 @@ import de.privacy_avare.dto.ErrorInformation;
 import de.privacy_avare.exeption.NoProfilesInDatabaseException;
 import de.privacy_avare.exeption.ProfileAlreadyExistsException;
 import de.privacy_avare.exeption.ProfileNotFoundException;
-import de.privacy_avare.repository.ProfileRepository;
 import de.privacy_avare.repository.ProfileRepositoryCouchDBImpl;
 import de.privacy_avare.service.ClearanceService;
 import de.privacy_avare.service.ProfileService;
@@ -80,6 +80,33 @@ public class DevController {
 	private ClearanceService clearanceService;
 
 	/**
+	 * Generiert ein Profil mit veraltetem lastProfileContact und der Preference
+	 * "Veraltetes Profil". Die Methode wird u.a. dazu verwendet, um den
+	 * Aufräumprozess zu testen.
+	 * 
+	 * @return ResponseEntity, welche im Body die ProfileId des generierten Profils
+	 *         enthält.
+	 * @throws ProfileAlreadyExistsException
+	 *             Generierte ProfileId bereits vergeben.
+	 * @throws ResourceAccessException
+	 *             Keine Instanz von CouchDB gefunden.
+	 */
+	@RequestMapping(value = "", method = RequestMethod.POST)
+	@ApiOperation(value = "Generiert ein neues, veraltetes Profil", notes = "Generiert ein neues Profil in der Datenbank mit lastProfileContact = 0 und preferences = 'Veraltetes PRofil'. Wird zum Testen des Aufräumprozesses genutzt", response = String.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Profil erfolgreich erzeugt und abgespeichert", response = String.class),
+			@ApiResponse(code = 409, message = "Generierte ProfileId bereits vergeben \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileAlreadyExistsException", response = ErrorInformation.class),
+			@ApiResponse(code = 500, message = "Keine Instanz unter der angegebenen Adresse gefunden", response = ErrorInformation.class) })
+	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
+		Profile serverProfile = profileService.createNewProfile();
+		serverProfile.setLastProfileContact(new Date(0));
+		serverProfile.setPreferences("Veraltetes Profil");
+		profileRepository.save(serverProfile);
+		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.get_id(), HttpStatus.CREATED);
+		return response;
+	}
+
+	/**
 	 * Sucht alle Profile in der Datenbank und liefert diese in Form einer Liste
 	 * zurück, unabhängig vom Status der einzelnen Profile. Werden in der DB keine
 	 * Profile gefunden, so wird eine ProfileNotFoundException zurückgeliefert.
@@ -87,13 +114,18 @@ public class DevController {
 	 * @return Liste mit allen in der DB enthaltenen Profilen.
 	 * @throws NoProfilesInDatabaseException
 	 *             Keine Profile in DB vorhanden.
+	 * @throws ResourceAccessException
+	 *             Keine Instanz von CouchDB gefunden.
 	 */
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
 	@ApiOperation(value = "Liest alle Profile aus DB", notes = "Sucht in der DB nach allen vorhandenen Profilen. Vorhandene Profile werden in einer Menge innerhalb eines JSON-Dokuments zurückgeliefert. "
 			+ "Die Methode dient hauptsächlich zu Testzwecken in der Entwicklung. Je nach Anzahl der Profile in der DB kann die Bearbeitungsdauer der Anfrage stark variieren. "
 			+ "\n \n Zeitstempel lastProfileContact der einzelnen Profile werden aktualisiert.", response = HashMap.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Profile erfolgreich geladen", response = HashMap.class),
-			@ApiResponse(code = 409, message = "Keine Profile in DB gefunden \n \n Geworfene Exception: \n de.privacy_avare.exeption.NoProfilesInDatabaseException", response = ErrorInformation.class) })
+			@ApiResponse(code = 404, message = "Datenbank nicht gefunden", response = ErrorInformation.class),
+			@ApiResponse(code = 409, message = "Keine Profile in DB gefunden \n \n Geworfene Exception: \n de.privacy_avare.exeption.NoProfilesInDatabaseException", response = ErrorInformation.class),
+			@ApiResponse(code = 500, message = "Keine Instanz unter der angegebenen Adresse gefunden", response = ErrorInformation.class) })
+
 	public ResponseEntity<List<HashMap<String, Object>>> getAllProfiles() throws NoProfilesInDatabaseException {
 		Iterable<Profile> serverList = profileService.getAllProfiles();
 		List<HashMap<String, Object>> responseList = new LinkedList<HashMap<String, Object>>();
@@ -119,13 +151,16 @@ public class DevController {
 	 * @return Eigenschaft lastProfileContact des DB-Profils.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
+	 * @throws ResourceAccessException
+	 *             Keine Instanz von CouchDB gefunden.
 	 */
 	@RequestMapping(value = "/{id}/lastProfileContact", method = RequestMethod.GET)
 	@ApiOperation(value = "Liest lastProfileContact aus DB", notes = "Sucht in der DB nach vorhandenem Profil. Wird ein Profil mit entsprechender ProfileId gefunden, so wird der gespeicherte Zeitpunkt lastProfileContact zurückgeliefert. "
 			+ "\n \n ZeitstempellastProfileContact wird <b>nicht aktualisiert</b>.", response = Date.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "lastProfileContact erfolgreich geladen", response = Date.class),
-			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class) })
+			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class),
+			@ApiResponse(code = 500, message = "Keine Instanz unter der angegebenen Adresse gefunden", response = ErrorInformation.class) })
 	public ResponseEntity<Date> getLastProfileContact(
 			@ApiParam(value = "ProfileId des entsprechenden Profils", required = true) @PathVariable("id") String id) {
 		Date serverLastProfileContact = profileService.getLastProfileContact(id);
@@ -146,13 +181,17 @@ public class DevController {
 	 * @return Eigenschaft lastProfileChange des DB-Profils.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
+	 * @throws ResourceAccessException
+	 *             Keine Instanz von CouchDB gefunden.
+	 * 
 	 */
 	@RequestMapping(value = "/{id}/lastProfileChange", method = RequestMethod.GET)
 	@ApiOperation(value = "Liest lastProfileChange aus DB", notes = "Sucht in der DB nach vorhandenem Profil. Wird ein Profil mit entsprechender ProfileId gefunden, so wird der gespeicherte Zeitpunkt lastProfileChange zurückgeliefert. "
 			+ "\n \n Zeitstempel lastProfileContact wird <b>nicht aktualisiert</b>.", response = Date.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "lastProfileChange erfolgreich geladen", response = Date.class),
-			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class) })
+			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class),
+			@ApiResponse(code = 500, message = "Keine Instanz unter der angegebenen Adresse gefunden", response = ErrorInformation.class) })
 	public ResponseEntity<Date> getLastProfileChange(
 			@ApiParam(value = "ProfileId des entsprechenden Profils", required = true) @PathVariable("id") String id) {
 		Date serverLastProfileChange = profileService.getLastProfileChange(id);
@@ -174,6 +213,8 @@ public class DevController {
 	 * @return Preferences des Profils in der Datenbank.
 	 * @throws ProfileNotFoundException
 	 *             Kein Profil mit entsprechender ID gefunden.
+	 * @throws ResourceAccessException
+	 *             Keine Instanz von CouchDB gefunden.
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@ApiOperation(value = "Liest Preferences aus DB ohne Vergleich der Zeitstempel", notes = "Sucht in der DB nach vorhandenem Profil. "
@@ -181,7 +222,8 @@ public class DevController {
 			+ "\n \n Zeitstempel lastProfileContact wird aktualisiert.", response = String.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Preferences erfolgreich geladen", response = String.class),
-			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class) })
+			@ApiResponse(code = 404, message = "Kein Profil mit entsprechender Id gefunden  \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileNotFoundException", response = ErrorInformation.class),
+			@ApiResponse(code = 500, message = "Keine Instanz unter der angegebenen Adresse gefunden", response = ErrorInformation.class) })
 	public ResponseEntity<String> pullProfilePreferencesIgnoringLastProfileChange(
 			@ApiParam(value = "ProfileId des entsprechenden Profils", required = true) @PathVariable("id") String id) {
 		Profile serverProfile = profileService.getProfileById(id);
@@ -190,8 +232,7 @@ public class DevController {
 	}
 
 	/**
-	 * Beendet das Serverprogramm über System.exit(0). Die Methode soll eine
-	 * Erleichterung darstellen, da eine GUI für das Programm nicht vorhanden ist.
+	 * Beendet das Serverprogramm über System.exit(0).
 	 */
 	@RequestMapping(value = "/exit", method = RequestMethod.PUT)
 	@ApiOperation(value = "Beendet das Serverprogramm", notes = "Beendet das Programm mithilfe eines Aufrufs von System.exit(0). ", response = Void.class)
@@ -203,43 +244,62 @@ public class DevController {
 	 * Ruft die Methode zum Löschen veralteter Profile auf. Die Methode entspricht
 	 * dem manuellen Aufruf des Aufräumprozesses, welcher in einem festgelegten
 	 * Zeitintervall automatisch durchgeführt wird.
+	 * 
+	 * @throws ResourceAccessException
+	 *             Keine Instanz von CouchDB gefunden.
 	 */
-	@RequestMapping(value = "/{id}", method = RequestMethod.POST)
+	@RequestMapping(value = "/clean", method = RequestMethod.POST)
 	@ApiOperation(value = "Löschen aller veralteten Profile in DB", notes = "Entspricht dem Methodenaufruf des automatisierten Löschens. ", response = Void.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Aufräumen erfolgreich gestartet", response = String.class),
+			@ApiResponse(code = 500, message = "Keine Instanz unter der angegebenen Adresse gefunden", response = ErrorInformation.class) })
 	public void cleanDatabase() {
 		clearanceService.cleanDatabase();
 	}
 
 	/**
-	 * Generiert ein Profil mit veraltetem lastProfileContact und der Preference
-	 * "Veraltetes Profil". Die Methode wird verwendet, um den Aufräumprozess zu
-	 * testen.
+	 * Überprüft, ob eine laufende Instanz von CouchDB unter der angegebenen Adresse
+	 * zu finden ist. Als Adresse ist hierzu lediglich die URI ohne HTTP und ohne
+	 * Port anzugeben. Es wird lediglich bei einer unverschlüsselten HTTP-Verbindung
+	 * und Verwendung des Standard-Ports 5984 ein zuverlässiges Ergebnis geliefert.
 	 * 
-	 * @return ResponseEntity, welche im Body die ProfileId des generierten Profils
-	 *         enthält.
-	 * @throws ProfileAlreadyExistsException
-	 *             Generierte ProfileId bereits vergeben.
+	 * @param address
+	 *            Adresse, unter welcher nach einer CouchDB-Instanz gesucht werden
+	 *            soll.
+	 * @return JSON-Dokument mit Informationen zum CouchDB-System.
+	 * @throws Exception Sonstige auftretende Exceptions.
+	 * @throws ResourceAccessException
+	 *             Keine Instanz von CouchDB gefunden.
 	 */
-	@RequestMapping(value = "", method = RequestMethod.POST)
-	@ApiOperation(value = "Generiert ein neues, veraltetes Profil", notes = "Generiert ein neues Profil in der Datenbank mit lastProfileContact = 0 und preferences = 'Veraltetes PRofil'. Wird zum Testen des Aufräumprozesses genutzt", response = String.class)
-	@ApiResponses(value = {
-			@ApiResponse(code = 201, message = "Profil erfolgreich erzeugt und abgespeichert", response = String.class),
-			@ApiResponse(code = 409, message = "Generierte ProfileId bereits vergeben \n \n Geworfene Exception: \n de.privacy_avare.exeption.ProfileAlreadyExistsException", response = ErrorInformation.class) })
-	public ResponseEntity<String> createProfile() throws ProfileAlreadyExistsException {
-		Profile serverProfile = profileService.createNewProfile();
-		serverProfile.setLastProfileContact(new Date(0));
-		serverProfile.setPreferences("Veraltetes Profil");
-		profileRepository.save(serverProfile);
-		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.get_id(), HttpStatus.CREATED);
+	@RequestMapping(value = "/couchdb/{address}", method = RequestMethod.GET)
+	@ApiOperation(value = "Sucht nach einer Instanz von CouchDB", notes = "Sucht bei der übergebenen Adresse, ob eine laufende CouchDB-Instanz vorhanden ist. "
+			+ "Die Adresse wird ohne Angabe von http:// und ohne Port übergeben. Die Methode liefert nur bei Verwendung von http (ohne Verschlüsselung) und dem default-Port 5984 ein zuverlässiges Ergebnis.")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "CouchDB Instanz gefunden", response = String.class),
+			@ApiResponse(code = 500, message = "Keine Instanz unter der angegebenen Adresse gefunden", response = ErrorInformation.class) })
+	public ResponseEntity<String> checkCouchDb(@PathVariable("address") String address) throws Exception {
+		System.out.println(address);
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> response = null;
+		String url = "http://" + address + ":5984";
+		response = restTemplate.getForEntity(url, String.class);
 		return response;
 	}
 
 	/**
+	 * Überprüft, ob in einem angebundenen CouchDB-System eine Datenbank mit dem im
+	 * Parameter spezifizierten Namen vorhanden ist.
+	 * 
 	 * @param databaseName
-	 * @return
+	 *            Name der zu suchenden Datenbank.
+	 * @return Boolean, ob Datenbank vorhanden ist.
+	 * @throws ResourceAccessException
+	 *             Keine Instanz von CouchDB gefunden.
 	 */
 	@RequestMapping(value = "/database/{databaseName}", method = RequestMethod.GET)
 	@ApiOperation(value = "Prüft, ob in CouchDB eine bestimmte Database vorhanden ist", notes = "Es wird überprüft, ob der Datenbankserver eine Database mit dem im Parameter spezifizierten Namen besitzt.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Preferences erfolgreich geladen", response = Boolean.class),
+			@ApiResponse(code = 500, message = "Sonstiger Fehler beim Prüfen des Datenbanksystems", response = ErrorInformation.class) })
 	public ResponseEntity<Boolean> checkDatabase(@PathVariable("databaseName") String databaseName) {
 		ResponseEntity<Boolean> response = new ResponseEntity<Boolean>(profileRepository.existsDatabase(databaseName),
 				HttpStatus.OK);
@@ -247,11 +307,24 @@ public class DevController {
 	}
 
 	/**
+	 * Methode generiert im angebundenen CouchDB-System eine neue Datenbank mit dem
+	 * im Parameter spezifizierten Titel.
+	 * 
 	 * @param databaseName
-	 * @return
+	 *            Titel der anzulegenden Datenbank.
+	 * @return Status, ob Datenbank erstellt werden konnte.
+	 * @throws Exception Sonstige auftretende Exceptions.
+	 * @throws HttpClientErrorException
+	 *             Datenbank bereits vorhanden.
+	 * @throws ResourceAccessException
+	 *             Keine Instanz von CouchDB gefunden.
 	 */
-	@RequestMapping(value = "/database/{databaseName}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/database/{databaseName}", method = RequestMethod.POST)
 	@ApiOperation(value = "Erstellt eine neue CouchDB-Database", notes = "Gemäß dem Parameter wird eine neue Database in der verknüpften CouchDB-Datenbank erstellt, falls noch nicht vorhanden.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Datenbank erfolgreich erstellt", response = String.class),
+			@ApiResponse(code = 412, message = "Datenbank bereits vorhanden", response = ErrorInformation.class),
+			@ApiResponse(code = 500, message = "Sonstiger Fehler beim Prüfen der Datenbank", response = ErrorInformation.class) })
 	public ResponseEntity<String> createDatabase(@PathVariable("databaseName") String databaseName) throws Exception {
 		ResponseEntity<String> response = new ResponseEntity<String>(profileRepository.createDatabase(databaseName),
 				HttpStatus.CREATED);
@@ -259,17 +332,43 @@ public class DevController {
 	}
 
 	/**
-	 * @param address
-	 * @return
+	 * Methode generiert im angebundenen CouchDB-System die Standard-Datenbanken _global_chagnes, _metadata, _replicator und _users.
+	 * 
+	 * @return Status, ob Datenbank erstellt werden konnte.
+	 * @throws Exception Fehler beim Erzeugen der Datenbanken (unspezifiziert).
 	 */
-	@RequestMapping(value = "/couchdb/{address}", method = RequestMethod.GET)
-	@ApiOperation(value = "Sucht nach einer Instanz von CouchDB", notes = "Sucht bei der übergebenen Adresse, ob eine laufende CouchDB-Instanz vorhanden ist.")
-	public ResponseEntity<String> checkCouchDb(@PathVariable("address") String address) {
-		System.out.println(address);
-		RestTemplate restTemplate = new RestTemplate();
-		String url = "http://" + address + ":5984";
-		System.out.println(url);
-		ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-		return response;
+	@RequestMapping(value = "/database/defaultDatabases", method = RequestMethod.POST)
+	@ApiOperation(value = "Erstellt die default Databases in CouchDB", notes = "Erzeugt die Datenbanken _global_chagnes, _metadata, _replicator und _users. "
+			+ "Diese werden standardmäßig bei der Installation von CouchDB angelegt, fehlen jedoch beim Docker Image.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 201, message = "Datenbanken erfolgreich erstellt", response = Void.class),
+			@ApiResponse(code = 500, message = "Sonstiger Fehler beim Erstellen der Datenbanken", response = ErrorInformation.class) })
+	public ResponseEntity<Void> createDefaultDatabases() throws Exception {
+		boolean exceptionOccurred = false;
+		try {
+			profileRepository.createDatabase("_global_changes");
+		} catch (Exception e) {
+			exceptionOccurred = true;
+		}
+		try {
+			profileRepository.createDatabase("_metadata");
+		} catch (Exception e) {
+			exceptionOccurred = true;
+		}
+		try {
+			profileRepository.createDatabase("_replicator");
+		} catch (Exception e) {
+			exceptionOccurred = true;
+		}
+		try {
+			profileRepository.createDatabase("_users");
+		} catch (Exception e) {
+			exceptionOccurred = true;
+		}
+		
+		if(exceptionOccurred == true) {
+			throw new Exception("Fehler beim Erstellen der Datenbanken");
+		}
+		return new ResponseEntity<Void>(HttpStatus.CREATED);
 	}
 }
