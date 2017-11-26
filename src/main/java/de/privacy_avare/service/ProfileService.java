@@ -50,7 +50,7 @@ import de.privacy_avare.repository.ProfileRepository;
 @Service
 public class ProfileService {
 	@Autowired
-	ProfileRepository profileRepository;
+	private ProfileRepository profileRepository;
 	@Autowired
 	private IdService idService;
 

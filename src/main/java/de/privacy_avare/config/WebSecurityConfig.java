@@ -85,7 +85,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	/**
-	 * Legt für Swagger-Ui eine Authorisierung fest.
+	 * Legt für Swagger-Ui und den DevController eine Authorisierung fest.
 	 * 
 	 * @param http
 	 */

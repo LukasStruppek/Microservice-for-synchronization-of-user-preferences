@@ -51,7 +51,7 @@ public class ClearanceService {
 	 * Service zum Abruf der Profile aus der Datenbank.
 	 */
 	@Autowired
-	ProfileRepository profileRepository;
+	private ProfileRepository profileRepository;
 
 	private static int monthsBeforeDeletion;
 	private static String adress;

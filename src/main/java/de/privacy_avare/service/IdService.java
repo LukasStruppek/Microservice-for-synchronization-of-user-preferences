@@ -38,7 +38,7 @@ import de.privacy_avare.repository.ProfileRepository;
 public class IdService {
 
 	@Autowired
-	ProfileRepository profileRepository;
+	private ProfileRepository profileRepository;
 
 	/**
 	 * Erzeugt unter Verwendung des aktuellen Datum, der aktuellen Uhrzeit und

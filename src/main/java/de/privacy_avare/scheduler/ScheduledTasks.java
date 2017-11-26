@@ -47,7 +47,7 @@ public class ScheduledTasks {
 	 * Servers übernimmt.
 	 */
 	@Autowired
-	ClearanceService clearanceService;
+	private ClearanceService clearanceService;
 
 	/**
 	 * Löschen deaktivierte Profile aus der Datenbank. Aufruf jeden Montag, 03:00:00
