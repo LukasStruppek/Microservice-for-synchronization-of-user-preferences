@@ -59,8 +59,8 @@ public class SwaggerConfig {
 	 * @return Api Details
 	 */
 	private ApiInfo setApiInfo() {
-		return new ApiInfoBuilder().title("Avare SyncServer REST API")
-				.description("Dokumentation der REST API für die Nutzung des Avare SyncServers")
+		return new ApiInfoBuilder().title("SyncServer REST API")
+				.description("Dokumentation der REST API für die Nutzung des SyncServers")
 				.contact(new Contact("Lukas Struppek", "http://www.privacy-avare.de/", "lukas.struppek@gmail.com"))
 				.license("Apache License Version 2.0").licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
 				.version("1.0").build();

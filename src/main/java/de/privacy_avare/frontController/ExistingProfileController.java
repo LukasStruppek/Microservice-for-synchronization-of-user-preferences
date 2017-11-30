@@ -137,7 +137,8 @@ public class ExistingProfileController {
 	 * 
 	 * Das Format für die Übertragung des Zeitstempels clientLastProfileChange lässt
 	 * sich in Java-Anwendungen mithilfe eines SimpleDateFormat-Objekts und der
-	 * Konfiguration "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
+	 * Konfiguration "yyyy-MM-dd'T'HH-mm-ss-SSS" erreichen. Bei Verwendung eines
+	 * reinen Strings sind die einfachen Anführungszeichen bei 'T' wegzulassen.
 	 * 
 	 * Ist das Profil in der DB aktueller hinsichtlich des Zeitpunktes
 	 * lastProfileChange als die zu pushendem Preferences, so wird eine
@@ -165,7 +166,7 @@ public class ExistingProfileController {
 			+ "Liegt der im Parameter spezifizierten Zeitpunkt <b>mindestens minTimeDifference Minuten nach</b> dem lastProfileChange der DB, d.h. die Preferences des Clients sind aktueller, so werden die Preferences in der DB überschrieben. "
 			+ "Andernfalls wird eine Fehlermeldung zurückgeliefert. Soll trotzdem das Profil in der DB überschrieben werden, so ist die Methode mit entsprechend gesetztem overwrite-Parameter zu nutzen. "
 			+ "\n \n Zeitstempel lastProfileContact wird aktualisiert. \n \n Der Methodenaufruf entspricht dem Aufruf von PUT /v1/profiles/{id}/{clientProfileChange}/<b>false</b>. "
-			+ "\n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH:mm:ss,SSS</b> übergeben werden. "
+			+ "\n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH-mm-ss-SSS</b> übergeben werden. "
 			+ "Dies kann in Java leicht mithilfe von <a href=https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html>SimpleDateFormat</a> realisiert werden.", response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Preferences erfolgreich ersetzt"),
 			@ApiResponse(code = 400, message = "Ungültiger Parameter/ Falscher Datentyp \n \n Geworfene Exception: \n org.springframework.web.method.annotation. \n MethodArgumentTypeMismatchException", response = ErrorInformation.class),
@@ -173,7 +174,7 @@ public class ExistingProfileController {
 			@ApiResponse(code = 409, message = "ClientProfile veraltet \n \n Geworfene Exception: \n de.privacy_avare.exeption.ClientPreferencesOutdatedException und \n HttpMessageNotReadableException", response = ErrorInformation.class) })
 	public ResponseEntity<Void> pushProfilePreferences(
 			@ApiParam(value = "ProfileId des zu pushenden Profils", required = true) @PathVariable("id") String id,
-			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange,
+			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH-mm-ss-SSS") Date clientLastProfileChange,
 			@ApiParam(value = "Client Preferences", required = true) @RequestBody String preferences)
 			throws ProfileNotFoundException, ClientPreferencesOutdatedException {
 		profileService.pushProfile(id, clientLastProfileChange, preferences, false);
@@ -195,7 +196,7 @@ public class ExistingProfileController {
 	 * 
 	 * Das Format für die Übertragung des Zeitstempels clientLastProfileChange lässt
 	 * sich in Java-Anwendungen mithilfe eines SimpleDateFormat-Objekts und der
-	 * Konfiguration "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
+	 * Konfiguration "yyyy-MM-dd'T'HH-mm-ss-SSS" erreichen.
 	 * 
 	 * Ist das Profil in der DB aktueller hinsichtlich des Zeitpunktes
 	 * lastProfileChange als das zu pushende Profil, so wird eine
@@ -226,7 +227,7 @@ public class ExistingProfileController {
 			+ "Liegt der im Parameter spezifizierten Zeitpunkt <b>mindestens minTimeDifference Minuten nach</b> dem lastProfileChange der DB, d.h. die Preferences des Clients sind aktueller, so wird das Profil überschrieben. "
 			+ "Andernfalls wird der Parameter overwrite überprüft. Ist dieser auf true gesetzt, so werden die bestehenden Preferences überschrieben. Andernfalls eine Fehlermeldung zurückgeliefert. "
 			+ "\n \n Zeitstempel lastProfileContact wird aktualisiert. "
-			+ "\n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH:mm:ss,SSS</b> übergeben werden. "
+			+ "\n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH-mm-ss-SSS</b> übergeben werden. "
 			+ "Dies kann in Java leicht mithilfe von <a href=https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html>SimpleDateFormat</a> realisiert werden.", response = Void.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Preferences erfolgreich ersetzt", response = Void.class),
@@ -235,7 +236,7 @@ public class ExistingProfileController {
 			@ApiResponse(code = 409, message = "ClientProfile veraltet \n \n Geworfene Exception: \n de.privacy_avare.exeption.ClientPreferencesOutdatedException", response = ErrorInformation.class) })
 	public ResponseEntity<Void> pushProfilePreferences(
 			@ApiParam(value = "ProfileId des zu pushenden Profils", required = true) @PathVariable("id") String id,
-			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange,
+			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH-mm-ss-SSS") Date clientLastProfileChange,
 			@ApiParam(value = "Client Preferences", required = true) @RequestBody String preferences,
 			@ApiParam(value = "Bestehende, aktuellere Preferences überschreiben?", required = true) @PathVariable("overwrite") boolean overwrite)
 			throws ProfileNotFoundException, ClientPreferencesOutdatedException {
@@ -257,7 +258,7 @@ public class ExistingProfileController {
 	 * 
 	 * Das Format für die Übertragung des Zeitstempels clientLastProfileChange lässt
 	 * sich in Java-Anwendungen mithilfe eines SimpleDateFormat-Objekts und der
-	 * Konfiguration "yyyy-MM-dd'T'HH:mm:ss,SSS" erreichen.
+	 * Konfiguration "yyyy-MM-dd'T'HH-mm-ss-SSS" erreichen.
 	 * 
 	 * Wird kein Profil mit der übergebenen ProfileId gefunden, so wird eine
 	 * ProfileNotFoundException zurückgegeben.
@@ -282,7 +283,7 @@ public class ExistingProfileController {
 	@ApiOperation(value = "Liest Preferences aus DB mit Vergleich der Zeitstempel", notes = "Sucht in der DB nach vorhandenem Profil und vergleicht den lastProfileChange mit dem Parameter des Aufrufs. "
 			+ "Liegt der im Prameter spezifizierte Zeitpunkt <b> mindestens minTimeDifference Minuten vor</b> dem lastProfileChange der DB, d.h. die Preferences des Servers sind aktueller, so wird das Profil geladen. "
 			+ "Sollen trotzdem die Preferences aus der DB geladen werden, so ist die Methode ohne entsprechenden Parameter lastProfileChange aufzurufen."
-			+ "Andernfalls wird eine Fehlermeldung gesendet. \n \n Zeitstempel lastProfileContact wird aktualisiert. \n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH:mm:ss,SSS</b> übergeben werden. "
+			+ "Andernfalls wird eine Fehlermeldung gesendet. \n \n Zeitstempel lastProfileContact wird aktualisiert. \n \n Parameter clientProfileChange muss im Format <b>yyyy-MM-dd'T'HH-mm-ss-SSS</b> übergeben werden. "
 			+ "Dies kann in Java leicht mithilfe von <a href=https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html>SimpleDateFormat</a> realisiert werden.", response = String.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Preferences erfolgreich geladen", response = String.class),
@@ -291,7 +292,8 @@ public class ExistingProfileController {
 			@ApiResponse(code = 409, message = "ServerProfile veraltet \n \n Geworfene Exception: \n de.privacy_avare.exeption.ServerPreferencesOutdatedException", response = ErrorInformation.class) })
 	public ResponseEntity<String> pullProfilePreferences(
 			@ApiParam(value = "ProfileId des zu pullenden Profils", required = true) @PathVariable("id") String id,
-			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("clientProfileChange") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss,SSS") Date clientLastProfileChange)
+			@ApiParam(value = "lastProfileChange der Clientseite", required = true) @PathVariable("clientProfileChange") @DateTimeFormat(pattern = ""
+					+ "-MM-dd'T'HH-mm-ss-SSS") Date clientLastProfileChange)
 			throws ProfileNotFoundException, ServerPreferencesOutdatedException {
 		Profile serverProfile = profileService.getProfileByIdComparingLastChange(id, clientLastProfileChange);
 		ResponseEntity<String> response = new ResponseEntity<String>(serverProfile.getPreferences(), HttpStatus.OK);
