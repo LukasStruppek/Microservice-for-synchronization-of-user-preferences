@@ -7,11 +7,11 @@ C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\couchD
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\exeption\ProfileSetOnDeletionException.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\domain\Profile.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\exeption\NoProfilesInDatabaseException.java
-C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\controller\ExistingProfileController.java
+C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\frontController\NewProfileController.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\config\DefaultProperties.java
-C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\controller\DevController.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\exeption\ProfileAlreadyExistsException.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\exeption\ClientPreferencesOutdatedException.java
+C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\frontController\DevController.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\service\ClearanceService.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\service\ProfileService.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\exeption\MalformedProfileIdException.java
@@ -19,9 +19,8 @@ C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\couchD
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\errorHandler\ExeptionHandlingController.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\repository\ProfileRepository.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\exeption\ServerPreferencesOutdatedException.java
+C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\frontController\ExistingProfileController.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\SyncServerMain.java
-C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\config\SSLConfig.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\dto\ErrorInformation.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\couchDBDomain\Row.java
 C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\scheduler\ScheduledTasks.java
-C:\Users\Lukas\Documents\GitHub\SyncServer\src\main\java\de\privacy_avare\controller\NewProfileController.java

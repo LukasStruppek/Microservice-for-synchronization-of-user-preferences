@@ -1,4 +1,3 @@
 de\privacy_avare\controllerTest\NewProfileControllerTest.class
 de\privacy_avare\serviceTest\ClearanceServiceTest.class
-de\privacy_avare\miscTests\fillingDatabase.class
 de\privacy_avare\controllerTest\ExistingProfileControllerTest.class

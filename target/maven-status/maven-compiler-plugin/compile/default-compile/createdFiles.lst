@@ -1,4 +1,3 @@
-de\privacy_avare\controller\DevController.class
 de\privacy_avare\dto\ErrorInformation.class
 de\privacy_avare\service\ClearanceService.class
 de\privacy_avare\couchDBDomain\AllProfiles.class
@@ -8,7 +7,6 @@ de\privacy_avare\repository\ProfileRepositoryCouchDBImpl.class
 de\privacy_avare\domain\Profile.class
 de\privacy_avare\service\IdService.class
 de\privacy_avare\exeption\ProfileSetOnDeletionException.class
-de\privacy_avare\controller\ExistingProfileController.class
 de\privacy_avare\service\ProfileService.class
 de\privacy_avare\config\SwaggerConfig.class
 de\privacy_avare\SyncServerMain.class
@@ -16,11 +14,9 @@ de\privacy_avare\config\WebSecurityConfig.class
 de\privacy_avare\exeption\ProfileAlreadyExistsException.class
 de\privacy_avare\repository\ProfileRepository.class
 de\privacy_avare\exeption\NoProfilesInDatabaseException.class
-de\privacy_avare\controller\NewProfileController.class
 de\privacy_avare\scheduler\ScheduledTasks.class
 de\privacy_avare\exeption\ClientPreferencesOutdatedException.class
 de\privacy_avare\exeption\ProfileNotFoundException.class
-de\privacy_avare\config\SSLConfig.class
 de\privacy_avare\couchDBDomain\Row.class
 de\privacy_avare\errorHandler\ExeptionHandlingController.class
 de\privacy_avare\couchDBDomain\ProfileCouchDB.class
