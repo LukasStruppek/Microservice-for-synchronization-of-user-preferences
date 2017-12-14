@@ -71,7 +71,7 @@ public class ErrorInformation {
 	 * Übertragungsformat für Zeitpunkte, wie es auch in anderen Klassen der
 	 * Anwendung genutzt wird.
 	 */
-	@ApiModelProperty(value = "Zeitpunkt des Fehlerauftritts", required = true, position = 5, example = "2017-09-22T14:19:25,071")
+	@ApiModelProperty(value = "Zeitpunkt des Fehlerauftritts", required = true, position = 5, example = "2017-09-22T14-19-25-071")
 	private String timestamp;
 
 	/**
@@ -84,7 +84,7 @@ public class ErrorInformation {
 	/**
 	 * Dient der Konvertierung von Zeitpunkten in Strings.
 	 */
-	private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss,SSS");
+	private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss-SSS");
 
 	/**
 	 * Default-Konstruktor

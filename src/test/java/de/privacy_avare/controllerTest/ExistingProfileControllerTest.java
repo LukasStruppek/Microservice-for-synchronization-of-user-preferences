@@ -47,7 +47,7 @@ import de.privacy_avare.domain.Profile;
 import de.privacy_avare.repository.ProfileRepository;
 
 /**
- * Unit-Test für den REST-Controller ExistingProfileController, welcher
+ * Integrationstest für den REST-Controller ExistingProfileController, welcher
  * Schnittstellen zur Interaktion mit existierenden Profilen in der Datenbank
  * bereitstellt.
  * 
@@ -79,7 +79,7 @@ public class ExistingProfileControllerTest {
 	 * Dient zum konvertieren von Zeitpunkten ins String-Format, um die REST-API
 	 * entsprechend zu nutzen.
 	 */
-	private SimpleDateFormat dateFormat = new SimpleDateFormat(" yyyy-MM-dd'T'HH:mm:ss,SSS");
+	private SimpleDateFormat dateFormat = new SimpleDateFormat(" yyyy-MM-dd'T'HH-mm-ss-SSS");
 
 	/**
 	 * Speichert die zum Testen erzeugte ProfileId.
@@ -148,7 +148,7 @@ public class ExistingProfileControllerTest {
 	}
 
 	/**
-	 * Unit-Test für REST-API DELETE /v1/profiles/{id}. Zunächst wird geprüft, ob
+	 * Integrationstest für REST-API DELETE /v1/profiles/{id}. Zunächst wird geprüft, ob
 	 * ein bereits vorhandenes Profil korrekt auf ein unsync-Profil gesetzt wird und
 	 * die Eigenschaft lastProfileChange korrekt angepasst wird (HttpStatus 200).
 	 * 
@@ -212,7 +212,7 @@ public class ExistingProfileControllerTest {
 	}
 
 	/**
-	 * Unit-Test für REST-API PUT /v1/profiles/{id}/{clientProfileChange}. Zunächst
+	 * Integrationstest für REST-API PUT /v1/profiles/{id}/{clientProfileChange}. Zunächst
 	 * wird überprüft, ob bei einem neu erzeugten Profil die Preferences beim ersten
 	 * Mal korrekt überschrieben werden (HttpStatus 200).
 	 * 
@@ -304,7 +304,7 @@ public class ExistingProfileControllerTest {
 	}
 
 	/**
-	 * Unit-Test für REST-API PUT /v1/profiles/{id}/{clientProfileChange}/false.
+	 * Integrationstest für REST-API PUT /v1/profiles/{id}/{clientProfileChange}/false.
 	 * Entspricht dem Test ohne Angabe des Overwrite-Flags.
 	 * 
 	 * Zunächst wird überprüft, ob bei einem neu erzeugten Profil die Preferences
@@ -400,7 +400,7 @@ public class ExistingProfileControllerTest {
 	}
 
 	/**
-	 * Unit-Test für REST-API PUT /v1/profiles/{id}/{clientProfileChange}/true.
+	 * Integrationstest für REST-API PUT /v1/profiles/{id}/{clientProfileChange}/true.
 	 * 
 	 * Zunächst wird geprüft, ob bei neu erzeugten Profilen und bereits bestehenden
 	 * Profilen die Preferences, lastProfileContact und lastProfileChange
@@ -482,7 +482,7 @@ public class ExistingProfileControllerTest {
 	}
 
 	/**
-	 * Unit-Test für REST-API GET /v1/profiles/{id}/{clientProfileChange}
+	 * Integrationstest für REST-API GET /v1/profiles/{id}/{clientProfileChange}
 	 * 
 	 * Zunächst wird überprüft, ob bei zu geringem Zeitunterschied zwischen
 	 * ClientProfile und ServerProfile entsprechend eine Meldung zurückgeliefert

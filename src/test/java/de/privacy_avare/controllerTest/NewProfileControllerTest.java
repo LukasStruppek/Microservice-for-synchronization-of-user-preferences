@@ -37,7 +37,7 @@ import de.privacy_avare.domain.Profile;
 import de.privacy_avare.repository.ProfileRepository;
 
 /**
- * Unit-Test für den REST-Controller NewProfileController, welcher
+ * Integrationstest für den REST-Controller NewProfileController, welcher
  * Schnittstellen zur Erzeugung neuer Profile in der Datenbank bereitstellt.
  * 
  * @author Lukas Struppek
@@ -100,7 +100,7 @@ public class NewProfileControllerTest {
 	}
 
 	/**
-	 * Unit-Test für REST-API POST /v1/newProfiles. Überprüft den Fall einer
+	 * Integrationstest für REST-API POST /v1/newProfiles. Überprüft den Fall einer
 	 * automatischen Erzeugung einer neuen ProfileId durch den Server und deren
 	 * formale Korrektheit (HttpStatus 201).
 	 */
@@ -118,7 +118,7 @@ public class NewProfileControllerTest {
 	}
 
 	/**
-	 * Unit-Test für REST-API POST /v1/newProfiles/{id}. Überprüft die drei Fälle
+	 * Integrationstest für REST-API POST /v1/newProfiles/{id}. Überprüft die drei Fälle
 	 * der korrekten Erzeugung eines Profils basierend auf einer gültigen ProfileId
 	 * , wobei einmal mit Kleinbuchstaben und einmal mit Großbuchstaben gearbeitet
 	 * wird. Es wird die Erzeugung einer korrekten ProfileId mit Kleinbuchstaben

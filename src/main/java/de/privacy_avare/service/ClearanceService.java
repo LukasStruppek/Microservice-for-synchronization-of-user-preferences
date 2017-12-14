@@ -109,11 +109,11 @@ public class ClearanceService {
 		// Suchen und Löschen aller Profile mit lastProfileContact vor
 		// 'monthsBeforeDeletion' Monaten oder länger
 		System.out.println("************************************************");
-		System.out.println("\t Planmaeßiges Aufraeumen veralteter Profile gestartet um " + GregorianCalendar.getInstance(Locale.GERMANY).getTime());
+		System.out.println("\t Clearance-Prozess gestartet um " + GregorianCalendar.getInstance(Locale.GERMANY).getTime());
 
 		Iterable<Profile> unusedProfiles = profileRepository.findAllByLastProfileContactBefore(cal.getTime());
 
-		System.out.println("\t Anzahl an geloeschter Profile: " + unusedProfiles.spliterator().getExactSizeIfKnown());
+		System.out.println("\t Anzahl geloeschter Profile: " + unusedProfiles.spliterator().getExactSizeIfKnown());
 
 		profileRepository.delete(unusedProfiles);
 
@@ -125,14 +125,13 @@ public class ClearanceService {
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			HttpEntity<String> entity = new HttpEntity<String>("", headers);
 			restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-
-			System.out.println("\t Compact-Befehl durchgeführt");
+			System.out.println("\t Compact-Befehl durchgeführt: true");
 		} catch (Exception e) {
-			System.out.println("\t Compact-Befehl nicht durchgeführt!");
+			System.out.println("\t Compact-Befehl durchgeführt: false");
 			e.printStackTrace();
 		}
 
-		System.out.println("\t Planmaeßiges Aufraeumen veralteter Profile beendet um " + GregorianCalendar.getInstance(Locale.GERMANY).getTime());
+		System.out.println("\t Clearance-Prozess beendet um " + GregorianCalendar.getInstance(Locale.GERMANY).getTime());
 		System.out.println("************************************************");
 
 	}

@@ -43,7 +43,7 @@ import de.privacy_avare.repository.ProfileRepository;
 import de.privacy_avare.service.ClearanceService;
 
 /**
- * Unit-Test für den ClearanceService, welcher veraltete Profile aus der
+ * Integrationstest für den ClearanceService, welcher veraltete Profile aus der
  * Datenbank löscht und den Speicher aufräumt.
  * 
  * Test kann nur bei leerer Datenbank korrekt durchgeführt werden, da das
@@ -164,7 +164,7 @@ public class ClearanceServiceTest {
 	}
 
 	/**
-	 * Unit-Test für den Aufräumprozess cleanDatabase, welcher in regelmäßigen
+	 * Integrationstest für den Cleaning-Prozess cleanDatabase, welcher in regelmäßigen
 	 * Abständen durchgeführt wird. Hierbei wird geprüft, ob veraltete Profile
 	 * korrekt gelöscht werden bzw. aktuelle Profile in der Datenbank beibehalten
 	 * werden.
@@ -175,7 +175,7 @@ public class ClearanceServiceTest {
 		// Profile gespeichert sind
 		assertThat(profileRepository.count()).isEqualTo(this.outdatedProfiles.length + this.upToDateProfiles.length);
 
-		// Aufruf des Säuberungsprozesses
+		// Aufruf des Cleaning-Prozesses
 		clearanceService.cleanDatabase();
 
 		// Prüfen, ob nur noch die aktuellen Profile in der Datenbank enthalten sind

@@ -91,7 +91,7 @@ public class DevController {
 	 * @throws ResourceAccessException
 	 *             Keine Instanz von CouchDB gefunden.
 	 */
-	@RequestMapping(value = "", method = RequestMethod.POST)
+	@RequestMapping(value = "outdatedProfile", method = RequestMethod.POST)
 	@ApiOperation(value = "Generiert ein neues, veraltetes Profil", notes = "Generiert ein neues Profil in der Datenbank mit lastProfileContact = 0 und preferences = 'Veraltetes PRofil'. Wird zum Testen des Aufräumprozesses genutzt", response = String.class)
 	@ApiResponses(value = {
 			@ApiResponse(code = 201, message = "Profil erfolgreich erzeugt und abgespeichert", response = String.class),
