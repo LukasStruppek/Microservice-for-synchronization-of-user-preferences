@@ -18,7 +18,6 @@ package de.privacy_avare.service;
 
 import java.io.InputStream;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Properties;

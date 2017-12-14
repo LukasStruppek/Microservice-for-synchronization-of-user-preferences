@@ -196,7 +196,7 @@ public class ProfileService {
 		Profile dbProfile = getProfileById(id);
 		GregorianCalendar dbLastProfileChange = new GregorianCalendar();
 		dbLastProfileChange.setTime(dbProfile.getLastProfileChange());
-		dbLastProfileChange.set(Calendar.MINUTE, dbLastProfileChange.get(Calendar.MINUTE) - this.minTimeDifference);
+		dbLastProfileChange.set(Calendar.MINUTE, dbLastProfileChange.get(Calendar.MINUTE) - ProfileService.minTimeDifference);
 		if (dbLastProfileChange.getTime().after(clientLastProfileChange)) {
 			return dbProfile;
 		} else {
@@ -325,7 +325,7 @@ public class ProfileService {
 				GregorianCalendar dbProfileLastProfileChange = new GregorianCalendar();
 				dbProfileLastProfileChange.setTime(dbProfile.getLastProfileChange());
 				dbProfileLastProfileChange.set(Calendar.MINUTE,
-						dbProfileLastProfileChange.get(Calendar.MINUTE) + this.minTimeDifference);
+						dbProfileLastProfileChange.get(Calendar.MINUTE) + ProfileService.minTimeDifference);
 
 				if (dbProfileLastProfileChange.getTime().before(clientLastProfileChange) || overwrite == true) {
 					dbProfile.setPreferences(clientPreferences);

@@ -478,6 +478,11 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 		return preferences;
 	}
 
+	/**
+	 * Prüft, ob im angebundenen CouchDB-System eine Datenbank mit dem spezifizierten Namen vorhanden ist.
+	 * @param databaseName Zu suchende Datenbank
+	 * @return Vorhandensein der Datenbank
+	 */
 	public boolean existsDatabase(String databaseName) {
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> responseEntity = restTemplate.getForEntity(address + ":" + port + "/" + "_all_dbs",
@@ -495,6 +500,12 @@ public class ProfileRepositoryCouchDBImpl implements ProfileRepository {
 
 	}
 
+	/**
+	 * Erzeugt im angebundenen CoucbDB-System eine Datenbank mit dem im Parameter spezifizierten Namen.
+	 * @param databaseName Name er zu erstellenden Datenbank.
+	 * @return HTTP-Response
+	 * @throws Exception Datenbank bereits vorhanden oder System nicht erreichbar
+	 */
 	public String createDatabase(String databaseName) throws Exception {
 		RestTemplate restTemplate = new RestTemplate();
 		String url = address + ":" + port + "/" + databaseName;
