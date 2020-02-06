@@ -1,4 +1,4 @@
-# Project Avate
+# Project Avare
 The project "Application for the distribution and selection of legally compliant privacy settings" 
 (german: "Anwendung zur Verteilung und Auswahl rechtskonformer Datenschutzeinstellungen").
 (AVARE for short) aims to strengthen the data sovereignty of individual citizens.
@@ -12,7 +12,7 @@ The project had been financed by [Baden-Württemberg Stiftung gGmbH](https://www
 # Avare sync server - a microservice for synchronization of user preferences
 This work focuses on the conception of a server application for data synchronization. 
 The application is implemented as a microservice, a modern approach for modularized software.
-For realization the java framework Spring is used.
+For realization the Java framework [Spring Boot](https://spring.io/projects/spring-boot) is used.
 
 # Requirements
 1. You need ubuntu version 18.04 and Docker version 18.09.6
